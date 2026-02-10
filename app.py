@@ -7,7 +7,7 @@ import pandas as pd
 import numpy as np
 import plotly.express as px
 import plotly.graph_objects as go
-import json, os, glob
+import json, os, glob, csv
 from datetime import datetime, timedelta
 from io import StringIO
 import warnings
@@ -64,12 +64,16 @@ def ibox(tag, title, text):
 
 def spct(p, t): return round(p/t*100,1) if t>0 else 0
 
+def hbar(xv, yv, cs='Blues', **kw):
+    df=pd.DataFrame({'v':list(xv),'n':list(yv)})
+    return px.bar(df,x='v',y='n',orientation='h',color='v',color_continuous_scale=cs,**kw)
+
 # ============================================================================
 # DATA LOADER (TODAS AS TABELAS)
 # ============================================================================
 @st.cache_data(ttl=3600)
-def find_f(pat, d="."): 
-    f = glob.glob(os.path.join(d, f"{pat}*.txt"))
+def find_f(pat, d="."):
+    f = glob.glob(os.path.join(d, f"{pat}[0-9]*.txt"))
     return max(f, key=os.path.getmtime) if f else None
 
 @st.cache_data(ttl=3600)
@@ -78,18 +82,22 @@ def load_t(fp):
     try:
         with open(fp,'r',encoding='utf-8') as f: lines=f.readlines()
         fl = [l for l in lines if l.strip().replace('|','').replace('-','').strip()!='']
-        df = pd.read_csv(StringIO(''.join(fl)),sep='|',skipinitialspace=True)
+        df = pd.read_csv(StringIO(''.join(fl)),sep='|',skipinitialspace=True,dtype=str,quoting=csv.QUOTE_NONE)
         df = df.loc[:,~df.columns.str.contains('^Unnamed')]; df.columns=df.columns.str.strip()
-        for c in df.select_dtypes(include=['object']).columns: df[c]=df[c].astype(str).str.strip()
+        df = df.loc[:, df.columns != '']
+        for c in df.columns:
+            df[c]=df[c].astype(str).str.strip()
+            df[c]=df[c].str.replace('\\"','"',regex=False)
+            m=df[c].str.match(r'^".*"$',na=False); df.loc[m,c]=df.loc[m,c].str[1:-1]
         for c in [c for c in df.columns if c.startswith('id') or c=='id']:
-            df[c]=pd.to_numeric(df[c].astype(str).str.replace('.','',regex=False).str.strip(),errors='coerce')
+            df[c]=pd.to_numeric(df[c].str.replace('.','',regex=False),errors='coerce')
         return df
     except: return pd.DataFrame()
 
 def pj(v):
-    if pd.isna(v) or v in('','""','nan'): return {}
+    if pd.isna(v) or v in('','""','nan','None'): return {}
     try:
-        if isinstance(v,str): v=v.strip('"').replace('""','"')
+        if isinstance(v,str): v=v.strip('"')
         return json.loads(v)
     except: return {}
 
@@ -127,15 +135,33 @@ def enrich(raw):
         'cidade':mkd(d['cidade']),'estado':mkd(d['estado']),'parceiro':mkd(d['parceiro']),
     }
     dsc = d['subcategoria'].set_index('id')['id_categoria_produto'].to_dict() if len(d['subcategoria'])>0 and 'id_categoria_produto' in d['subcategoria'].columns else {}
+    # pesquisa_subcategoria -> real subcategoria/categoria
+    ps=d['pesq_subcategoria']
+    dps_sc = ps.set_index('id')['id_subcategoria_produto'].to_dict() if len(ps)>0 and 'id_subcategoria_produto' in ps.columns else {}
+    dps_cat = ps.set_index('id')['id_categoria_produto'].to_dict() if len(ps)>0 and 'id_categoria_produto' in ps.columns else {}
+    # produto -> subcategoria/categoria
+    dpr_sc = d['produto'].set_index('id')['id_subcategoria_produto'].to_dict() if len(d['produto'])>0 and 'id_subcategoria_produto' in d['produto'].columns else {}
+    dpr_cat = d['produto'].set_index('id')['id_categoria_produto'].to_dict() if len(d['produto'])>0 and 'id_categoria_produto' in d['produto'].columns else {}
     idv = set(d['usuario']['id'].tolist()) if len(d['usuario'])>0 and 'id' in d['usuario'].columns else set()
     # resp_questionario
     rq=d['resp_questionario']
     if len(rq)>0:
         if 'id_usuario' in rq.columns and idv: rq=rq[rq['id_usuario'].isin(idv)]
-        for c,dk in [('id_usuario','usuario'),('id_produto','produto'),('id_pesquisa_subcategoria','subcategoria')]:
+        for c,dk in [('id_usuario','usuario'),('id_produto','produto')]:
             if c in rq.columns: rq[f'nome_{dk}']=rq[c].map(di.get(dk,{}))
+        # Map subcategoria/categoria via pesquisa_subcategoria table first
         if 'id_pesquisa_subcategoria' in rq.columns:
-            rq['id_categoria']=rq['id_pesquisa_subcategoria'].map(dsc); rq['nome_categoria']=rq['id_categoria'].map(di['categoria'])
+            rq['id_subcategoria_real']=rq['id_pesquisa_subcategoria'].map(dps_sc)
+            rq['id_categoria']=rq['id_pesquisa_subcategoria'].map(dps_cat)
+        else:
+            rq['id_subcategoria_real']=np.nan; rq['id_categoria']=np.nan
+        # Fill missing from produto for product-based questionnaires
+        if 'id_produto' in rq.columns:
+            mask=rq['id_subcategoria_real'].isna()
+            rq.loc[mask,'id_subcategoria_real']=rq.loc[mask,'id_produto'].map(dpr_sc)
+            rq.loc[mask,'id_categoria']=rq.loc[mask,'id_produto'].map(dpr_cat)
+        rq['nome_subcategoria']=rq['id_subcategoria_real'].map(di.get('subcategoria',{}))
+        rq['nome_categoria']=rq['id_categoria'].map(di['categoria'])
         if 'pontos_ganhos' in rq.columns: rq['pontos_ganhos']=pd.to_numeric(rq['pontos_ganhos'],errors='coerce').fillna(0)
         if 'createdAt' in rq.columns:
             rq['createdAt']=pd.to_datetime(rq['createdAt'],errors='coerce')
@@ -161,9 +187,11 @@ def enrich(raw):
     if len(us)>0:
         if 'dados_pessoais' in us.columns:
             dp=us['dados_pessoais'].apply(pj)
-            us['genero']=dp.apply(lambda x:x.get('opcao_genero'))
+            _gm={1:'Masculino',2:'Feminino',3:'Outro',4:'Prefiro não dizer',1.0:'Masculino',2.0:'Feminino',3.0:'Outro',4.0:'Prefiro não dizer'}
+            _rm={1:'Até R$ 2.640',2:'R$ 2.641-5.280',3:'R$ 5.281-10.560',4:'Acima de R$ 10.560',1.0:'Até R$ 2.640',2.0:'R$ 2.641-5.280',3.0:'R$ 5.281-10.560',4.0:'Acima de R$ 10.560'}
+            us['genero']=dp.apply(lambda x:_gm.get(x.get('opcao_genero'),x.get('opcao_genero')))
             us['ano_nascimento']=dp.apply(lambda x:x.get('ano_nascimento'))
-            us['faixa_renda']=dp.apply(lambda x:x.get('opcao_faixa_renda_mensal'))
+            us['faixa_renda']=dp.apply(lambda x:_rm.get(x.get('opcao_faixa_renda_mensal'),x.get('opcao_faixa_renda_mensal')))
             a=datetime.now().year; us['idade']=us['ano_nascimento'].apply(lambda x:a-int(x) if pd.notna(x) and str(x).isdigit() else None)
         if 'id_cidade' in us.columns:
             us['nome_cidade']=us['id_cidade'].map(di['cidade'])
@@ -285,14 +313,14 @@ def pg_overview(data):
         st.markdown("#### 🏆 Top 10 Subcategorias")
         if len(rq)>0 and 'nome_subcategoria' in rq.columns:
             ts=rq['nome_subcategoria'].value_counts().head(10)
-            fig=px.bar(x=ts.values.tolist(),y=ts.index.tolist(),orientation='h',color=ts.values.tolist(),color_continuous_scale='Blues')
+            fig=hbar(ts.values,ts.index,cs='Blues')
             fig.update_layout(height=400,yaxis_title="",coloraxis_showscale=False); fig.update_yaxes(autorange="reversed")
             st.plotly_chart(fig,use_container_width=True)
     with c2:
         st.markdown("#### 👥 Top 10 Testadores")
         if len(rq)>0 and 'nome_usuario' in rq.columns:
             tu=rq.groupby('nome_usuario').size().sort_values(ascending=False).head(10)
-            fig=px.bar(x=tu.values.tolist(),y=tu.index.tolist(),orientation='h',color=tu.values.tolist(),color_continuous_scale='Greens')
+            fig=hbar(tu.values,tu.index,cs='Greens')
             fig.update_layout(height=400,yaxis_title="",coloraxis_showscale=False); fig.update_yaxes(autorange="reversed")
             st.plotly_chart(fig,use_container_width=True)
     # Insights
@@ -341,13 +369,13 @@ def pg_respostas(data):
                             with c2: st.dataframe(pd.DataFrame({'Métrica':['Média','Mediana','DP','Mín','Máx'],'Valor':[f"{nm.mean():.2f}",f"{nm.median():.2f}",f"{nm.std():.2f}",f"{nm.min():.0f}",f"{nm.max():.0f}"]}),hide_index=True)
                         else:
                             rc=cl.value_counts().head(15)
-                            fig=px.bar(x=rc.values.tolist(),y=rc.index.tolist(),orientation='h',color=rc.values.tolist(),color_continuous_scale='Blues')
+                            fig=hbar(rc.values,rc.index,cs='Blues')
                             fig.update_layout(height=400,coloraxis_showscale=False); fig.update_yaxes(autorange="reversed")
                             st.plotly_chart(fig,use_container_width=True)
     with t2:
         if 'nome_produto' in rp.columns:
             pp=rp.groupby('nome_produto').size().sort_values(ascending=False).head(20)
-            fig=px.bar(x=pp.values.tolist(),y=pp.index.tolist(),orientation='h',color=pp.values.tolist(),color_continuous_scale='Greens')
+            fig=hbar(pp.values,pp.index,cs='Greens')
             fig.update_layout(height=500,yaxis_title="",coloraxis_showscale=False); fig.update_yaxes(autorange="reversed")
             st.plotly_chart(fig,use_container_width=True)
     with t3:
@@ -355,7 +383,7 @@ def pg_respostas(data):
             us=rp.groupby('id_usuario').agg({'id':'count','id_produto':'nunique'}).rename(columns={'id':'resp','id_produto':'prod'})
             if 'nome_usuario' in rp.columns: us=us.join(rp.groupby('id_usuario')['nome_usuario'].first())
             us=us.sort_values('resp',ascending=False)
-            fig=px.bar(x=us.head(15)['resp'].values.tolist(),y=us.head(15)['nome_usuario'].values.tolist() if 'nome_usuario' in us.columns else us.head(15).index.astype(str).tolist(),orientation='h',color=us.head(15)['resp'].values.tolist(),color_continuous_scale='Blues')
+            fig=hbar(us.head(15)['resp'].values,us.head(15)['nome_usuario'].values if 'nome_usuario' in us.columns else us.head(15).index.astype(str),cs='Blues')
             fig.update_layout(height=450,coloraxis_showscale=False); fig.update_yaxes(autorange="reversed")
             st.plotly_chart(fig,use_container_width=True)
     with t4:
@@ -476,7 +504,7 @@ def pg_mapeamento(data):
     with t3:
         if 'nome_produto' in rq.columns:
             pp=rq.groupby('nome_produto').size().sort_values(ascending=False).head(20)
-            fig=px.bar(x=pp.values.tolist(),y=pp.index.tolist(),orientation='h',color=pp.values.tolist(),color_continuous_scale='Greens')
+            fig=hbar(pp.values,pp.index,cs='Greens')
             fig.update_layout(height=600,coloraxis_showscale=False); fig.update_yaxes(autorange="reversed"); st.plotly_chart(fig,use_container_width=True)
     with t4:
         if 'data' in rq.columns:
@@ -546,7 +574,7 @@ def pg_demografica(data):
     if 'nome_estado' in us.columns:
         st.markdown("#### 🗺️ Geografia")
         ec=us['nome_estado'].value_counts().head(15)
-        fig=px.bar(x=ec.values.tolist(),y=ec.index.tolist(),orientation='h',color=ec.values.tolist(),color_continuous_scale='Purples')
+        fig=hbar(ec.values,ec.index,cs='Purples')
         fig.update_layout(height=400,coloraxis_showscale=False); fig.update_yaxes(autorange="reversed")
         st.plotly_chart(fig,use_container_width=True)
     ih=""
@@ -727,14 +755,14 @@ def pg_produtos(data):
             st.markdown("#### Por Categoria")
             if 'nome_categoria' in pr.columns:
                 pc=pr['nome_categoria'].value_counts().head(15)
-                fig=px.bar(x=pc.values.tolist(),y=pc.index.tolist(),orientation='h',color=pc.values.tolist(),color_continuous_scale='Blues')
+                fig=hbar(pc.values,pc.index,cs='Blues')
                 fig.update_layout(height=450,yaxis_title="",coloraxis_showscale=False); fig.update_yaxes(autorange="reversed")
                 st.plotly_chart(fig,use_container_width=True)
         with c2:
             st.markdown("#### Por Marca")
             if 'nome_marca' in pr.columns:
                 pm=pr['nome_marca'].value_counts().head(15)
-                fig=px.bar(x=pm.values.tolist(),y=pm.index.tolist(),orientation='h',color=pm.values.tolist(),color_continuous_scale='Greens')
+                fig=hbar(pm.values,pm.index,cs='Greens')
                 fig.update_layout(height=450,yaxis_title="",coloraxis_showscale=False); fig.update_yaxes(autorange="reversed")
                 st.plotly_chart(fig,use_container_width=True)
         if 'nome_empresa' in pr.columns:
@@ -805,7 +833,7 @@ def pg_marcas(data):
     with t2:
         if len(pr)>0 and 'nome_marca' in pr.columns:
             mc_=pr['nome_marca'].value_counts().head(20)
-            fig=px.bar(x=mc_.values.tolist(),y=mc_.index.tolist(),orientation='h',color=mc_.values.tolist(),color_continuous_scale='Blues',title="Top 20 Marcas por Nº de Produtos")
+            fig=hbar(mc_.values,mc_.index,cs='Blues',title="Top 20 Marcas por Nº de Produtos")
             fig.update_layout(height=500,yaxis_title="",coloraxis_showscale=False); fig.update_yaxes(autorange="reversed")
             st.plotly_chart(fig,use_container_width=True)
             # Por empresa
@@ -851,7 +879,7 @@ def pg_parceiros(data):
             # Gráfico parceiros com mais produtos
             if 'nome_parceiro' in vn.columns:
                 pc=vn['nome_parceiro'].value_counts()
-                fig=px.bar(x=pc.values.tolist(),y=pc.index.tolist(),orientation='h',color=pc.values.tolist(),color_continuous_scale='Greens',title="Produtos por Parceiro")
+                fig=hbar(pc.values,pc.index,cs='Greens',title="Produtos por Parceiro")
                 fig.update_layout(height=400,yaxis_title="",coloraxis_showscale=False); fig.update_yaxes(autorange="reversed")
                 st.plotly_chart(fig,use_container_width=True)
         else: st.info("Sem vínculos produto-parceiro cadastrados.")
@@ -966,14 +994,14 @@ def pg_beneficios(data):
                 if 'nome_beneficio' in rg.columns:
                     st.markdown("#### Top Benefícios Resgatados")
                     bc=rg['nome_beneficio'].value_counts().head(10)
-                    fig=px.bar(x=bc.values.tolist(),y=bc.index.tolist(),orientation='h',color=bc.values.tolist(),color_continuous_scale='Blues')
+                    fig=hbar(bc.values,bc.index,cs='Blues')
                     fig.update_layout(height=400,yaxis_title="",coloraxis_showscale=False); fig.update_yaxes(autorange="reversed")
                     st.plotly_chart(fig,use_container_width=True)
             with c2:
                 if 'nome_usuario' in rg.columns:
                     st.markdown("#### Top Usuários que Resgataram")
                     uc=rg['nome_usuario'].value_counts().head(10)
-                    fig=px.bar(x=uc.values.tolist(),y=uc.index.tolist(),orientation='h',color=uc.values.tolist(),color_continuous_scale='Greens')
+                    fig=hbar(uc.values,uc.index,cs='Greens')
                     fig.update_layout(height=400,yaxis_title="",coloraxis_showscale=False); fig.update_yaxes(autorange="reversed")
                     st.plotly_chart(fig,use_container_width=True)
             # Tabela
@@ -1051,7 +1079,7 @@ def pg_empresas(data):
             if len(pr)>0 and 'nome_empresa' in pr.columns:
                 st.markdown("#### Produtos por Empresa")
                 ec=pr['nome_empresa'].value_counts().head(15)
-                fig=px.bar(x=ec.values.tolist(),y=ec.index.tolist(),orientation='h',color=ec.values.tolist(),color_continuous_scale='Blues')
+                fig=hbar(ec.values,ec.index,cs='Blues')
                 fig.update_layout(height=450,yaxis_title="",coloraxis_showscale=False); fig.update_yaxes(autorange="reversed")
                 st.plotly_chart(fig,use_container_width=True)
         with c2:
@@ -1171,14 +1199,14 @@ def pg_testadores(data):
             if 'nome_estado' in us.columns:
                 st.markdown("#### Por Estado")
                 ec=us['nome_estado'].value_counts().head(15)
-                fig=px.bar(x=ec.values.tolist(),y=ec.index.tolist(),orientation='h',color=ec.values.tolist(),color_continuous_scale='Blues')
+                fig=hbar(ec.values,ec.index,cs='Blues')
                 fig.update_layout(height=450,yaxis_title="",coloraxis_showscale=False); fig.update_yaxes(autorange="reversed")
                 st.plotly_chart(fig,use_container_width=True)
         with c2:
             if 'nome_cidade' in us.columns:
                 st.markdown("#### Top 15 Cidades")
                 cc_=us['nome_cidade'].value_counts().head(15)
-                fig=px.bar(x=cc_.values.tolist(),y=cc_.index.tolist(),orientation='h',color=cc_.values.tolist(),color_continuous_scale='Greens')
+                fig=hbar(cc_.values,cc_.index,cs='Greens')
                 fig.update_layout(height=450,yaxis_title="",coloraxis_showscale=False); fig.update_yaxes(autorange="reversed")
                 st.plotly_chart(fig,use_container_width=True)
         # Mapa de calor estado x gênero
