@@ -1,0 +1,436 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Foodtest | Dashboard da Plataforma</title>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+    <style>
+        :root {
+            --primary: #4A90D9; --primary-light: #e8f4fc;
+            --secondary: #F18F01; --secondary-light: #fff4e5;
+            --success: #10B981; --success-light: #d1fae5;
+            --warning: #F59E0B; --warning-light: #fef3c7;
+            --danger: #EF4444; --danger-light: #fee2e2;
+            --purple: #8B5CF6; --purple-light: #ede9fe;
+            --teal: #14B8A6; --teal-light: #ccfbf1;
+            --pink: #EC4899; --pink-light: #fce7f3;
+            --bg-main: #f8fafc; --bg-card: #ffffff;
+            --text-primary: #1e293b; --text-secondary: #64748b; --text-muted: #94a3b8;
+            --border: #e2e8f0;
+            --shadow-md: 0 4px 6px -1px rgba(0,0,0,0.07), 0 2px 4px -1px rgba(0,0,0,0.04);
+            --shadow-lg: 0 10px 15px -3px rgba(0,0,0,0.08), 0 4px 6px -2px rgba(0,0,0,0.03);
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'DM Sans', sans-serif; background: var(--bg-main); color: var(--text-primary); min-height: 100vh; }
+        .dashboard-container { max-width: 1600px; margin: 0 auto; padding: 2rem; }
+        
+        /* Header */
+        .header { margin-bottom: 1.5rem; background: var(--bg-card); border-radius: 16px; box-shadow: var(--shadow-md); overflow: hidden; }
+        .header-top { display: flex; justify-content: space-between; align-items: center; padding: 1.25rem 1.75rem; border-bottom: 1px solid var(--border); }
+        .logo-section { display: flex; align-items: center; gap: 1rem; }
+        .logo-icon { width: 48px; height: 48px; background: linear-gradient(135deg, var(--primary) 0%, #357abd 100%); border-radius: 12px; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 12px rgba(74,144,217,0.3); }
+        .logo-icon svg { width: 26px; height: 26px; fill: white; }
+        .logo-text h1 { font-family: 'Outfit', sans-serif; font-size: 1.5rem; font-weight: 700; color: var(--primary); }
+        .logo-text span { font-size: 0.8rem; color: var(--text-secondary); font-weight: 500; }
+        .header-info { display: flex; align-items: center; gap: 1rem; }
+        .date-badge { display: flex; align-items: center; gap: 0.5rem; padding: 0.5rem 1rem; background: var(--bg-main); border-radius: 8px; font-size: 0.85rem; color: var(--text-secondary); }
+        .status-online { display: flex; align-items: center; gap: 0.5rem; padding: 0.5rem 1rem; background: var(--success-light); border-radius: 8px; font-size: 0.8rem; font-weight: 600; color: var(--success); }
+        .status-dot { width: 8px; height: 8px; background: var(--success); border-radius: 50%; animation: pulse 2s infinite; }
+        @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }
+
+        /* Tabs Navigation */
+        .tabs-nav { display: flex; padding: 0 1rem; background: var(--bg-card); overflow-x: auto; }
+        .tab-btn { display: flex; align-items: center; gap: 0.5rem; padding: 1rem 1.25rem; border: none; background: transparent; color: var(--text-secondary); font-family: 'DM Sans', sans-serif; font-size: 0.9rem; font-weight: 500; cursor: pointer; border-bottom: 3px solid transparent; transition: all 0.3s ease; white-space: nowrap; }
+        .tab-btn:hover { color: var(--primary); background: var(--primary-light); }
+        .tab-btn.active { color: var(--primary); border-bottom-color: var(--primary); background: var(--primary-light); }
+        .tab-btn svg { width: 18px; height: 18px; flex-shrink: 0; }
+        .tab-btn.active svg { stroke: var(--primary); }
+        .tab-icon { width: 28px; height: 28px; border-radius: 6px; display: flex; align-items: center; justify-content: center; }
+        .tab-btn[data-tab="testadores"] .tab-icon { background: var(--primary-light); }
+        .tab-btn[data-tab="resgates"] .tab-icon { background: var(--danger-light); }
+        .tab-btn[data-tab="campanhas"] .tab-icon { background: var(--pink-light); }
+        .tab-btn[data-tab="subcategorias"] .tab-icon { background: var(--teal-light); }
+        .tab-btn[data-tab="produtos"] .tab-icon { background: var(--purple-light); }
+
+        /* Tab Content */
+        .tab-content { display: none; animation: fadeIn 0.4s ease; }
+        .tab-content.active { display: block; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+        /* Section Header */
+        .section-header { display: flex; align-items: center; gap: 1rem; margin: 1.5rem 0 1.25rem 0; padding-bottom: 0.75rem; border-bottom: 2px solid var(--border); }
+        .section-icon { width: 40px; height: 40px; border-radius: 10px; display: flex; align-items: center; justify-content: center; }
+        .section-icon.blue { background: var(--primary-light); }
+        .section-icon.teal { background: var(--teal-light); }
+        .section-icon.orange { background: var(--secondary-light); }
+        .section-icon.pink { background: var(--pink-light); }
+        .section-icon.red { background: var(--danger-light); }
+        .section-icon.purple { background: var(--purple-light); }
+        .section-icon svg { width: 20px; height: 20px; }
+        .section-title { font-family: 'Outfit', sans-serif; font-size: 1.2rem; font-weight: 600; color: var(--text-primary); }
+        .section-subtitle { font-size: 0.85rem; color: var(--text-secondary); }
+
+        /* KPI Grid */
+        .kpi-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 1.25rem; margin-bottom: 1.5rem; }
+        .kpi-grid.four-cols { grid-template-columns: repeat(4, 1fr); }
+        .kpi-grid.three-cols { grid-template-columns: repeat(3, 1fr); }
+        .kpi-card { background: var(--bg-card); border-radius: 14px; padding: 1.25rem; box-shadow: var(--shadow-md); border: 1px solid var(--border); transition: all 0.3s ease; position: relative; overflow: hidden; }
+        .kpi-card:hover { transform: translateY(-2px); box-shadow: var(--shadow-lg); }
+        .kpi-card::before { content: ''; position: absolute; top: 0; left: 0; width: 4px; height: 100%; }
+        .kpi-card.blue::before { background: var(--primary); }
+        .kpi-card.orange::before { background: var(--secondary); }
+        .kpi-card.green::before { background: var(--success); }
+        .kpi-card.purple::before { background: var(--purple); }
+        .kpi-card.red::before { background: var(--danger); }
+        .kpi-card.teal::before { background: var(--teal); }
+        .kpi-card.pink::before { background: var(--pink); }
+        .kpi-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 0.75rem; }
+        .kpi-icon { width: 40px; height: 40px; border-radius: 10px; display: flex; align-items: center; justify-content: center; }
+        .kpi-card.blue .kpi-icon { background: var(--primary-light); }
+        .kpi-card.orange .kpi-icon { background: var(--secondary-light); }
+        .kpi-card.green .kpi-icon { background: var(--success-light); }
+        .kpi-card.purple .kpi-icon { background: var(--purple-light); }
+        .kpi-card.red .kpi-icon { background: var(--danger-light); }
+        .kpi-card.teal .kpi-icon { background: var(--teal-light); }
+        .kpi-card.pink .kpi-icon { background: var(--pink-light); }
+        .kpi-icon svg { width: 20px; height: 20px; }
+        .kpi-card.blue .kpi-icon svg { stroke: var(--primary); }
+        .kpi-card.orange .kpi-icon svg { stroke: var(--secondary); }
+        .kpi-card.green .kpi-icon svg { stroke: var(--success); }
+        .kpi-card.purple .kpi-icon svg { stroke: var(--purple); }
+        .kpi-card.red .kpi-icon svg { stroke: var(--danger); }
+        .kpi-card.teal .kpi-icon svg { stroke: var(--teal); }
+        .kpi-card.pink .kpi-icon svg { stroke: var(--pink); }
+        .kpi-trend { font-size: 0.75rem; font-weight: 600; padding: 0.25rem 0.5rem; border-radius: 6px; display: flex; align-items: center; gap: 0.2rem; }
+        .kpi-trend.up { background: var(--success-light); color: var(--success); }
+        .kpi-trend.down { background: var(--danger-light); color: var(--danger); }
+        .kpi-value { font-family: 'Outfit', sans-serif; font-size: 1.75rem; font-weight: 700; color: var(--text-primary); line-height: 1; margin-bottom: 0.35rem; }
+        .kpi-label { font-size: 0.85rem; color: var(--text-secondary); font-weight: 500; }
+
+        /* Charts & Tables */
+        .charts-row { display: grid; grid-template-columns: 1fr 1fr; gap: 1.25rem; margin-bottom: 1.5rem; }
+        .chart-card { background: var(--bg-card); border-radius: 14px; padding: 1.25rem; box-shadow: var(--shadow-md); border: 1px solid var(--border); }
+        .chart-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; }
+        .chart-title { font-family: 'Outfit', sans-serif; font-size: 1rem; font-weight: 600; color: var(--text-primary); }
+        .chart-subtitle { font-size: 0.8rem; color: var(--text-secondary); margin-top: 0.15rem; }
+        .chart-container { height: 250px; position: relative; }
+        .demo-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1.25rem; margin-bottom: 1.5rem; }
+        .demo-card { background: var(--bg-card); border-radius: 14px; padding: 1rem; box-shadow: var(--shadow-md); border: 1px solid var(--border); }
+        .demo-title { font-family: 'Outfit', sans-serif; font-size: 0.9rem; font-weight: 600; color: var(--text-primary); margin-bottom: 0.5rem; text-align: center; }
+        .demo-chart { height: 160px; }
+        .tables-row { display: grid; grid-template-columns: 1fr 1fr; gap: 1.25rem; margin-bottom: 1.5rem; }
+        .table-card { background: var(--bg-card); border-radius: 14px; padding: 1.25rem; box-shadow: var(--shadow-md); border: 1px solid var(--border); }
+        .data-table { width: 100%; border-collapse: collapse; }
+        .data-table th { text-align: left; padding: 0.7rem 0.6rem; font-size: 0.7rem; color: var(--text-muted); font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; border-bottom: 2px solid var(--border); background: var(--bg-main); }
+        .data-table th:first-child { border-radius: 6px 0 0 0; }
+        .data-table th:last-child { border-radius: 0 6px 0 0; }
+        .data-table td { padding: 0.7rem 0.6rem; font-size: 0.85rem; border-bottom: 1px solid var(--border); color: var(--text-primary); }
+        .data-table tbody tr:hover { background: var(--bg-main); }
+        .data-table tbody tr:last-child td { border-bottom: none; }
+        .rank-badge { display: inline-flex; align-items: center; justify-content: center; width: 24px; height: 24px; border-radius: 6px; font-size: 0.75rem; font-weight: 700; }
+        .rank-badge.gold { background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%); color: white; }
+        .rank-badge.silver { background: linear-gradient(135deg, #9ca3af 0%, #6b7280 100%); color: white; }
+        .rank-badge.bronze { background: linear-gradient(135deg, #d97706 0%, #b45309 100%); color: white; }
+        .rank-badge.default { background: var(--bg-main); color: var(--text-secondary); }
+        .download-btn { display: flex; align-items: center; gap: 0.5rem; padding: 0.5rem 1rem; background: var(--bg-main); border: 1px solid var(--border); border-radius: 8px; color: var(--text-secondary); font-size: 0.8rem; font-weight: 500; cursor: pointer; transition: all 0.2s; }
+        .download-btn:hover { background: var(--primary); border-color: var(--primary); color: white; }
+        .status-badge { display: inline-flex; align-items: center; gap: 0.3rem; padding: 0.3rem 0.6rem; border-radius: 6px; font-size: 0.75rem; font-weight: 600; white-space: nowrap; }
+        .status-badge.success { background: var(--success-light); color: var(--success); }
+        .status-badge.warning { background: var(--warning-light); color: var(--warning); }
+
+        /* Insight Card */
+        .insight-card { background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%); border: 1px solid #bae6fd; border-radius: 14px; padding: 1.25rem 1.5rem; margin-bottom: 1.5rem; display: flex; align-items: flex-start; gap: 1rem; }
+        .insight-card.warning { background: linear-gradient(135deg, #fffbeb 0%, #fef3c7 100%); border-color: #fcd34d; }
+        .insight-card.success { background: linear-gradient(135deg, #ecfdf5 0%, #d1fae5 100%); border-color: #6ee7b7; }
+        .insight-card.purple { background: linear-gradient(135deg, #faf5ff 0%, #ede9fe 100%); border-color: #c4b5fd; }
+        .insight-card.pink { background: linear-gradient(135deg, #fdf2f8 0%, #fce7f3 100%); border-color: #f9a8d4; }
+        .insight-icon { width: 44px; height: 44px; border-radius: 12px; display: flex; align-items: center; justify-content: center; background: white; box-shadow: 0 1px 2px rgba(0,0,0,0.05); flex-shrink: 0; }
+        .insight-icon svg { width: 22px; height: 22px; }
+        .insight-content { flex: 1; }
+        .insight-title { font-family: 'Outfit', sans-serif; font-size: 0.95rem; font-weight: 600; color: var(--text-primary); margin-bottom: 0.35rem; }
+        .insight-text { font-size: 0.85rem; color: var(--text-secondary); line-height: 1.5; }
+        .insight-metric { font-family: 'Outfit', sans-serif; font-size: 1.1rem; font-weight: 700; color: var(--primary); margin-top: 0.5rem; }
+
+        /* Footer */
+        .footer { text-align: center; padding: 1.5rem 0; margin-top: 1.5rem; border-top: 1px solid var(--border); }
+        .footer-text { color: var(--text-muted); font-size: 0.8rem; }
+
+        /* Responsive */
+        @media (max-width: 1400px) { .kpi-grid { grid-template-columns: repeat(3, 1fr); } .demo-grid { grid-template-columns: repeat(2, 1fr); } }
+        @media (max-width: 1024px) { .charts-row, .tables-row { grid-template-columns: 1fr; } .kpi-grid { grid-template-columns: repeat(2, 1fr); } .tabs-nav { gap: 0; } .tab-btn { padding: 0.75rem 1rem; font-size: 0.8rem; } }
+        @media (max-width: 768px) { .dashboard-container { padding: 1rem; } .header-top { flex-direction: column; gap: 1rem; align-items: flex-start; } .kpi-grid { grid-template-columns: 1fr; } .demo-grid { grid-template-columns: 1fr; } .insight-card { flex-direction: column; } .tabs-nav { flex-wrap: nowrap; } .tab-btn { flex: 1; justify-content: center; padding: 0.75rem 0.5rem; } .tab-btn span { display: none; } }
+    </style>
+</head>
+<body>
+    <div class="dashboard-container">
+        <!-- Header with Tabs -->
+        <header class="header">
+            <div class="header-top">
+                <div class="logo-section">
+                    <div class="logo-icon"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 17.93c-3.95-.49-7-3.85-7-7.93 0-.62.08-1.21.21-1.79L9 15v1c0 1.1.9 2 2 2v1.93zm6.9-2.54c-.26-.81-1-1.39-1.9-1.39h-1v-3c0-.55-.45-1-1-1H8v-2h2c.55 0 1-.45 1-1V7h2c1.1 0 2-.9 2-2v-.41c2.93 1.19 5 4.06 5 7.41 0 2.08-.8 3.97-2.1 5.39z"/></svg></div>
+                    <div class="logo-text"><h1>foodtest</h1><span>Dashboard da Plataforma</span></div>
+                </div>
+                <div class="header-info">
+                    <div class="date-badge"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg><span id="current-date"></span></div>
+                    <div class="status-online"><span class="status-dot"></span>Plataforma Online</div>
+                </div>
+            </div>
+            <nav class="tabs-nav">
+                <button class="tab-btn active" data-tab="testadores" onclick="showTab('testadores')">
+                    <div class="tab-icon"><svg viewBox="0 0 24 24" fill="none" stroke="#4A90D9" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle></svg></div>
+                    <span>Testadores</span>
+                </button>
+                <button class="tab-btn" data-tab="resgates" onclick="showTab('resgates')">
+                    <div class="tab-icon"><svg viewBox="0 0 24 24" fill="none" stroke="#EF4444" stroke-width="2"><path d="M20 12V8H6a2 2 0 0 1-2-2c0-1.1.9-2 2-2h12v4"></path><path d="M4 6v12c0 1.1.9 2 2 2h14v-4"></path></svg></div>
+                    <span>Resgates</span>
+                </button>
+                <button class="tab-btn" data-tab="campanhas" onclick="showTab('campanhas')">
+                    <div class="tab-icon"><svg viewBox="0 0 24 24" fill="none" stroke="#EC4899" stroke-width="2"><path d="M22 12h-4l-3 9L9 3l-3 9H2"></path></svg></div>
+                    <span>Campanhas</span>
+                </button>
+                <button class="tab-btn" data-tab="subcategorias" onclick="showTab('subcategorias')">
+                    <div class="tab-icon"><svg viewBox="0 0 24 24" fill="none" stroke="#14B8A6" stroke-width="2"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"></path></svg></div>
+                    <span>Subcategorias</span>
+                </button>
+                <button class="tab-btn" data-tab="produtos" onclick="showTab('produtos')">
+                    <div class="tab-icon"><svg viewBox="0 0 24 24" fill="none" stroke="#8B5CF6" stroke-width="2"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path></svg></div>
+                    <span>Produtos</span>
+                </button>
+            </nav>
+        </header>
+
+        <!-- TAB 1: TESTADORES -->
+        <div id="testadores" class="tab-content active">
+            <div class="section-header">
+                <div class="section-icon blue"><svg viewBox="0 0 24 24" fill="none" stroke="#4A90D9" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg></div>
+                <div><div class="section-title">Perfil dos Testadores</div><div class="section-subtitle">Dados demográficos e indicadores da base de consumidores</div></div>
+            </div>
+            <section class="kpi-grid">
+                <div class="kpi-card blue"><div class="kpi-header"><div class="kpi-icon"><svg viewBox="0 0 24 24" fill="none" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle></svg></div><span class="kpi-trend up">↑ 12.5%</span></div><div class="kpi-value">52.847</div><div class="kpi-label">Total de Testadores</div></div>
+                <div class="kpi-card green"><div class="kpi-header"><div class="kpi-icon"><svg viewBox="0 0 24 24" fill="none" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg></div><span class="kpi-trend up">↑ 8.7%</span></div><div class="kpi-value">41.256</div><div class="kpi-label">Cadastro Completo</div></div>
+                <div class="kpi-card orange"><div class="kpi-header"><div class="kpi-icon"><svg viewBox="0 0 24 24" fill="none" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg></div><span class="kpi-trend down">↓ 3.2%</span></div><div class="kpi-value">11.591</div><div class="kpi-label">Cadastro Parcial</div></div>
+                <div class="kpi-card purple"><div class="kpi-header"><div class="kpi-icon"><svg viewBox="0 0 24 24" fill="none" stroke-width="2"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"></polyline><polyline points="17 6 23 6 23 12"></polyline></svg></div><span class="kpi-trend up">↑ 5.4%</span></div><div class="kpi-value">78.1%</div><div class="kpi-label">Taxa Cadastro Completo</div></div>
+                <div class="kpi-card teal"><div class="kpi-header"><div class="kpi-icon"><svg viewBox="0 0 24 24" fill="none" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><path d="M12 6v6l4 2"></path></svg></div><span class="kpi-trend up">↑ 15.2%</span></div><div class="kpi-value">3.842</div><div class="kpi-label">Testadores Ativos (30d)</div></div>
+            </section>
+            <section class="tables-row">
+                <div class="table-card" style="grid-column: span 2;">
+                    <div class="chart-header"><div><div class="chart-title">Indicadores de Testadores</div><div class="chart-subtitle">Métricas principais da base de consumidores</div></div><button class="download-btn" onclick="downloadCSV('testadores-kpis', this)"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>Exportar CSV</button></div>
+                    <table class="data-table" id="testadores-kpis"><thead><tr><th>Indicador</th><th>Valor Atual</th><th>Mês Anterior</th><th>Variação</th><th>Meta</th><th>Status</th></tr></thead><tbody>
+                        <tr><td><strong>Total de Testadores</strong></td><td>52.847</td><td>46.982</td><td style="color: var(--success);"><strong>+12.5%</strong></td><td>50.000</td><td><span class="status-badge success">✓ Atingida</span></td></tr>
+                        <tr><td><strong>Testadores com Cadastro Completo</strong></td><td>41.256</td><td>37.954</td><td style="color: var(--success);"><strong>+8.7%</strong></td><td>40.000</td><td><span class="status-badge success">✓ Atingida</span></td></tr>
+                        <tr><td><strong>Testadores com Cadastro Parcial</strong></td><td>11.591</td><td>11.975</td><td style="color: var(--success);"><strong>-3.2%</strong></td><td>&lt; 10.000</td><td><span class="status-badge warning">⚠ Em progresso</span></td></tr>
+                        <tr><td><strong>Taxa de Cadastro Completo</strong></td><td>78.1%</td><td>74.2%</td><td style="color: var(--success);"><strong>+5.4%</strong></td><td>80%</td><td><span class="status-badge warning">⚠ Em progresso</span></td></tr>
+                        <tr><td><strong>Testadores Ativos (últimos 30 dias)</strong></td><td>3.842</td><td>3.335</td><td style="color: var(--success);"><strong>+15.2%</strong></td><td>3.500</td><td><span class="status-badge success">✓ Atingida</span></td></tr>
+                        <tr><td><strong>Novos Cadastros (mês)</strong></td><td>1.245</td><td>987</td><td style="color: var(--success);"><strong>+26.1%</strong></td><td>1.000</td><td><span class="status-badge success">✓ Atingida</span></td></tr>
+                    </tbody></table>
+                </div>
+            </section>
+            <section class="demo-grid">
+                <div class="demo-card"><div class="demo-title">Gênero</div><div class="demo-chart"><canvas id="genderChart"></canvas></div></div>
+                <div class="demo-card"><div class="demo-title">Região</div><div class="demo-chart"><canvas id="regionChart"></canvas></div></div>
+                <div class="demo-card"><div class="demo-title">Faixa Etária</div><div class="demo-chart"><canvas id="ageChart"></canvas></div></div>
+                <div class="demo-card"><div class="demo-title">Classe Econômica - ABEP</div><div class="demo-chart"><canvas id="classChart"></canvas></div></div>
+            </section>
+            <div class="insight-card"><div class="insight-icon"><svg viewBox="0 0 24 24" fill="none" stroke="#4A90D9" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg></div><div class="insight-content"><div class="insight-title">💡 Insight: Oportunidade de Conversão de Cadastros Parciais</div><div class="insight-text">Existem <strong>11.591 testadores com cadastro parcial</strong> representando 21.9% da base. Uma campanha de email segmentada oferecendo pontos extras para completar o cadastro pode converter até 30% destes usuários, adicionando aproximadamente <strong>3.477 perfis completos</strong> à base qualificada.</div><div class="insight-metric">Potencial de conversão: +3.477 testadores qualificados</div></div></div>
+        </div>
+
+        <!-- TAB 2: RESGATES -->
+        <div id="resgates" class="tab-content">
+            <div class="section-header">
+                <div class="section-icon red"><svg viewBox="0 0 24 24" fill="none" stroke="#EF4444" stroke-width="2"><path d="M20 12V8H6a2 2 0 0 1-2-2c0-1.1.9-2 2-2h12v4"></path><path d="M4 6v12c0 1.1.9 2 2 2h14v-4"></path><path d="M18 12a2 2 0 0 0 0 4h4v-4h-4z"></path></svg></div>
+                <div><div class="section-title">Perfil de Resgates</div><div class="section-subtitle">Controle de pedidos de resgate de benefícios</div></div>
+            </div>
+            <section class="kpi-grid three-cols">
+                <div class="kpi-card red"><div class="kpi-header"><div class="kpi-icon"><svg viewBox="0 0 24 24" fill="none" stroke-width="2"><path d="M20 12V8H6a2 2 0 0 1-2-2c0-1.1.9-2 2-2h12v4"></path><path d="M4 6v12c0 1.1.9 2 2 2h14v-4"></path></svg></div><span class="kpi-trend up">↑ 31.8%</span></div><div class="kpi-value">2.456</div><div class="kpi-label">Total de Resgates</div></div>
+                <div class="kpi-card green"><div class="kpi-header"><div class="kpi-icon"><svg viewBox="0 0 24 24" fill="none" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg></div><span class="kpi-trend up">↑ 24.5%</span></div><div class="kpi-value">2.189</div><div class="kpi-label">Resgates Concluídos</div></div>
+                <div class="kpi-card orange"><div class="kpi-header"><div class="kpi-icon"><svg viewBox="0 0 24 24" fill="none" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg></div><span class="kpi-trend down">↓ 12.3%</span></div><div class="kpi-value">267</div><div class="kpi-label">Resgates Pendentes</div></div>
+            </section>
+            <section class="charts-row">
+                <div class="chart-card"><div class="chart-header"><div><div class="chart-title">Evolução de Pedidos de Resgate</div><div class="chart-subtitle">Resgates mensais ao longo do ano</div></div></div><div class="chart-container"><canvas id="benefitsChart"></canvas></div></div>
+                <div class="chart-card"><div class="chart-header"><div><div class="chart-title">Status dos Resgates</div><div class="chart-subtitle">Distribuição por situação</div></div></div><div class="chart-container"><canvas id="benefitsStatusChart"></canvas></div></div>
+            </section>
+            <div class="insight-card warning"><div class="insight-icon"><svg viewBox="0 0 24 24" fill="none" stroke="#F59E0B" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path><line x1="12" y1="9" x2="12" y2="13"></line><line x1="12" y1="17" x2="12.01" y2="17"></line></svg></div><div class="insight-content"><div class="insight-title">⚠️ Insight: Pico de Resgates Impacta Custo Operacional</div><div class="insight-text">O crescimento de <strong>31.8% nos resgates</strong> em dezembro indica alta correlação com o aumento de pesquisas sazonais. Considere implementar <strong>resgates escalonados</strong> ou oferecer benefícios digitais (cupons, descontos em parceiros) que reduzem custos logísticos em até 40% comparado às eco-bags físicas.</div><div class="insight-metric">Economia potencial: 40% em custos de fulfillment</div></div></div>
+        </div>
+
+        <!-- TAB 3: CAMPANHAS -->
+        <div id="campanhas" class="tab-content">
+            <div class="section-header">
+                <div class="section-icon pink"><svg viewBox="0 0 24 24" fill="none" stroke="#EC4899" stroke-width="2"><path d="M22 12h-4l-3 9L9 3l-3 9H2"></path></svg></div>
+                <div><div class="section-title">Campanhas</div><div class="section-subtitle">Gestão e acompanhamento de campanhas de pesquisa</div></div>
+            </div>
+            <section class="kpi-grid">
+                <div class="kpi-card pink"><div class="kpi-header"><div class="kpi-icon"><svg viewBox="0 0 24 24" fill="none" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line></svg></div><span class="kpi-trend up">↑ 22.4%</span></div><div class="kpi-value">47</div><div class="kpi-label">Total de Campanhas</div></div>
+                <div class="kpi-card green"><div class="kpi-header"><div class="kpi-icon"><svg viewBox="0 0 24 24" fill="none" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg></div><span class="kpi-trend up">↑ 15.8%</span></div><div class="kpi-value">12</div><div class="kpi-label">Campanhas Ativas</div></div>
+                <div class="kpi-card blue"><div class="kpi-header"><div class="kpi-icon"><svg viewBox="0 0 24 24" fill="none" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg></div><span class="kpi-trend down">↓ 8.3%</span></div><div class="kpi-value">5</div><div class="kpi-label">Aguardando Início</div></div>
+                <div class="kpi-card purple"><div class="kpi-header"><div class="kpi-icon"><svg viewBox="0 0 24 24" fill="none" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg></div><span class="kpi-trend up">↑ 28.6%</span></div><div class="kpi-value">30</div><div class="kpi-label">Finalizadas</div></div>
+                <div class="kpi-card teal"><div class="kpi-header"><div class="kpi-icon"><svg viewBox="0 0 24 24" fill="none" stroke-width="2"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"></polyline><polyline points="17 6 23 6 23 12"></polyline></svg></div><span class="kpi-trend up">↑ 4.2%</span></div><div class="kpi-value">92.3%</div><div class="kpi-label">Taxa de Sucesso</div></div>
+            </section>
+            <section class="charts-row">
+                <div class="chart-card"><div class="chart-header"><div><div class="chart-title">Campanhas ao Longo do Tempo</div><div class="chart-subtitle">Iniciadas vs Finalizadas por mês</div></div></div><div class="chart-container"><canvas id="campanhasTimeChart"></canvas></div></div>
+                <div class="chart-card"><div class="chart-header"><div><div class="chart-title">Status das Campanhas</div><div class="chart-subtitle">Distribuição atual</div></div></div><div class="chart-container"><canvas id="campanhasStatusChart"></canvas></div></div>
+            </section>
+            <section class="tables-row">
+                <div class="table-card">
+                    <div class="chart-header"><div><div class="chart-title">Campanhas Ativas</div><div class="chart-subtitle">Em andamento</div></div><button class="download-btn" onclick="downloadCSV('campanhas-ativas', this)"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>Exportar</button></div>
+                    <table class="data-table" id="campanhas-ativas"><thead><tr><th>Campanha</th><th>Empresa</th><th>Respostas</th><th>Meta</th><th>%</th></tr></thead><tbody>
+                        <tr><td><strong>Sorvete Verão</strong></td><td>Kibon</td><td>187</td><td>250</td><td>75%</td></tr>
+                        <tr><td><strong>Cerveja Premium</strong></td><td>Ambev</td><td>312</td><td>400</td><td>78%</td></tr>
+                        <tr><td><strong>Shelf Life Biscoitos</strong></td><td>Marilan</td><td>45</td><td>150</td><td>30%</td></tr>
+                        <tr><td><strong>Focus Group Snacks</strong></td><td>PepsiCo</td><td>23</td><td>80</td><td>29%</td></tr>
+                    </tbody></table>
+                </div>
+                <div class="table-card">
+                    <div class="chart-header"><div><div class="chart-title">Indicadores de Campanhas</div><div class="chart-subtitle">Performance</div></div><button class="download-btn" onclick="downloadCSV('campanhas-kpis', this)"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>Exportar</button></div>
+                    <table class="data-table" id="campanhas-kpis"><thead><tr><th>Indicador</th><th>Valor</th><th>Meta</th><th>Status</th></tr></thead><tbody>
+                        <tr><td><strong>Tempo Médio Conclusão</strong></td><td>12 dias</td><td>14 dias</td><td><span class="status-badge success">✓</span></td></tr>
+                        <tr><td><strong>Taxa de Resposta</strong></td><td>68.4%</td><td>65%</td><td><span class="status-badge success">✓</span></td></tr>
+                        <tr><td><strong>Respostas/Campanha</strong></td><td>247</td><td>200</td><td><span class="status-badge success">✓</span></td></tr>
+                        <tr><td><strong>Taxa Abandono</strong></td><td>8.2%</td><td>&lt;10%</td><td><span class="status-badge success">✓</span></td></tr>
+                        <tr><td><strong>Campanhas Atrasadas</strong></td><td>2</td><td>0</td><td><span class="status-badge warning">⚠</span></td></tr>
+                    </tbody></table>
+                </div>
+            </section>
+            <div class="insight-card pink"><div class="insight-icon"><svg viewBox="0 0 24 24" fill="none" stroke="#EC4899" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg></div><div class="insight-content"><div class="insight-title">🎯 Insight: Sazonalidade como Vantagem Competitiva</div><div class="insight-text">O aumento de <strong>22.4% em campanhas</strong> no período de festas confirma a demanda sazonal. Crie <strong>pacotes pré-configurados</strong> para Páscoa (chocolates), Inverno (sopas/bebidas quentes) e Verão (gelados/bebidas), oferecendo aos clientes com 60 dias de antecedência.</div><div class="insight-metric">Oportunidade: 3 pacotes sazonais = +15 campanhas/ano</div></div></div>
+        </div>
+
+        <!-- TAB 4: SUBCATEGORIAS -->
+        <div id="subcategorias" class="tab-content">
+            <div class="section-header">
+                <div class="section-icon teal"><svg viewBox="0 0 24 24" fill="none" stroke="#14B8A6" stroke-width="2"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"></path></svg></div>
+                <div><div class="section-title">Pesquisas de Subcategoria</div><div class="section-subtitle">Avaliações agrupadas por subcategoria de produtos</div></div>
+            </div>
+            <section class="kpi-grid four-cols">
+                <div class="kpi-card teal"><div class="kpi-header"><div class="kpi-icon"><svg viewBox="0 0 24 24" fill="none" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg></div><span class="kpi-trend up">↑ 11.5%</span></div><div class="kpi-value">602</div><div class="kpi-label">Pesquisas Completas</div></div>
+                <div class="kpi-card orange"><div class="kpi-header"><div class="kpi-icon"><svg viewBox="0 0 24 24" fill="none" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg></div><span class="kpi-trend down">↓ 9.8%</span></div><div class="kpi-value">125</div><div class="kpi-label">Pesquisas Parciais</div></div>
+                <div class="kpi-card green"><div class="kpi-header"><div class="kpi-icon"><svg viewBox="0 0 24 24" fill="none" stroke-width="2"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"></path></svg></div><span class="kpi-trend up">↑ 6.3%</span></div><div class="kpi-value">18</div><div class="kpi-label">Subcategorias Avaliadas</div></div>
+                <div class="kpi-card purple"><div class="kpi-header"><div class="kpi-icon"><svg viewBox="0 0 24 24" fill="none" stroke-width="2"><rect x="3" y="3" width="7" height="7"></rect><rect x="14" y="3" width="7" height="7"></rect><rect x="14" y="14" width="7" height="7"></rect><rect x="3" y="14" width="7" height="7"></rect></svg></div><span class="kpi-trend up">↑ 4.1%</span></div><div class="kpi-value">8</div><div class="kpi-label">Categorias Principais</div></div>
+            </section>
+            <section class="charts-row">
+                <div class="chart-card"><div class="chart-header"><div><div class="chart-title">Pesquisas de Subcategoria</div><div class="chart-subtitle">Completas vs Parciais</div></div></div><div class="chart-container"><canvas id="subcatResearchChart"></canvas></div></div>
+                <div class="chart-card"><div class="chart-header"><div><div class="chart-title">Distribuição por Subcategoria</div><div class="chart-subtitle">Participação</div></div></div><div class="chart-container"><canvas id="subcatDistributionChart"></canvas></div></div>
+            </section>
+            <section class="tables-row">
+                <div class="table-card">
+                    <div class="chart-header"><div><div class="chart-title">Top Subcategorias</div><div class="chart-subtitle">Ranking</div></div><button class="download-btn" onclick="downloadCSV('subcategorias-avaliadas', this)"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>Exportar</button></div>
+                    <table class="data-table" id="subcategorias-avaliadas"><thead><tr><th>#</th><th>Subcategoria</th><th>Categoria</th><th>Avaliações</th></tr></thead><tbody>
+                        <tr><td><span class="rank-badge gold">1</span></td><td>Panetones e Chocotones</td><td>Confeitaria</td><td><strong>156</strong></td></tr>
+                        <tr><td><span class="rank-badge silver">2</span></td><td>Cervejas Pilsen</td><td>Bebidas</td><td><strong>134</strong></td></tr>
+                        <tr><td><span class="rank-badge bronze">3</span></td><td>Sorvetes de Massa</td><td>Gelados</td><td><strong>98</strong></td></tr>
+                        <tr><td><span class="rank-badge default">4</span></td><td>Biscoitos Recheados</td><td>Biscoitos</td><td><strong>87</strong></td></tr>
+                        <tr><td><span class="rank-badge default">5</span></td><td>Sucos Naturais</td><td>Bebidas</td><td><strong>72</strong></td></tr>
+                    </tbody></table>
+                </div>
+                <div class="table-card">
+                    <div class="chart-header"><div><div class="chart-title">Evolução por Categoria</div><div class="chart-subtitle">Nov vs Dez</div></div><button class="download-btn" onclick="downloadCSV('evolucao-categorias', this)"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>Exportar</button></div>
+                    <table class="data-table" id="evolucao-categorias"><thead><tr><th>Categoria</th><th>Nov</th><th>Dez</th><th>Var</th></tr></thead><tbody>
+                        <tr><td><strong>Confeitaria</strong></td><td>89</td><td>156</td><td style="color: var(--success);"><strong>+75.3%</strong></td></tr>
+                        <tr><td><strong>Bebidas</strong></td><td>112</td><td>134</td><td style="color: var(--success);"><strong>+19.6%</strong></td></tr>
+                        <tr><td><strong>Gelados</strong></td><td>45</td><td>98</td><td style="color: var(--success);"><strong>+117.8%</strong></td></tr>
+                        <tr><td><strong>Biscoitos</strong></td><td>78</td><td>87</td><td style="color: var(--success);"><strong>+11.5%</strong></td></tr>
+                        <tr><td><strong>Snacks</strong></td><td>56</td><td>52</td><td style="color: var(--danger);"><strong>-7.1%</strong></td></tr>
+                    </tbody></table>
+                </div>
+            </section>
+            <div class="insight-card success"><div class="insight-icon"><svg viewBox="0 0 24 24" fill="none" stroke="#10B981" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg></div><div class="insight-content"><div class="insight-title">✅ Insight: Gelados é a Categoria de Maior Crescimento</div><div class="insight-text">A subcategoria <strong>Gelados cresceu 117.8%</strong> de novembro para dezembro, impulsionada pelo verão brasileiro. Prospecte fabricantes de sorvetes, picolés e açaí. Empresas como Kibon, Nestlé e marcas regionais de açaí são targets prioritários.</div><div class="insight-metric">Potencial: R$ 50-80k em contratos de verão (Jan-Mar)</div></div></div>
+        </div>
+
+        <!-- TAB 5: PRODUTOS -->
+        <div id="produtos" class="tab-content">
+            <div class="section-header">
+                <div class="section-icon purple"><svg viewBox="0 0 24 24" fill="none" stroke="#8B5CF6" stroke-width="2"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path><polyline points="3.27 6.96 12 12.01 20.73 6.96"></polyline><line x1="12" y1="22.08" x2="12" y2="12"></line></svg></div>
+                <div><div class="section-title">Pesquisas de Produto</div><div class="section-subtitle">Avaliações específicas por produto cadastrado</div></div>
+            </div>
+            <section class="kpi-grid four-cols">
+                <div class="kpi-card blue"><div class="kpi-header"><div class="kpi-icon"><svg viewBox="0 0 24 24" fill="none" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg></div><span class="kpi-trend up">↑ 18.3%</span></div><div class="kpi-value">1.245</div><div class="kpi-label">Pesquisas Completas</div></div>
+                <div class="kpi-card orange"><div class="kpi-header"><div class="kpi-icon"><svg viewBox="0 0 24 24" fill="none" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg></div><span class="kpi-trend down">↓ 5.2%</span></div><div class="kpi-value">187</div><div class="kpi-label">Pesquisas Parciais</div></div>
+                <div class="kpi-card green"><div class="kpi-header"><div class="kpi-icon"><svg viewBox="0 0 24 24" fill="none" stroke-width="2"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path></svg></div><span class="kpi-trend up">↑ 12.7%</span></div><div class="kpi-value">89</div><div class="kpi-label">Produtos Avaliados</div></div>
+                <div class="kpi-card purple"><div class="kpi-header"><div class="kpi-icon"><svg viewBox="0 0 24 24" fill="none" stroke-width="2"><path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"></path><line x1="7" y1="7" x2="7.01" y2="7"></line></svg></div><span class="kpi-trend up">↑ 8.4%</span></div><div class="kpi-value">34</div><div class="kpi-label">Marcas Ativas</div></div>
+            </section>
+            <section class="charts-row">
+                <div class="chart-card"><div class="chart-header"><div><div class="chart-title">Pesquisas de Produto</div><div class="chart-subtitle">Completas vs Parciais</div></div></div><div class="chart-container"><canvas id="productResearchChart"></canvas></div></div>
+                <div class="chart-card"><div class="chart-header"><div><div class="chart-title">Produtos Mais Avaliados</div><div class="chart-subtitle">Top 5</div></div></div><div class="chart-container"><canvas id="topProductsChart"></canvas></div></div>
+            </section>
+            <section class="tables-row">
+                <div class="table-card">
+                    <div class="chart-header"><div><div class="chart-title">Top Produtos Avaliados</div><div class="chart-subtitle">Ranking</div></div><button class="download-btn" onclick="downloadCSV('produtos-avaliados', this)"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>Exportar</button></div>
+                    <table class="data-table" id="produtos-avaliados"><thead><tr><th>#</th><th>Produto</th><th>Categoria</th><th>Aval.</th></tr></thead><tbody>
+                        <tr><td><span class="rank-badge gold">1</span></td><td>Panetone Frutas Cristalizadas</td><td>Confeitaria</td><td><strong>234</strong></td></tr>
+                        <tr><td><span class="rank-badge silver">2</span></td><td>Cerveja Pilsen 600ml</td><td>Bebidas</td><td><strong>198</strong></td></tr>
+                        <tr><td><span class="rank-badge bronze">3</span></td><td>Sorvete Chocolate 2L</td><td>Gelados</td><td><strong>167</strong></td></tr>
+                        <tr><td><span class="rank-badge default">4</span></td><td>Biscoito Recheado Morango</td><td>Biscoitos</td><td><strong>145</strong></td></tr>
+                        <tr><td><span class="rank-badge default">5</span></td><td>Suco Laranja Natural 1L</td><td>Bebidas</td><td><strong>112</strong></td></tr>
+                    </tbody></table>
+                </div>
+                <div class="table-card">
+                    <div class="chart-header"><div><div class="chart-title">Marcas Mais Acessadas</div><div class="chart-subtitle">Ranking</div></div><button class="download-btn" onclick="downloadCSV('marcas-acessadas', this)"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>Exportar</button></div>
+                    <table class="data-table" id="marcas-acessadas"><thead><tr><th>#</th><th>Marca</th><th>Segmento</th><th>Acessos</th></tr></thead><tbody>
+                        <tr><td><span class="rank-badge gold">1</span></td><td>Arcor</td><td>Confeitaria</td><td><strong>892</strong></td></tr>
+                        <tr><td><span class="rank-badge silver">2</span></td><td>Ambev</td><td>Bebidas</td><td><strong>756</strong></td></tr>
+                        <tr><td><span class="rank-badge bronze">3</span></td><td>Kibon</td><td>Gelados</td><td><strong>534</strong></td></tr>
+                        <tr><td><span class="rank-badge default">4</span></td><td>Marilan</td><td>Biscoitos</td><td><strong>423</strong></td></tr>
+                        <tr><td><span class="rank-badge default">5</span></td><td>PepsiCo</td><td>Snacks</td><td><strong>312</strong></td></tr>
+                    </tbody></table>
+                </div>
+            </section>
+            <div class="insight-card purple"><div class="insight-icon"><svg viewBox="0 0 24 24" fill="none" stroke="#8B5CF6" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><line x1="3" y1="9" x2="21" y2="9"></line><line x1="9" y1="21" x2="9" y2="9"></line></svg></div><div class="insight-content"><div class="insight-title">📊 Insight: Concentração de Marca como Risco e Oportunidade</div><div class="insight-text">A <strong>Arcor representa 28% dos acessos</strong> da plataforma, indicando forte dependência. Diversifique prospectando concorrentes diretos como <strong>Nestlé, Mondelez e Bauducco</strong>. Use o case de sucesso com a Arcor como prova social para atrair novos clientes do mesmo porte.</div><div class="insight-metric">Meta de diversificação: máx. 20% por cliente até Jun/2026</div></div></div>
+        </div>
+
+        <footer class="footer"><p class="footer-text">© 2026 FOODTEST - Todos os direitos reservados | Dashboard da Plataforma v3.0</p></footer>
+    </div>
+
+    <script>
+        // Tab Navigation
+        function showTab(tabId) {
+            document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+            document.getElementById(tabId).classList.add('active');
+            document.querySelector(`[data-tab="${tabId}"]`).classList.add('active');
+            
+            // Re-render charts when tab becomes visible
+            setTimeout(() => {
+                window.dispatchEvent(new Event('resize'));
+            }, 100);
+        }
+
+        // Date
+        document.getElementById('current-date').textContent = new Date().toLocaleDateString('pt-BR', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
+
+        // Download CSV
+        function downloadCSV(tableId, button) {
+            const table = document.getElementById(tableId); if (!table) return;
+            let csv = []; const rows = table.querySelectorAll('tr');
+            rows.forEach(row => { const cols = row.querySelectorAll('td, th'); const rowData = []; cols.forEach(col => { let text = col.innerText.replace(/[📈📉🚀✓⚠💡]/g, '').trim(); if (text.includes(',') || text.includes('"')) { text = '"' + text.replace(/"/g, '""') + '"'; } rowData.push(text); }); csv.push(rowData.join(',')); });
+            const blob = new Blob(['\ufeff' + csv.join('\n')], { type: 'text/csv;charset=utf-8;' });
+            const link = document.createElement('a'); link.setAttribute('href', URL.createObjectURL(blob)); link.setAttribute('download', `foodtest_${tableId}_${new Date().toISOString().split('T')[0]}.csv`); document.body.appendChild(link); link.click(); document.body.removeChild(link);
+            const originalText = button.innerHTML; button.innerHTML = '✓ Baixado!'; button.style.background = 'var(--success)'; button.style.borderColor = 'var(--success)'; button.style.color = 'white'; setTimeout(() => { button.innerHTML = originalText; button.style.background = ''; button.style.borderColor = ''; button.style.color = ''; }, 2000);
+        }
+
+        // Charts
+        Chart.defaults.color = '#64748b'; Chart.defaults.font.family = "'DM Sans', sans-serif";
+        
+        // Demographics Charts
+        new Chart(document.getElementById('genderChart').getContext('2d'), { type: 'doughnut', data: { labels: ['Mulher', 'Homem', 'Outros'], datasets: [{ data: [52, 42, 6], backgroundColor: ['#F4B942', '#4A90D9', '#8B5CF6'], borderWidth: 0 }] }, options: { responsive: true, maintainAspectRatio: false, cutout: '55%', plugins: { legend: { position: 'bottom', labels: { padding: 8, usePointStyle: true, font: { size: 10 } } } } } });
+        new Chart(document.getElementById('regionChart').getContext('2d'), { type: 'doughnut', data: { labels: ['Sudeste', 'Sul', 'Nordeste', 'Centro-Oeste', 'Norte'], datasets: [{ data: [45, 25, 15, 10, 5], backgroundColor: ['#10B981', '#8B5CF6', '#F4B942', '#EF4444', '#4A90D9'], borderWidth: 0 }] }, options: { responsive: true, maintainAspectRatio: false, cutout: '55%', plugins: { legend: { position: 'bottom', labels: { padding: 8, usePointStyle: true, font: { size: 10 } } } } } });
+        new Chart(document.getElementById('ageChart').getContext('2d'), { type: 'doughnut', data: { labels: ['18-25', '26-35', '36-45', '46-55', '56+'], datasets: [{ data: [28, 35, 20, 12, 5], backgroundColor: ['#F18F01', '#EF4444', '#4A90D9', '#10B981', '#64748b'], borderWidth: 0 }] }, options: { responsive: true, maintainAspectRatio: false, cutout: '55%', plugins: { legend: { position: 'bottom', labels: { padding: 8, usePointStyle: true, font: { size: 10 } } } } } });
+        new Chart(document.getElementById('classChart').getContext('2d'), { type: 'doughnut', data: { labels: ['A', 'B1', 'B2', 'C1', 'C2', 'D'], datasets: [{ data: [8, 15, 25, 30, 18, 4], backgroundColor: ['#4A90D9', '#F18F01', '#10B981', '#EF4444', '#64748b', '#8B5CF6'], borderWidth: 0 }] }, options: { responsive: true, maintainAspectRatio: false, cutout: '55%', plugins: { legend: { position: 'bottom', labels: { padding: 8, usePointStyle: true, font: { size: 10 } } } } } });
+        
+        // Benefits Charts
+        new Chart(document.getElementById('benefitsChart').getContext('2d'), { type: 'bar', data: { labels: ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez'], datasets: [{ label: 'Resgates', data: [120, 145, 180, 165, 200, 220, 245, 210, 280, 320, 450, 520], backgroundColor: '#EF4444', borderRadius: 5, barThickness: 24 }] }, options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { x: { grid: { display: false } }, y: { grid: { color: '#e2e8f0' }, beginAtZero: true } } } });
+        new Chart(document.getElementById('benefitsStatusChart').getContext('2d'), { type: 'doughnut', data: { labels: ['Concluídos', 'Pendentes'], datasets: [{ data: [89.1, 10.9], backgroundColor: ['#10B981', '#F18F01'], borderWidth: 0, hoverOffset: 8 }] }, options: { responsive: true, maintainAspectRatio: false, cutout: '65%', plugins: { legend: { position: 'bottom', labels: { padding: 15, usePointStyle: true } } } } });
+        
+        // Campanhas Charts
+        new Chart(document.getElementById('campanhasTimeChart').getContext('2d'), { type: 'bar', data: { labels: ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez'], datasets: [{ label: 'Iniciadas', data: [3, 4, 5, 4, 6, 5, 7, 4, 6, 8, 10, 12], backgroundColor: '#EC4899', borderRadius: 4, barThickness: 16 }, { label: 'Finalizadas', data: [2, 3, 4, 5, 4, 5, 6, 5, 5, 7, 9, 10], backgroundColor: '#10B981', borderRadius: 4, barThickness: 16 }] }, options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'top', align: 'end', labels: { usePointStyle: true, padding: 15 } } }, scales: { x: { grid: { display: false } }, y: { grid: { color: '#e2e8f0' }, beginAtZero: true } } } });
+        new Chart(document.getElementById('campanhasStatusChart').getContext('2d'), { type: 'doughnut', data: { labels: ['Finalizadas', 'Ativas', 'Aguardando'], datasets: [{ data: [30, 12, 5], backgroundColor: ['#10B981', '#EC4899', '#4A90D9'], borderWidth: 0, hoverOffset: 8 }] }, options: { responsive: true, maintainAspectRatio: false, cutout: '60%', plugins: { legend: { position: 'right', labels: { padding: 15, usePointStyle: true, font: { size: 11 } } } } } });
+        
+        // Subcategorias Charts
+        new Chart(document.getElementById('subcatResearchChart').getContext('2d'), { type: 'line', data: { labels: ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez'], datasets: [{ label: 'Completas', data: [18, 22, 28, 25, 32, 38, 42, 35, 48, 55, 72, 95], borderColor: '#14B8A6', backgroundColor: 'rgba(20, 184, 166, 0.1)', borderWidth: 2.5, fill: true, tension: 0.4, pointRadius: 4 }, { label: 'Parciais', data: [4, 5, 6, 5, 7, 8, 9, 7, 10, 12, 15, 18], borderColor: '#F18F01', borderWidth: 2, tension: 0.4, pointRadius: 3, borderDash: [5, 5] }] }, options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'top', align: 'end', labels: { usePointStyle: true, padding: 15 } } }, scales: { x: { grid: { display: false } }, y: { grid: { color: '#e2e8f0' }, beginAtZero: true } } } });
+        new Chart(document.getElementById('subcatDistributionChart').getContext('2d'), { type: 'doughnut', data: { labels: ['Confeitaria', 'Bebidas', 'Gelados', 'Biscoitos', 'Snacks', 'Laticínios'], datasets: [{ data: [28, 24, 18, 15, 10, 5], backgroundColor: ['#4A90D9', '#10B981', '#F18F01', '#8B5CF6', '#EF4444', '#64748b'], borderWidth: 0, hoverOffset: 6 }] }, options: { responsive: true, maintainAspectRatio: false, cutout: '60%', plugins: { legend: { position: 'right', labels: { padding: 12, usePointStyle: true, font: { size: 11 } } } } } });
+        
+        // Produtos Charts
+        new Chart(document.getElementById('productResearchChart').getContext('2d'), { type: 'line', data: { labels: ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez'], datasets: [{ label: 'Completas', data: [35, 42, 55, 48, 62, 71, 78, 65, 82, 95, 120, 145], borderColor: '#4A90D9', backgroundColor: 'rgba(74, 144, 217, 0.1)', borderWidth: 2.5, fill: true, tension: 0.4, pointRadius: 4 }, { label: 'Parciais', data: [8, 10, 12, 9, 14, 16, 18, 12, 20, 22, 28, 32], borderColor: '#F18F01', borderWidth: 2, tension: 0.4, pointRadius: 3, borderDash: [5, 5] }] }, options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'top', align: 'end', labels: { usePointStyle: true, padding: 15 } } }, scales: { x: { grid: { display: false } }, y: { grid: { color: '#e2e8f0' }, beginAtZero: true } } } });
+        new Chart(document.getElementById('topProductsChart').getContext('2d'), { type: 'bar', data: { labels: ['Panetone', 'Cerveja', 'Sorvete', 'Biscoito', 'Suco'], datasets: [{ label: 'Avaliações', data: [234, 198, 167, 145, 112], backgroundColor: ['#4A90D9', '#10B981', '#F18F01', '#8B5CF6', '#EF4444'], borderRadius: 6, barThickness: 32 }] }, options: { responsive: true, maintainAspectRatio: false, indexAxis: 'y', plugins: { legend: { display: false } }, scales: { x: { grid: { color: '#e2e8f0' }, beginAtZero: true }, y: { grid: { display: false } } } } });
+    </script>
+</body>
+</html>

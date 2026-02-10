@@ -1,0 +1,1133 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Foodtest | Dashboard de Subcategorias</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Sora:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #00A878;
+            --primary-dark: #008B63;
+            --primary-light: #E8F8F4;
+            --secondary: #2D3047;
+            --accent: #F7931E;
+            --accent-light: #FFF3E3;
+            --bg-main: #F8FAFB;
+            --bg-card: #FFFFFF;
+            --text-primary: #1A1D29;
+            --text-secondary: #5D6470;
+            --border: #E5E7EB;
+            --border-light: #F3F4F6;
+            --success: #10B981;
+            --warning: #F59E0B;
+            --danger: #EF4444;
+            --info: #3B82F6;
+            --purple: #8B5CF6;
+            --shadow: 0 4px 6px -1px rgba(0,0,0,0.07);
+            --radius: 12px;
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'DM Sans', sans-serif; background: var(--bg-main); color: var(--text-primary); line-height: 1.6; }
+        
+        .header { background: var(--bg-card); border-bottom: 1px solid var(--border); padding: 16px 32px; position: sticky; top: 0; z-index: 100; }
+        .header-content { max-width: 1600px; margin: 0 auto; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 16px; }
+        .logo { display: flex; align-items: center; gap: 10px; }
+        .logo-icon { width: 40px; height: 40px; background: linear-gradient(135deg, var(--primary), var(--primary-dark)); border-radius: 10px; display: flex; align-items: center; justify-content: center; color: white; font-weight: 700; font-size: 16px; }
+        .logo-text { font-family: 'Sora', sans-serif; font-weight: 700; font-size: 22px; color: var(--secondary); }
+        .logo-text span { color: var(--primary); }
+        .badge { background: var(--primary-light); color: var(--primary-dark); padding: 6px 14px; border-radius: 20px; font-size: 13px; font-weight: 600; }
+        .header-info { font-size: 13px; color: var(--text-secondary); }
+        
+        .main { max-width: 1600px; margin: 0 auto; padding: 24px 32px; }
+        .page-title h1 { font-family: 'Sora', sans-serif; font-size: 26px; font-weight: 700; color: var(--secondary); margin-bottom: 4px; }
+        .page-title p { color: var(--text-secondary); font-size: 14px; margin-bottom: 24px; }
+        
+        .filters { background: var(--bg-card); border-radius: var(--radius); padding: 20px; margin-bottom: 24px; box-shadow: var(--shadow); display: flex; flex-wrap: wrap; gap: 16px; align-items: flex-end; }
+        .filter-group { flex: 1; min-width: 160px; }
+        .filter-label { display: block; font-size: 11px; font-weight: 600; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 6px; }
+        .filter-select { width: 100%; padding: 10px 12px; border: 1px solid var(--border); border-radius: 8px; font-size: 14px; background: white; cursor: pointer; }
+        .filter-select:focus { border-color: var(--primary); outline: none; }
+        .filter-btn { background: var(--primary); color: white; padding: 10px 20px; border: none; border-radius: 8px; font-size: 14px; font-weight: 600; cursor: pointer; }
+        .filter-btn:hover { background: var(--primary-dark); }
+        .filter-btn.secondary { background: white; color: var(--text-secondary); border: 1px solid var(--border); }
+        
+        .tabs { background: var(--bg-card); border-radius: var(--radius); box-shadow: var(--shadow); overflow: hidden; }
+        .tabs-nav { display: flex; border-bottom: 1px solid var(--border); overflow-x: auto; }
+        .tab-btn { padding: 16px 24px; font-size: 14px; font-weight: 600; color: var(--text-secondary); background: none; border: none; cursor: pointer; position: relative; white-space: nowrap; }
+        .tab-btn:hover { color: var(--primary); background: var(--primary-light); }
+        .tab-btn.active { color: var(--primary); }
+        .tab-btn.active::after { content: ''; position: absolute; bottom: 0; left: 0; right: 0; height: 3px; background: var(--primary); }
+        .tab-content { display: none; padding: 24px; }
+        .tab-content.active { display: block; }
+        
+        .kpi-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; margin-bottom: 24px; }
+        .kpi-card { background: var(--bg-card); border-radius: var(--radius); padding: 20px; box-shadow: var(--shadow); border-left: 4px solid var(--primary); }
+        .kpi-card.accent { border-left-color: var(--accent); }
+        .kpi-card.info { border-left-color: var(--info); }
+        .kpi-card.warning { border-left-color: var(--warning); }
+        .kpi-card.success { border-left-color: var(--success); }
+        .kpi-label { font-size: 11px; font-weight: 600; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 8px; }
+        .kpi-value { font-family: 'Sora', sans-serif; font-size: 28px; font-weight: 700; color: var(--secondary); }
+        .kpi-change { font-size: 12px; font-weight: 600; margin-top: 6px; padding: 3px 8px; border-radius: 10px; display: inline-block; }
+        .kpi-change.up { background: rgba(16,185,129,0.1); color: var(--success); }
+        .kpi-change.down { background: rgba(239,68,68,0.1); color: var(--danger); }
+        
+        .summary-box { background: linear-gradient(135deg, var(--secondary), #3D4062); border-radius: var(--radius); padding: 24px; color: white; margin-bottom: 24px; }
+        .summary-title { font-family: 'Sora', sans-serif; font-size: 16px; font-weight: 600; margin-bottom: 16px; display: flex; align-items: center; gap: 10px; }
+        .summary-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 16px; }
+        .summary-item { background: rgba(255,255,255,0.1); border-radius: 8px; padding: 14px; border-left: 3px solid var(--primary); }
+        .summary-item h4 { font-size: 12px; text-transform: uppercase; letter-spacing: 0.5px; opacity: 0.8; margin-bottom: 6px; }
+        .summary-item p { font-size: 13px; line-height: 1.5; }
+        
+        .chart-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 24px; margin-bottom: 24px; }
+        .chart-card { background: var(--bg-card); border-radius: var(--radius); box-shadow: var(--shadow); overflow: hidden; }
+        .chart-card.full { grid-column: 1 / -1; }
+        .chart-header { padding: 16px 20px; border-bottom: 1px solid var(--border-light); }
+        .chart-title { font-size: 15px; font-weight: 600; color: var(--secondary); }
+        .chart-subtitle { font-size: 12px; color: var(--text-secondary); margin-top: 2px; }
+        .chart-body { padding: 20px; }
+        .chart-container { position: relative; height: 280px; }
+        .chart-container.tall { height: 320px; }
+        
+        .insight-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 16px; margin-bottom: 24px; }
+        .insight-card { background: var(--bg-card); border-radius: var(--radius); padding: 20px; box-shadow: var(--shadow); border-top: 4px solid var(--primary); }
+        .insight-card.orange { border-top-color: var(--accent); }
+        .insight-card.blue { border-top-color: var(--info); }
+        .insight-card.purple { border-top-color: var(--purple); }
+        .insight-icon { width: 44px; height: 44px; background: var(--primary-light); border-radius: 10px; display: flex; align-items: center; justify-content: center; margin-bottom: 12px; font-size: 20px; }
+        .insight-card.orange .insight-icon { background: var(--accent-light); }
+        .insight-card.blue .insight-icon { background: #EEF2FF; }
+        .insight-card.purple .insight-icon { background: #F3E8FF; }
+        .insight-title { font-size: 14px; font-weight: 600; color: var(--secondary); margin-bottom: 8px; }
+        .insight-text { font-size: 13px; color: var(--text-secondary); line-height: 1.5; }
+        .insight-metric { display: inline-block; background: var(--primary-light); color: var(--primary-dark); padding: 4px 10px; border-radius: 12px; font-size: 12px; font-weight: 600; margin-top: 10px; }
+        
+        .area-badge { display: inline-block; padding: 3px 8px; border-radius: 4px; font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; margin-left: 4px; }
+        .area-badge.mkt { background: #DBEAFE; color: #1E40AF; }
+        .area-badge.trade { background: #FEF3C7; color: #92400E; }
+        .area-badge.pd { background: #D1FAE5; color: #065F46; }
+        .area-badge.comercial { background: #FCE7F3; color: #9D174D; }
+        
+        .action-box { background: var(--primary-light); border-radius: var(--radius); padding: 16px; margin-top: 16px; border-left: 4px solid var(--primary); }
+        .action-box.warning { background: #FEF3C7; border-left-color: var(--warning); }
+        .action-box.info { background: #DBEAFE; border-left-color: var(--info); }
+        .action-box h4 { font-size: 13px; font-weight: 600; color: var(--primary-dark); margin-bottom: 6px; }
+        .action-box.warning h4 { color: #92400E; }
+        .action-box.info h4 { color: #1E40AF; }
+        .action-box p { font-size: 13px; color: var(--text-secondary); line-height: 1.5; }
+        
+        .data-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+        .data-table th, .data-table td { padding: 12px 14px; text-align: left; border-bottom: 1px solid var(--border-light); }
+        .data-table th { background: var(--bg-main); font-weight: 600; color: var(--text-secondary); text-transform: uppercase; font-size: 11px; letter-spacing: 0.5px; }
+        .data-table th:first-child { text-align: left; }
+        .data-table td:first-child { font-weight: 500; }
+        
+        .heatmap td { text-align: center; font-weight: 600; }
+        .heat-1 { background: #FEF3C7; color: #92400E; }
+        .heat-2 { background: #FDE68A; color: #92400E; }
+        .heat-3 { background: #FCD34D; color: #78350F; }
+        .heat-4 { background: #FBBF24; color: #78350F; }
+        .heat-5 { background: #F59E0B; color: white; }
+        .heat-6 { background: #D97706; color: white; }
+        .heat-7 { background: #B45309; color: white; }
+        .heat-8 { background: #92400E; color: white; }
+        
+        .brand-cell { display: flex; align-items: center; gap: 10px; }
+        .brand-icon { width: 30px; height: 30px; border-radius: 6px; background: var(--primary-light); display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 11px; color: var(--primary-dark); }
+        .progress-bar { height: 8px; background: var(--border-light); border-radius: 4px; overflow: hidden; width: 100px; display: inline-block; margin-right: 8px; vertical-align: middle; }
+        .progress-fill { height: 100%; border-radius: 4px; }
+        .progress-fill.green { background: var(--success); }
+        .progress-fill.orange { background: var(--warning); }
+        .progress-fill.red { background: var(--danger); }
+        
+        .section-title { font-family: 'Sora', sans-serif; font-size: 16px; font-weight: 600; color: var(--secondary); margin-bottom: 16px; padding-left: 12px; border-left: 4px solid var(--primary); }
+        
+        .conclusion-box { background: linear-gradient(135deg, var(--primary), var(--primary-dark)); border-radius: var(--radius); padding: 24px; color: white; margin-top: 24px; }
+        .conclusion-box h3 { font-family: 'Sora', sans-serif; font-size: 18px; margin-bottom: 12px; }
+        .conclusion-box p { font-size: 14px; line-height: 1.7; opacity: 0.95; }
+        
+        .footer { background: var(--secondary); color: white; padding: 20px 32px; margin-top: 40px; }
+        .footer-content { max-width: 1600px; margin: 0 auto; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 16px; font-size: 13px; }
+        
+        @media (max-width: 1024px) { .chart-grid { grid-template-columns: 1fr; } }
+        @media (max-width: 768px) { .main { padding: 16px; } .filters { flex-direction: column; } .kpi-grid { grid-template-columns: 1fr 1fr; } }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <div class="header-content">
+            <div style="display: flex; align-items: center; gap: 16px;">
+                <div class="logo">
+                    <div class="logo-icon">FT</div>
+                    <div class="logo-text">food<span>test</span></div>
+                </div>
+                <div class="badge">Dashboard Gerencial</div>
+            </div>
+            <div class="header-info">
+                <strong>Pesquisa:</strong> Bebida Mista e Gaseificada &nbsp;|&nbsp; <strong>Base:</strong> 1.247 respondentes &nbsp;|&nbsp; <strong>Data:</strong> Janeiro/2026
+            </div>
+        </div>
+    </header>
+
+    <main class="main">
+        <div class="page-title" style="display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:16px;">
+            <div>
+                <h1>Pesquisa de Subcategoria: Bebida Mista e Gaseificada</h1>
+                <p>Análise completa de comportamento de compra e consumo baseada em pesquisa com consumidores reais</p>
+            </div>
+            <button class="export-btn" onclick="exportData()" style="display:flex;align-items:center;gap:8px;background:var(--primary);color:#fff;padding:12px 20px;border:none;border-radius:8px;font-size:14px;font-weight:600;cursor:pointer;">
+                <svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
+                Exportar Dados
+            </button>
+        </div>
+
+        <div class="filters">
+            <div class="filter-group">
+                <label class="filter-label">Gênero</label>
+                <select class="filter-select" id="filterGenero">
+                    <option value="all">Todos</option>
+                    <option value="fem">Feminino</option>
+                    <option value="masc">Masculino</option>
+                </select>
+            </div>
+            <div class="filter-group">
+                <label class="filter-label">Classe Social</label>
+                <select class="filter-select" id="filterClasse">
+                    <option value="all">Todas</option>
+                    <option value="ab">Classe A/B</option>
+                    <option value="c">Classe C</option>
+                    <option value="de">Classe D/E</option>
+                </select>
+            </div>
+            <div class="filter-group">
+                <label class="filter-label">Faixa Etária</label>
+                <select class="filter-select" id="filterIdade">
+                    <option value="all">Todas</option>
+                    <option value="18-24">18-24 anos</option>
+                    <option value="25-34">25-34 anos</option>
+                    <option value="35-44">35-44 anos</option>
+                    <option value="45+">45+ anos</option>
+                </select>
+            </div>
+            <div class="filter-group">
+                <label class="filter-label">Região</label>
+                <select class="filter-select" id="filterRegiao">
+                    <option value="all">Todas</option>
+                    <option value="sudeste">Sudeste</option>
+                    <option value="sul">Sul</option>
+                    <option value="nordeste">Nordeste</option>
+                    <option value="centro-oeste">Centro-Oeste</option>
+                    <option value="norte">Norte</option>
+                </select>
+            </div>
+            <button class="filter-btn" onclick="alert('Filtros aplicados!')">Aplicar</button>
+            <button class="filter-btn secondary" onclick="resetFilters()">Limpar</button>
+        </div>
+
+        <div class="tabs">
+            <nav class="tabs-nav">
+                <button class="tab-btn active" onclick="showTab('tab1')">📊 Visão Geral</button>
+                <button class="tab-btn" onclick="showTab('tab2')">👥 Quem Consome e Por Quê?</button>
+                <button class="tab-btn" onclick="showTab('tab3')">🛒 Compra vs Consumo</button>
+                <button class="tab-btn" onclick="showTab('tab4')">💡 Insights Estratégicos</button>
+            </nav>
+
+            <!-- TAB 1: VISÃO GERAL -->
+            <div id="tab1" class="tab-content active">
+                <div class="kpi-grid">
+                    <div class="kpi-card">
+                        <div class="kpi-label">Total de Respondentes</div>
+                        <div class="kpi-value">1.247</div>
+                        <div class="kpi-change up">↑ +12% vs último estudo</div>
+                    </div>
+                    <div class="kpi-card accent">
+                        <div class="kpi-label">Freq. Compra Semanal+</div>
+                        <div class="kpi-value">42%</div>
+                        <div class="kpi-change up">↑ +5pp</div>
+                    </div>
+                    <div class="kpi-card info">
+                        <div class="kpi-label">Consumo em Casa</div>
+                        <div class="kpi-value">78%</div>
+                        <div class="kpi-change up">↑ +3pp</div>
+                    </div>
+                    <div class="kpi-card warning">
+                        <div class="kpi-label">Preço como Fator</div>
+                        <div class="kpi-value">67%</div>
+                        <div class="kpi-change down">↓ -2pp</div>
+                    </div>
+                    <div class="kpi-card success">
+                        <div class="kpi-label">Marca Líder</div>
+                        <div class="kpi-value">Guaraná</div>
+                        <div class="kpi-change up">34% share</div>
+                    </div>
+                </div>
+
+                <div class="summary-box">
+                    <div class="summary-title">📋 Resumo Executivo - Principais Achados</div>
+                    <div class="summary-grid">
+                        <div class="summary-item">
+                            <h4>Perfil do Consumidor</h4>
+                            <p>Categoria consumida por toda a família (62%), com jovens 18-34 anos representando 48% dos heavy users.</p>
+                        </div>
+                        <div class="summary-item">
+                            <h4>Drivers de Compra</h4>
+                            <p>Sabor (82%) e preço (67%) são os principais motivadores. PET 2L domina consumo familiar.</p>
+                        </div>
+                        <div class="summary-item">
+                            <h4>Momentos de Consumo</h4>
+                            <p>Refeições principais concentram 71% do consumo. Fins de semana têm pico 40% superior.</p>
+                        </div>
+                        <div class="summary-item">
+                            <h4>Oportunidades</h4>
+                            <p>Gap de 28% entre compra mensal e consumo diário indica potencial de trade-up significativo.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="chart-grid">
+                    <div class="chart-card">
+                        <div class="chart-header">
+                            <div class="chart-title">Frequência de Compra</div>
+                            <div class="chart-subtitle">P1. Com que frequência você COMPRA?</div>
+                        </div>
+                        <div class="chart-body">
+                            <div class="chart-container"><canvas id="chart1"></canvas></div>
+                        </div>
+                    </div>
+                    <div class="chart-card">
+                        <div class="chart-header">
+                            <div class="chart-title">Frequência de Consumo</div>
+                            <div class="chart-subtitle">P2. Com que frequência você CONSOME?</div>
+                        </div>
+                        <div class="chart-body">
+                            <div class="chart-container"><canvas id="chart2"></canvas></div>
+                        </div>
+                    </div>
+                    <div class="chart-card">
+                        <div class="chart-header">
+                            <div class="chart-title">Quem Consome na Casa</div>
+                            <div class="chart-subtitle">P3. Quem na sua casa CONSOME?</div>
+                        </div>
+                        <div class="chart-body">
+                            <div class="chart-container"><canvas id="chart3"></canvas></div>
+                        </div>
+                    </div>
+                    <div class="chart-card">
+                        <div class="chart-header">
+                            <div class="chart-title">Principais Motivos de Compra</div>
+                            <div class="chart-subtitle">P4. Quais os PRINCIPAIS MOTIVOS?</div>
+                        </div>
+                        <div class="chart-body">
+                            <div class="chart-container"><canvas id="chart4"></canvas></div>
+                        </div>
+                    </div>
+                    <div class="chart-card">
+                        <div class="chart-header">
+                            <div class="chart-title">Embalagem Preferida</div>
+                            <div class="chart-subtitle">P5. Qual TIPO DE EMBALAGEM você PREFERE?</div>
+                        </div>
+                        <div class="chart-body">
+                            <div class="chart-container"><canvas id="chart5"></canvas></div>
+                        </div>
+                    </div>
+                    <div class="chart-card">
+                        <div class="chart-header">
+                            <div class="chart-title">Características Importantes</div>
+                            <div class="chart-subtitle">P7. Quais características MAIS IMPORTANTES?</div>
+                        </div>
+                        <div class="chart-body">
+                            <div class="chart-container"><canvas id="chart7"></canvas></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="chart-card full">
+                    <div class="chart-header">
+                        <div class="chart-title">Ranking de Marcas - Compra vs Não Compra</div>
+                        <div class="chart-subtitle">P6. Quais marcas você mais COMPRA e quais NÃO COMPRA?</div>
+                    </div>
+                    <div class="chart-body">
+                        <table class="data-table">
+                            <thead>
+                                <tr><th>Marca</th><th>Sempre Compra</th><th>Às Vezes</th><th>Não Compra</th><th>Net Score</th><th>Tendência</th></tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td><div class="brand-cell"><div class="brand-icon">GA</div>Guaraná Antarctica</div></td>
+                                    <td><div class="progress-bar"><div class="progress-fill green" style="width:34%"></div></div>34%</td>
+                                    <td><div class="progress-bar"><div class="progress-fill orange" style="width:42%"></div></div>42%</td>
+                                    <td><div class="progress-bar"><div class="progress-fill red" style="width:8%"></div></div>8%</td>
+                                    <td><strong style="color:var(--success)">+68</strong></td>
+                                    <td><span class="kpi-change up">↑ +3</span></td>
+                                </tr>
+                                <tr>
+                                    <td><div class="brand-cell"><div class="brand-icon">CC</div>Coca-Cola</div></td>
+                                    <td><div class="progress-bar"><div class="progress-fill green" style="width:31%"></div></div>31%</td>
+                                    <td><div class="progress-bar"><div class="progress-fill orange" style="width:38%"></div></div>38%</td>
+                                    <td><div class="progress-bar"><div class="progress-fill red" style="width:12%"></div></div>12%</td>
+                                    <td><strong style="color:var(--success)">+57</strong></td>
+                                    <td><span class="kpi-change up">↑ +1</span></td>
+                                </tr>
+                                <tr>
+                                    <td><div class="brand-cell"><div class="brand-icon">FT</div>Fanta</div></td>
+                                    <td><div class="progress-bar"><div class="progress-fill green" style="width:18%"></div></div>18%</td>
+                                    <td><div class="progress-bar"><div class="progress-fill orange" style="width:45%"></div></div>45%</td>
+                                    <td><div class="progress-bar"><div class="progress-fill red" style="width:15%"></div></div>15%</td>
+                                    <td><strong style="color:var(--success)">+48</strong></td>
+                                    <td><span class="kpi-change down">↓ -2</span></td>
+                                </tr>
+                                <tr>
+                                    <td><div class="brand-cell"><div class="brand-icon">KT</div>Kuat</div></td>
+                                    <td><div class="progress-bar"><div class="progress-fill green" style="width:15%"></div></div>15%</td>
+                                    <td><div class="progress-bar"><div class="progress-fill orange" style="width:35%"></div></div>35%</td>
+                                    <td><div class="progress-bar"><div class="progress-fill red" style="width:22%"></div></div>22%</td>
+                                    <td><strong style="color:var(--warning)">+28</strong></td>
+                                    <td><span class="kpi-change up">↑ +5</span></td>
+                                </tr>
+                                <tr>
+                                    <td><div class="brand-cell"><div class="brand-icon">SP</div>Sprite</div></td>
+                                    <td><div class="progress-bar"><div class="progress-fill green" style="width:12%"></div></div>12%</td>
+                                    <td><div class="progress-bar"><div class="progress-fill orange" style="width:38%"></div></div>38%</td>
+                                    <td><div class="progress-bar"><div class="progress-fill red" style="width:18%"></div></div>18%</td>
+                                    <td><strong style="color:var(--warning)">+32</strong></td>
+                                    <td><span class="kpi-change up">↑ +2</span></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <div class="chart-grid">
+                    <div class="chart-card">
+                        <div class="chart-header">
+                            <div class="chart-title">Momentos de Consumo</div>
+                            <div class="chart-subtitle">P8. Em quais MOMENTOS DO SEU DIA?</div>
+                        </div>
+                        <div class="chart-body">
+                            <div class="chart-container"><canvas id="chart8"></canvas></div>
+                        </div>
+                    </div>
+                    <div class="chart-card">
+                        <div class="chart-header">
+                            <div class="chart-title">Locais de Consumo</div>
+                            <div class="chart-subtitle">P9. Em quais LOCAIS você costuma consumir?</div>
+                        </div>
+                        <div class="chart-body">
+                            <div class="chart-container"><canvas id="chart9"></canvas></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="chart-card full">
+                    <div class="chart-header">
+                        <div class="chart-title">Fatores de Decisão de Compra</div>
+                        <div class="chart-subtitle">P10. Quais fatores INFLUENCIAM sua decisão de compra?</div>
+                    </div>
+                    <div class="chart-body">
+                        <div class="chart-container tall"><canvas id="chart10"></canvas></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- TAB 2: QUEM CONSOME E POR QUÊ -->
+            <div id="tab2" class="tab-content">
+                <h2 class="section-title">Análises Cruzadas - Perfil do Consumidor</h2>
+                
+                <div class="insight-grid">
+                    <div class="insight-card">
+                        <div class="insight-icon">👨‍👩‍👧‍👦</div>
+                        <div class="insight-title">Família é o Principal Consumidor</div>
+                        <div class="insight-text">62% dos lares indicam que toda a família consome, com preferência por embalagens de 2L para otimização de custo.</div>
+                        <div class="insight-metric">62% consumo familiar</div>
+                    </div>
+                    <div class="insight-card orange">
+                        <div class="insight-icon">📦</div>
+                        <div class="insight-title">Embalagem Define Ocasião</div>
+                        <div class="insight-text">Latas são preferidas para consumo individual (73%) enquanto garrafas PET 2L dominam consumo familiar (81%).</div>
+                        <div class="insight-metric">81% PET 2L familiar</div>
+                    </div>
+                    <div class="insight-card blue">
+                        <div class="insight-icon">🏠</div>
+                        <div class="insight-title">Casa é o Local Dominante</div>
+                        <div class="insight-text">78% do consumo acontece em casa, mas restaurantes (45%) e festas (38%) são importantes para socialização.</div>
+                        <div class="insight-metric">78% consumo em casa</div>
+                    </div>
+                </div>
+
+                <div class="chart-card full">
+                    <div class="chart-header">
+                        <div class="chart-title">CRUZAMENTO 1: Quem Consome vs Tipo de Embalagem Preferida</div>
+                        <div class="chart-subtitle">Entender qual embalagem é preferida por cada perfil de consumidor</div>
+                    </div>
+                    <div class="chart-body">
+                        <div class="chart-container tall"><canvas id="cross1"></canvas></div>
+                    </div>
+                </div>
+
+                <div class="chart-card full">
+                    <div class="chart-header">
+                        <div class="chart-title">CRUZAMENTO 2: Motivos de Compra vs Tipo de Embalagem</div>
+                        <div class="chart-subtitle">Correlação entre motivações de compra e escolha de embalagem</div>
+                    </div>
+                    <div class="chart-body">
+                        <table class="data-table heatmap">
+                            <thead>
+                                <tr><th style="text-align:left">Motivo de Compra</th><th>Lata 350ml</th><th>PET 600ml</th><th>PET 1L</th><th>PET 2L</th><th>Vidro</th></tr>
+                            </thead>
+                            <tbody>
+                                <tr><td style="text-align:left">Sabor</td><td class="heat-5">38%</td><td class="heat-4">32%</td><td class="heat-3">28%</td><td class="heat-6">45%</td><td class="heat-2">22%</td></tr>
+                                <tr><td style="text-align:left">Preço acessível</td><td class="heat-2">18%</td><td class="heat-3">25%</td><td class="heat-5">42%</td><td class="heat-8">68%</td><td class="heat-1">12%</td></tr>
+                                <tr><td style="text-align:left">Refrescância</td><td class="heat-7">52%</td><td class="heat-6">48%</td><td class="heat-4">35%</td><td class="heat-5">40%</td><td class="heat-6">45%</td></tr>
+                                <tr><td style="text-align:left">Praticidade</td><td class="heat-8">65%</td><td class="heat-7">58%</td><td class="heat-4">32%</td><td class="heat-2">18%</td><td class="heat-1">8%</td></tr>
+                                <tr><td style="text-align:left">Para refeições</td><td class="heat-3">28%</td><td class="heat-4">35%</td><td class="heat-5">42%</td><td class="heat-7">55%</td><td class="heat-6">48%</td></tr>
+                                <tr><td style="text-align:left">Para festas</td><td class="heat-4">35%</td><td class="heat-3">28%</td><td class="heat-2">22%</td><td class="heat-8">72%</td><td class="heat-5">38%</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <div class="chart-card full">
+                    <div class="chart-header">
+                        <div class="chart-title">CRUZAMENTO 3: Quem Consome vs Locais de Consumo</div>
+                        <div class="chart-subtitle">Mapeamento de perfil do consumidor por local</div>
+                    </div>
+                    <div class="chart-body">
+                        <div class="chart-container tall"><canvas id="cross3"></canvas></div>
+                    </div>
+                </div>
+
+                <h2 class="section-title">Análises por Segmentação Demográfica</h2>
+
+                <div class="chart-card full">
+                    <div class="chart-header">
+                        <div class="chart-title">CRUZAMENTO 4: Características Valorizadas vs Faixa Etária</div>
+                        <div class="chart-subtitle">Segmentar comunicação e produto por geração</div>
+                    </div>
+                    <div class="chart-body">
+                        <table class="data-table heatmap">
+                            <thead>
+                                <tr><th style="text-align:left">Característica</th><th>18-24 anos</th><th>25-34 anos</th><th>35-44 anos</th><th>45+ anos</th></tr>
+                            </thead>
+                            <tbody>
+                                <tr><td style="text-align:left">Sabor intenso</td><td class="heat-8">85%</td><td class="heat-7">78%</td><td class="heat-6">72%</td><td class="heat-5">65%</td></tr>
+                                <tr><td style="text-align:left">Menos açúcar</td><td class="heat-4">35%</td><td class="heat-6">52%</td><td class="heat-7">62%</td><td class="heat-8">72%</td></tr>
+                                <tr><td style="text-align:left">Gaseificação forte</td><td class="heat-7">68%</td><td class="heat-5">48%</td><td class="heat-4">38%</td><td class="heat-3">28%</td></tr>
+                                <tr><td style="text-align:left">Ingredientes naturais</td><td class="heat-3">28%</td><td class="heat-5">42%</td><td class="heat-6">52%</td><td class="heat-7">58%</td></tr>
+                                <tr><td style="text-align:left">Marca conhecida</td><td class="heat-4">32%</td><td class="heat-5">42%</td><td class="heat-6">48%</td><td class="heat-7">55%</td></tr>
+                                <tr><td style="text-align:left">Sustentabilidade</td><td class="heat-5">42%</td><td class="heat-4">32%</td><td class="heat-3">22%</td><td class="heat-2">15%</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                <div class="action-box warning">
+                    <h4>🎯 Segmentação de Comunicação por Idade</h4>
+                    <p><strong>18-24 anos:</strong> Sabor intenso + gaseificação + sustentabilidade | <strong>25-34 anos:</strong> Equilíbrio sabor/saúde | <strong>35-44 anos:</strong> Menos açúcar + ingredientes naturais | <strong>45+ anos:</strong> Menos açúcar + marca conhecida</p>
+                </div>
+
+                <div class="chart-card full">
+                    <div class="chart-header">
+                        <div class="chart-title">CRUZAMENTO 5: Motivos de Compra vs Momentos de Consumo</div>
+                        <div class="chart-subtitle">Identificar motivações associadas a cada ocasião para campanhas mais precisas</div>
+                    </div>
+                    <div class="chart-body">
+                        <div class="chart-container tall"><canvas id="crossMotMom"></canvas></div>
+                    </div>
+                </div>
+                <div class="action-box info">
+                    <h4>🎯 Recomendação para Marketing</h4>
+                    <p>Campanhas de "refrescância" performam melhor no horário de almoço (65%) e lazer noturno (72%). Associar sabor a momentos de celebração familiar e festas (75%).</p>
+                </div>
+
+                <div class="chart-card full">
+                    <div class="chart-header">
+                        <div class="chart-title">CRUZAMENTO 6: Embalagem vs Locais de Consumo</div>
+                        <div class="chart-subtitle">Definir mix ideal de embalagens por canal de venda</div>
+                    </div>
+                    <div class="chart-body">
+                        <div class="chart-container tall"><canvas id="crossEmbLocal"></canvas></div>
+                    </div>
+                </div>
+                <div class="action-box warning">
+                    <h4>🏪 Recomendação para Trade Marketing</h4>
+                    <p><strong>Supermercados:</strong> PET 2L (72%) | <strong>Conveniência:</strong> Lata 350ml (65%) | <strong>Restaurantes:</strong> Vidro (48%) + Lata (35%) | <strong>Festas:</strong> PET 2L (68%)</p>
+                </div>
+
+                <div class="chart-card full">
+                    <div class="chart-header">
+                        <div class="chart-title">CRUZAMENTO 7: Embalagem vs Momentos de Consumo</div>
+                        <div class="chart-subtitle">Desenvolver formatos específicos por ocasião</div>
+                    </div>
+                    <div class="chart-body">
+                        <div class="chart-container tall"><canvas id="crossEmbMom"></canvas></div>
+                    </div>
+                </div>
+                <div class="action-box">
+                    <h4>🔬 Oportunidades de Inovação para P&D</h4>
+                    <p><strong>Exercício:</strong> Embalagem squeeze 300ml | <strong>Trabalho:</strong> PET 500ml tampa rosca | <strong>Lazer:</strong> Lata sleek 269ml premium | <strong>Almoço/Jantar:</strong> PET 1.5L família</p>
+                </div>
+            </div>
+
+            <!-- TAB 3: COMPRA VS CONSUMO -->
+            <div id="tab3" class="tab-content">
+                <h2 class="section-title">Análise de GAPs - Compra vs Consumo</h2>
+
+                <div class="insight-grid">
+                    <div class="insight-card">
+                        <div class="insight-icon">📈</div>
+                        <div class="insight-title">GAP de Conversão Identificado</div>
+                        <div class="insight-text">28% dos consumidores que compram mensalmente consomem diariamente - oportunidade de aumentar frequência de compra.</div>
+                        <div class="insight-metric">28% GAP</div>
+                    </div>
+                    <div class="insight-card orange">
+                        <div class="insight-icon">🍽️</div>
+                        <div class="insight-title">Pico de Consumo: Almoço</div>
+                        <div class="insight-text">71% do consumo concentra-se nas refeições principais, com almoço representando 45% do volume total.</div>
+                        <div class="insight-metric">45% no almoço</div>
+                    </div>
+                    <div class="insight-card blue">
+                        <div class="insight-icon">🏆</div>
+                        <div class="insight-title">Guaraná Lidera Frequência</div>
+                        <div class="insight-text">Guaraná Antarctica apresenta maior correlação entre frequência de compra e consumo (r=0.87).</div>
+                        <div class="insight-metric">r=0.87</div>
+                    </div>
+                </div>
+
+                <div class="chart-card full">
+                    <div class="chart-header">
+                        <div class="chart-title">CRUZAMENTO 1: Mapa de Calor - Frequência Compra x Consumo</div>
+                        <div class="chart-subtitle">Identificando GAPs de conversão entre comportamento de compra e consumo</div>
+                    </div>
+                    <div class="chart-body">
+                        <table class="data-table heatmap">
+                            <thead>
+                                <tr><th style="text-align:left">Compra ↓ / Consumo →</th><th>Diário</th><th>2-3x/sem</th><th>1x/sem</th><th>Quinzenal</th><th>Mensal</th><th>Raramente</th></tr>
+                            </thead>
+                            <tbody>
+                                <tr><td style="text-align:left">Diariamente</td><td class="heat-8">72%</td><td class="heat-4">18%</td><td class="heat-2">6%</td><td class="heat-1">2%</td><td class="heat-1">1%</td><td class="heat-1">1%</td></tr>
+                                <tr><td style="text-align:left">2-3x/semana</td><td class="heat-5">28%</td><td class="heat-8">52%</td><td class="heat-4">12%</td><td class="heat-2">5%</td><td class="heat-1">2%</td><td class="heat-1">1%</td></tr>
+                                <tr><td style="text-align:left">1x/semana</td><td class="heat-3">15%</td><td class="heat-6">35%</td><td class="heat-7">32%</td><td class="heat-4">12%</td><td class="heat-2">4%</td><td class="heat-1">2%</td></tr>
+                                <tr><td style="text-align:left">Quinzenal</td><td class="heat-2">8%</td><td class="heat-4">22%</td><td class="heat-5">28%</td><td class="heat-7">25%</td><td class="heat-4">12%</td><td class="heat-2">5%</td></tr>
+                                <tr><td style="text-align:left">Mensal</td><td class="heat-1">5%</td><td class="heat-3">15%</td><td class="heat-4">22%</td><td class="heat-5">28%</td><td class="heat-6">20%</td><td class="heat-3">10%</td></tr>
+                                <tr><td style="text-align:left">Raramente</td><td class="heat-1">2%</td><td class="heat-1">5%</td><td class="heat-2">10%</td><td class="heat-3">18%</td><td class="heat-5">25%</td><td class="heat-7">40%</td></tr>
+                            </tbody>
+                        </table>
+                        <div style="margin-top:16px;padding:14px;background:var(--primary-light);border-radius:8px;">
+                            <strong style="color:var(--primary-dark)">💡 Insight:</strong> Células acima da diagonal indicam consumo maior que compra (oportunidade de trade-up). 28% dos compradores mensais consomem pelo menos 1x/semana.
+                        </div>
+                    </div>
+                </div>
+
+                <div class="chart-card full">
+                    <div class="chart-header">
+                        <div class="chart-title">CRUZAMENTO 2: Momentos do Dia vs Frequência de Consumo</div>
+                        <div class="chart-subtitle">Análise de quando os diferentes perfis consomem</div>
+                    </div>
+                    <div class="chart-body">
+                        <div class="chart-container tall"><canvas id="cross4"></canvas></div>
+                    </div>
+                </div>
+
+                <div class="chart-card full">
+                    <div class="chart-header">
+                        <div class="chart-title">CRUZAMENTO 3: Frequência de Compra e Consumo por Marca</div>
+                        <div class="chart-subtitle">Comparativo entre as principais marcas</div>
+                    </div>
+                    <div class="chart-body">
+                        <div class="chart-container tall"><canvas id="cross5"></canvas></div>
+                    </div>
+                </div>
+
+                <h2 class="section-title">Análises Avançadas de Comportamento</h2>
+
+                <div class="chart-card full">
+                    <div class="chart-header">
+                        <div class="chart-title">CRUZAMENTO 4: Marcas vs Fatores de Decisão</div>
+                        <div class="chart-subtitle">O que leva consumidores a escolher cada marca vs concorrentes</div>
+                    </div>
+                    <div class="chart-body">
+                        <div class="chart-container tall"><canvas id="crossMarcaFator"></canvas></div>
+                    </div>
+                </div>
+                <div class="action-box">
+                    <h4>🎯 Posicionamento Competitivo</h4>
+                    <p>Guaraná compete por sabor (85%), Coca-Cola por marca (82%). Oportunidade: posicionar marcas desafiadoras em "preço + sabor" para classes C/D.</p>
+                </div>
+
+                <div class="chart-card full">
+                    <div class="chart-header">
+                        <div class="chart-title">CRUZAMENTO 5: Frequência de Compra vs Embalagem</div>
+                        <div class="chart-subtitle">Identificar formatos que geram maior recorrência de compra</div>
+                    </div>
+                    <div class="chart-body">
+                        <table class="data-table heatmap">
+                            <thead>
+                                <tr><th style="text-align:left">Freq. Compra</th><th>Lata 350ml</th><th>PET 600ml</th><th>PET 1L</th><th>PET 2L</th><th>Vidro</th></tr>
+                            </thead>
+                            <tbody>
+                                <tr><td style="text-align:left">Diariamente</td><td class="heat-8">52%</td><td class="heat-6">35%</td><td class="heat-3">15%</td><td class="heat-2">8%</td><td class="heat-4">22%</td></tr>
+                                <tr><td style="text-align:left">2-3x/semana</td><td class="heat-6">38%</td><td class="heat-7">42%</td><td class="heat-5">28%</td><td class="heat-4">22%</td><td class="heat-3">18%</td></tr>
+                                <tr><td style="text-align:left">1x/semana</td><td class="heat-4">25%</td><td class="heat-5">32%</td><td class="heat-6">38%</td><td class="heat-7">45%</td><td class="heat-3">15%</td></tr>
+                                <tr><td style="text-align:left">Quinzenal</td><td class="heat-2">12%</td><td class="heat-3">18%</td><td class="heat-5">32%</td><td class="heat-8">58%</td><td class="heat-2">10%</td></tr>
+                                <tr><td style="text-align:left">Mensal</td><td class="heat-1">5%</td><td class="heat-2">12%</td><td class="heat-4">25%</td><td class="heat-8">68%</td><td class="heat-2">8%</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                <div class="action-box info">
+                    <h4>🏪 Insight para Trade Marketing</h4>
+                    <p>Latas geram maior frequência de compra (52% compra diária). PET 2L domina compras planejadas (68% mensal). Oportunidade: multipacks de latas para aumentar ticket médio mantendo frequência.</p>
+                </div>
+
+                <div class="chart-card full">
+                    <div class="chart-header">
+                        <div class="chart-title">CRUZAMENTO 6: Características vs Quem Consome</div>
+                        <div class="chart-subtitle">Direcionar reformulações por perfil de consumidor</div>
+                    </div>
+                    <div class="chart-body">
+                        <div class="chart-container tall"><canvas id="crossCaracQuem"></canvas></div>
+                    </div>
+                </div>
+                <div class="action-box">
+                    <h4>🔬 Recomendação para P&D</h4>
+                    <p><strong>Famílias:</strong> Manter sabor, reduzir açúcar gradualmente | <strong>Consumo individual:</strong> Versões intensas + gaseificação forte | <strong>Filhos:</strong> Versões kids com menos gás e açúcar</p>
+                </div>
+
+                <div class="chart-card full">
+                    <div class="chart-header">
+                        <div class="chart-title">CRUZAMENTO 7: Freq. Compra x Consumo x Região</div>
+                        <div class="chart-subtitle">Identificar regiões com gap de distribuição (alto consumo, baixa compra)</div>
+                    </div>
+                    <div class="chart-body">
+                        <table class="data-table">
+                            <thead>
+                                <tr><th>Região</th><th>Compra Semanal+</th><th>Consumo Semanal+</th><th>GAP</th><th>Oportunidade</th><th>Ação Sugerida</th></tr>
+                            </thead>
+                            <tbody>
+                                <tr><td><strong>Sudeste</strong></td><td><div class="progress-bar"><div class="progress-fill" style="width:45%;background:var(--primary)"></div></div>45%</td><td><div class="progress-bar"><div class="progress-fill green" style="width:52%"></div></div>52%</td><td><span class="kpi-change down">-7pp</span></td><td>R$ 850K</td><td>Ampliar distribuição conveniência</td></tr>
+                                <tr><td><strong>Sul</strong></td><td><div class="progress-bar"><div class="progress-fill" style="width:42%;background:var(--primary)"></div></div>42%</td><td><div class="progress-bar"><div class="progress-fill green" style="width:48%"></div></div>48%</td><td><span class="kpi-change down">-6pp</span></td><td>R$ 420K</td><td>Promoções em super regionais</td></tr>
+                                <tr><td><strong>Nordeste</strong></td><td><div class="progress-bar"><div class="progress-fill" style="width:35%;background:var(--primary)"></div></div>35%</td><td><div class="progress-bar"><div class="progress-fill green" style="width:48%"></div></div>48%</td><td><span class="kpi-change down">-13pp</span></td><td>R$ 780K</td><td>Expandir PDVs + preço regional</td></tr>
+                                <tr><td><strong>Centro-Oeste</strong></td><td><div class="progress-bar"><div class="progress-fill" style="width:38%;background:var(--primary)"></div></div>38%</td><td><div class="progress-bar"><div class="progress-fill green" style="width:42%"></div></div>42%</td><td><span class="kpi-change down">-4pp</span></td><td>R$ 220K</td><td>Manter estratégia atual</td></tr>
+                                <tr><td><strong>Norte</strong></td><td><div class="progress-bar"><div class="progress-fill" style="width:28%;background:var(--primary)"></div></div>28%</td><td><div class="progress-bar"><div class="progress-fill green" style="width:38%"></div></div>38%</td><td><span class="kpi-change down">-10pp</span></td><td>R$ 350K</td><td>Logística + pontos alternativos</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                <div class="action-box warning">
+                    <h4>💼 Priorização Regional para Comercial</h4>
+                    <p><strong>Foco imediato:</strong> Nordeste (maior GAP + crescimento) | <strong>Quick win:</strong> Sudeste (maior volume absoluto) | <strong>Desenvolvimento:</strong> Norte (logística)</p>
+                </div>
+
+                <div class="chart-card full">
+                    <div class="chart-header">
+                        <div class="chart-title">CRUZAMENTO 8: Marcas vs Classe Social</div>
+                        <div class="chart-subtitle">Definir estratégia de preço e portfólio por praça</div>
+                    </div>
+                    <div class="chart-body">
+                        <div class="chart-container tall"><canvas id="crossMarcaClasse"></canvas></div>
+                    </div>
+                </div>
+                <div class="action-box info">
+                    <h4>💼 Estratégia por Classe Social para Comercial</h4>
+                    <p><strong>Classe A/B:</strong> Premium + marca conhecida (Coca-Cola, Guaraná) | <strong>Classe C:</strong> Custo-benefício (Kuat, Fanta) | <strong>Classe D/E:</strong> Preço baixo + embalagem grande (marcas regionais)</p>
+                </div>
+            </div>
+
+            <!-- TAB 4: INSIGHTS -->
+            <div id="tab4" class="tab-content">
+                <h2 class="section-title">Consolidação de Insights Estratégicos</h2>
+
+                <div class="kpi-grid">
+                    <div class="kpi-card">
+                        <div class="kpi-label">Penetração Heavy Users</div>
+                        <div class="kpi-value">27%</div>
+                        <div class="kpi-change up">Compra 2x+/semana</div>
+                    </div>
+                    <div class="kpi-card accent">
+                        <div class="kpi-label">Índice de Lealdade</div>
+                        <div class="kpi-value">68</div>
+                        <div class="kpi-change up">NPS Categoria</div>
+                    </div>
+                    <div class="kpi-card info">
+                        <div class="kpi-label">Taxa de Conversão</div>
+                        <div class="kpi-value">78%</div>
+                        <div class="kpi-change up">Compra → Consumo</div>
+                    </div>
+                    <div class="kpi-card warning">
+                        <div class="kpi-label">Oportunidade Estimada</div>
+                        <div class="kpi-value">R$ 2.4M</div>
+                        <div class="kpi-change up">Potencial Incremental</div>
+                    </div>
+                </div>
+
+                <div class="summary-box">
+                    <div class="summary-title">🎯 Top 5 Oportunidades Identificadas</div>
+                    <div class="summary-grid">
+                        <div class="summary-item">
+                            <h4>1. Trade-Up de Frequência</h4>
+                            <p>28% compram mensalmente mas consomem semanalmente. Multipacks e programas de fidelidade = R$ 850K potencial.</p>
+                        </div>
+                        <div class="summary-item">
+                            <h4>2. Expansão Nordeste</h4>
+                            <p>Maior GAP distribuição (-13pp) + crescimento acelerado (+8%). Expandir PDVs = R$ 780K.</p>
+                        </div>
+                        <div class="summary-item">
+                            <h4>3. Momento Lanche da Tarde</h4>
+                            <p>Apenas 24% do consumo. Campanhas específicas podem gerar +12% em frequência de consumo.</p>
+                        </div>
+                        <div class="summary-item">
+                            <h4>4. Versões Zero/Light</h4>
+                            <p>Crescimento de +18% YoY. Expandir portfólio para público 35+ anos que valoriza menos açúcar (72%).</p>
+                        </div>
+                        <div class="summary-item">
+                            <h4>5. Consumo On-the-go</h4>
+                            <p>Latas geram maior recorrência (52% compra diária). Expandir em conveniência = +15% volume.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="chart-card full">
+                    <div class="chart-header">
+                        <div class="chart-title">Frequência de Compra vs Fatores de Decisão</div>
+                        <div class="chart-subtitle">Entendendo o que motiva cada perfil de comprador</div>
+                    </div>
+                    <div class="chart-body">
+                        <div class="chart-container tall"><canvas id="cross6"></canvas></div>
+                    </div>
+                </div>
+
+                <div class="insight-grid">
+                    <div class="insight-card">
+                        <div class="insight-icon">👤</div>
+                        <div class="insight-title">Perfil: Heavy User</div>
+                        <div class="insight-text">Predominantemente masculino (58%), classes A/B (62%), idade 25-44 anos. Valoriza sabor e marca acima de preço.</div>
+                        <div class="insight-metric">27% da base</div>
+                    </div>
+                    <div class="insight-card orange">
+                        <div class="insight-icon">👥</div>
+                        <div class="insight-title">Perfil: Light User</div>
+                        <div class="insight-text">Equilibrado entre gêneros, forte em classes C/D (54%), idade 35+ anos. Extremamente sensível a preço (85%).</div>
+                        <div class="insight-metric">35% da base</div>
+                    </div>
+                    <div class="insight-card blue">
+                        <div class="insight-icon">👨‍👩‍👧‍👦</div>
+                        <div class="insight-title">Perfil: Família</div>
+                        <div class="insight-text">Responsáveis pelas compras, feminino (68%), classes B/C. Prioriza custo-benefício e quantidade.</div>
+                        <div class="insight-metric">62% lares</div>
+                    </div>
+                    <div class="insight-card purple">
+                        <div class="insight-icon">⚡</div>
+                        <div class="insight-title">Tendências Emergentes</div>
+                        <div class="insight-text">Crescimento de versões zero açúcar (+18% YoY), preferência por embalagens sustentáveis (32%), delivery (+25%).</div>
+                        <div class="insight-metric">+18% zero açúcar</div>
+                    </div>
+                </div>
+
+                <h2 class="section-title">Plano de Ação por Área de Negócio</h2>
+
+                <div class="chart-card full">
+                    <div class="chart-header">
+                        <div class="chart-title">Recomendações Estratégicas por Área</div>
+                        <div class="chart-subtitle">Ações prioritárias com KPIs, metas e impacto estimado</div>
+                    </div>
+                    <div class="chart-body">
+                        <table class="data-table">
+                            <thead>
+                                <tr><th>Área</th><th>Ação Prioritária</th><th>KPI</th><th>Meta</th><th>Prazo</th><th>Impacto Estimado</th></tr>
+                            </thead>
+                            <tbody>
+                                <tr><td><span class="area-badge mkt">MKT</span></td><td>Campanha "Momentos de Refrescância" focada em lanche da tarde e lazer</td><td>Awareness + Trial</td><td>+5pp awareness</td><td>Q2 2026</td><td><span class="kpi-change up">+12% frequência</span></td></tr>
+                                <tr><td><span class="area-badge mkt">MKT</span></td><td>Comunicação segmentada por faixa etária (sabor vs menos açúcar)</td><td>Conversão por segmento</td><td>+8% conversão 35+</td><td>Q2 2026</td><td><span class="kpi-change up">+R$ 320K</span></td></tr>
+                                <tr><td><span class="area-badge trade">TRADE</span></td><td>Multipack de latas em conveniência e canal frio</td><td>Sell-out latas</td><td>+15% volume</td><td>Q1 2026</td><td><span class="kpi-change up">+R$ 420K</span></td></tr>
+                                <tr><td><span class="area-badge trade">TRADE</span></td><td>Execução premium em restaurantes (vidro + lata)</td><td>Cobertura food service</td><td>+20% PDVs</td><td>Q2 2026</td><td><span class="kpi-change up">+R$ 280K</span></td></tr>
+                                <tr><td><span class="area-badge pd">P&D</span></td><td>Lançamento versão "menos açúcar" para refeições</td><td>Trial rate</td><td>25% trial</td><td>Q3 2026</td><td><span class="kpi-change up">+8% share 35+</span></td></tr>
+                                <tr><td><span class="area-badge pd">P&D</span></td><td>Nova embalagem squeeze 300ml para on-the-go</td><td>Incrementalidade</td><td>100% incremental</td><td>Q4 2026</td><td><span class="kpi-change up">+R$ 180K</span></td></tr>
+                                <tr><td><span class="area-badge comercial">COM</span></td><td>Expansão distribuição Nordeste (+25% cobertura)</td><td>Cobertura numérica</td><td>+25% PDVs</td><td>Q2 2026</td><td><span class="kpi-change up">+R$ 780K</span></td></tr>
+                                <tr><td><span class="area-badge comercial">COM</span></td><td>Programa de fidelidade para heavy users (clube de assinatura)</td><td>Recorrência</td><td>+22% recorrência</td><td>Q3 2026</td><td><span class="kpi-change up">+R$ 450K</span></td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <div class="conclusion-box">
+                    <h3>✅ Conclusão Executiva</h3>
+                    <p>A subcategoria de Bebidas Mistas e Gaseificadas apresenta <strong>oportunidades claras de crescimento de R$ 2.4M</strong> através de: (1) conversão de compradores mensais para frequências maiores via multipacks e programas de fidelidade, (2) expansão regional prioritária no Nordeste com gap de 13pp, (3) desenvolvimento de momentos sub-explorados como lanche da tarde e lazer, e (4) inovação em versões com menos açúcar para público 35+. <strong>Priorização recomendada:</strong> Trade Marketing (multipacks Q1) → Comercial (Nordeste Q2) → Marketing (campanhas Q2) → P&D (reformulação Q3).</p>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <footer class="footer">
+        <div class="footer-content">
+            <div style="display:flex;align-items:center;gap:12px;">
+                <div class="logo-icon" style="background:rgba(255,255,255,0.15);width:32px;height:32px;font-size:12px;">FT</div>
+                <span style="font-weight:600;">foodtest</span>
+                <span style="opacity:0.6;">| Pesquisa de Mercado e Análise Sensorial</span>
+            </div>
+            <div style="opacity:0.7;">© 2026 Foodtest. Dashboard gerado em Janeiro/2026.</div>
+        </div>
+    </footer>
+
+    <script>
+        Chart.defaults.font.family = "'DM Sans', sans-serif";
+        Chart.defaults.color = '#5D6470';
+        Chart.defaults.plugins.legend.labels.usePointStyle = true;
+
+        const colors = { primary: '#00A878', accent: '#F7931E', info: '#3B82F6', warning: '#F59E0B', success: '#10B981', danger: '#EF4444', purple: '#8B5CF6' };
+
+        function showTab(tabId) {
+            document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+            document.getElementById(tabId).classList.add('active');
+            event.target.classList.add('active');
+        }
+
+        function resetFilters() {
+            document.querySelectorAll('.filter-select').forEach(s => s.value = 'all');
+        }
+
+        // Chart 1: Frequência de Compra
+        new Chart(document.getElementById('chart1'), {
+            type: 'bar',
+            data: { labels: ['Diário', '2-3x/sem', '1x/sem', 'Quinzenal', 'Mensal', 'Raramente'], datasets: [{ data: [8, 19, 23, 18, 22, 10], backgroundColor: colors.primary, borderRadius: 6 }] },
+            options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true, max: 30, ticks: { callback: v => v + '%' }, grid: { display: false } }, x: { grid: { display: false } } } }
+        });
+
+        // Chart 2: Frequência de Consumo
+        new Chart(document.getElementById('chart2'), {
+            type: 'bar',
+            data: { labels: ['Diário', '2-3x/sem', '1x/sem', 'Quinzenal', 'Mensal', 'Raramente'], datasets: [{ data: [15, 27, 24, 14, 12, 8], backgroundColor: colors.accent, borderRadius: 6 }] },
+            options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true, max: 35, ticks: { callback: v => v + '%' }, grid: { display: false } }, x: { grid: { display: false } } } }
+        });
+
+        // Chart 3: Quem Consome
+        new Chart(document.getElementById('chart3'), {
+            type: 'doughnut',
+            data: { labels: ['Toda família', 'Somente eu', 'Eu e cônjuge', 'Filhos', 'Outros'], datasets: [{ data: [62, 18, 12, 5, 3], backgroundColor: [colors.primary, colors.accent, colors.info, colors.purple, colors.warning], borderWidth: 0 }] },
+            options: { responsive: true, maintainAspectRatio: false, cutout: '55%', plugins: { legend: { position: 'right' } } }
+        });
+
+        // Chart 4: Motivos de Compra
+        new Chart(document.getElementById('chart4'), {
+            type: 'bar',
+            data: { labels: ['Sabor', 'Preço', 'Refrescância', 'Refeições', 'Praticidade', 'Festas', 'Qualidade'], datasets: [{ data: [82, 67, 58, 52, 45, 38, 35], backgroundColor: colors.info, borderRadius: 6 }] },
+            options: { indexAxis: 'y', responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { x: { beginAtZero: true, max: 100, ticks: { callback: v => v + '%' }, grid: { display: false } }, y: { grid: { display: false } } } }
+        });
+
+        // Chart 5: Embalagem
+        new Chart(document.getElementById('chart5'), {
+            type: 'pie',
+            data: { labels: ['PET 2L', 'Lata 350ml', 'PET 600ml', 'PET 1L', 'Vidro', 'Outros'], datasets: [{ data: [38, 28, 18, 10, 4, 2], backgroundColor: [colors.primary, colors.accent, colors.info, colors.purple, colors.warning, '#9CA3AF'], borderWidth: 0 }] },
+            options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'right' } } }
+        });
+
+        // Chart 7: Características
+        new Chart(document.getElementById('chart7'), {
+            type: 'bar',
+            data: { labels: ['Sabor intenso', 'Menos açúcar', 'Gaseificação', 'Sem conservantes', 'Naturais', 'Marca', 'Embalagem'], datasets: [{ data: [78, 52, 48, 42, 38, 35, 32], backgroundColor: colors.purple, borderRadius: 6 }] },
+            options: { indexAxis: 'y', responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { x: { beginAtZero: true, max: 100, ticks: { callback: v => v + '%' }, grid: { display: false } }, y: { grid: { display: false } } } }
+        });
+
+        // Chart 8: Momentos
+        new Chart(document.getElementById('chart8'), {
+            type: 'bar',
+            data: { labels: ['Almoço', 'Jantar', 'Lanche', 'Lazer', 'Café', 'Trabalho', 'Exercício'], datasets: [{ data: [45, 38, 24, 54, 12, 18, 8], backgroundColor: colors.warning, borderRadius: 6 }] },
+            options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true, max: 60, ticks: { callback: v => v + '%' }, grid: { display: false } }, x: { grid: { display: false } } } }
+        });
+
+        // Chart 9: Locais
+        new Chart(document.getElementById('chart9'), {
+            type: 'bar',
+            data: { labels: ['Em casa', 'Restaurantes', 'Festas', 'Trabalho', 'Rua', 'Cinema', 'Academia'], datasets: [{ data: [78, 45, 38, 28, 22, 18, 8], backgroundColor: colors.success, borderRadius: 6 }] },
+            options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true, max: 90, ticks: { callback: v => v + '%' }, grid: { display: false } }, x: { grid: { display: false } } } }
+        });
+
+        // Chart 10: Fatores
+        new Chart(document.getElementById('chart10'), {
+            type: 'bar',
+            data: { labels: ['Preço', 'Sabor', 'Promoção', 'Marca', 'Disponibilidade', 'Recomendação', 'Embalagem', 'Publicidade', 'Sustentabilidade'], datasets: [{ data: [67, 62, 48, 42, 38, 25, 22, 18, 15], backgroundColor: [colors.primary, colors.accent, colors.info, colors.purple, colors.warning, colors.success, '#6366F1', '#EC4899', '#14B8A6'], borderRadius: 6 }] },
+            options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true, max: 80, ticks: { callback: v => v + '%' }, grid: { display: false } }, x: { grid: { display: false } } } }
+        });
+
+        // Cross 1: Quem Consome vs Embalagem
+        new Chart(document.getElementById('cross1'), {
+            type: 'bar',
+            data: {
+                labels: ['Toda família', 'Somente eu', 'Eu e cônjuge', 'Filhos'],
+                datasets: [
+                    { label: 'Lata 350ml', data: [15, 52, 28, 45], backgroundColor: colors.primary },
+                    { label: 'PET 600ml', data: [18, 35, 25, 32], backgroundColor: colors.accent },
+                    { label: 'PET 2L', data: [72, 12, 42, 18], backgroundColor: colors.info },
+                    { label: 'Vidro', data: [8, 5, 12, 4], backgroundColor: colors.purple }
+                ]
+            },
+            options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'top' } }, scales: { y: { beginAtZero: true, max: 80, ticks: { callback: v => v + '%' }, grid: { display: false } }, x: { grid: { display: false } } } }
+        });
+
+        // Cross 3: Quem Consome vs Locais
+        new Chart(document.getElementById('cross3'), {
+            type: 'bar',
+            data: {
+                labels: ['Em casa', 'Restaurantes', 'Festas', 'Trabalho', 'Rua'],
+                datasets: [
+                    { label: 'Toda família', data: [85, 52, 48, 15, 12], backgroundColor: colors.primary },
+                    { label: 'Somente eu', data: [62, 38, 25, 45, 42], backgroundColor: colors.accent },
+                    { label: 'Eu e cônjuge', data: [78, 58, 42, 22, 18], backgroundColor: colors.info },
+                    { label: 'Filhos', data: [72, 32, 55, 8, 25], backgroundColor: colors.purple }
+                ]
+            },
+            options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'top' } }, scales: { y: { beginAtZero: true, max: 100, ticks: { callback: v => v + '%' }, grid: { display: false } }, x: { grid: { display: false } } } }
+        });
+
+        // Cross 4: Momentos x Frequência
+        new Chart(document.getElementById('cross4'), {
+            type: 'line',
+            data: {
+                labels: ['Café manhã', 'Lanche manhã', 'Almoço', 'Lanche tarde', 'Jantar', 'Noite'],
+                datasets: [
+                    { label: 'Heavy Users', data: [18, 12, 65, 42, 58, 72], borderColor: colors.primary, backgroundColor: 'rgba(0,168,120,0.1)', fill: true, tension: 0.4 },
+                    { label: 'Medium Users', data: [8, 5, 52, 28, 45, 48], borderColor: colors.accent, backgroundColor: 'rgba(247,147,30,0.1)', fill: true, tension: 0.4 },
+                    { label: 'Light Users', data: [2, 2, 38, 15, 32, 25], borderColor: colors.info, backgroundColor: 'rgba(59,130,246,0.1)', fill: true, tension: 0.4 }
+                ]
+            },
+            options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'top' } }, scales: { y: { beginAtZero: true, max: 80, ticks: { callback: v => v + '%' }, grid: { color: 'rgba(0,0,0,0.05)' } }, x: { grid: { display: false } } } }
+        });
+
+        // Cross 5: Frequência por Marca
+        new Chart(document.getElementById('cross5'), {
+            type: 'bar',
+            data: {
+                labels: ['Guaraná', 'Coca-Cola', 'Fanta', 'Kuat', 'Sprite', 'Tubaína'],
+                datasets: [
+                    { label: 'Compra Frequente', data: [34, 31, 18, 15, 12, 8], backgroundColor: colors.primary },
+                    { label: 'Consumo Frequente', data: [42, 38, 22, 18, 15, 10], backgroundColor: colors.accent }
+                ]
+            },
+            options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'top' } }, scales: { y: { beginAtZero: true, max: 50, ticks: { callback: v => v + '%' }, grid: { display: false } }, x: { grid: { display: false } } } }
+        });
+
+        // Cross 6: Frequência vs Fatores (Radar)
+        new Chart(document.getElementById('cross6'), {
+            type: 'radar',
+            data: {
+                labels: ['Preço', 'Sabor', 'Promoção', 'Marca', 'Disponibilidade', 'Embalagem', 'Sustentabilidade'],
+                datasets: [
+                    { label: 'Heavy Users', data: [45, 85, 35, 72, 55, 42, 28], borderColor: colors.primary, backgroundColor: 'rgba(0,168,120,0.2)', pointBackgroundColor: colors.primary },
+                    { label: 'Medium Users', data: [68, 72, 52, 48, 45, 35, 22], borderColor: colors.accent, backgroundColor: 'rgba(247,147,30,0.2)', pointBackgroundColor: colors.accent },
+                    { label: 'Light Users', data: [85, 55, 72, 28, 32, 25, 15], borderColor: colors.info, backgroundColor: 'rgba(59,130,246,0.2)', pointBackgroundColor: colors.info }
+                ]
+            },
+            options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'top' } }, scales: { r: { beginAtZero: true, max: 100, ticks: { stepSize: 20, callback: v => v + '%', backdropColor: 'transparent' }, grid: { color: 'rgba(0,0,0,0.08)' }, angleLines: { color: 'rgba(0,0,0,0.08)' } } } }
+        });
+
+        // Novos gráficos Tab 2
+        new Chart(document.getElementById('crossMotMom'), {
+            type: 'bar',
+            data: {
+                labels: ['Almoço', 'Jantar', 'Lanche', 'Lazer', 'Festas'],
+                datasets: [
+                    { label: 'Sabor', data: [72, 68, 45, 58, 75], backgroundColor: colors.primary },
+                    { label: 'Refrescância', data: [65, 55, 52, 72, 62], backgroundColor: colors.accent },
+                    { label: 'Praticidade', data: [35, 32, 58, 48, 28], backgroundColor: colors.info }
+                ]
+            },
+            options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'top' } }, scales: { y: { beginAtZero: true, max: 80, ticks: { callback: v => v + '%' }, grid: { display: false } }, x: { grid: { display: false } } } }
+        });
+
+        new Chart(document.getElementById('crossEmbLocal'), {
+            type: 'bar',
+            data: {
+                labels: ['Em casa', 'Restaurantes', 'Conveniência', 'Trabalho', 'Festas'],
+                datasets: [
+                    { label: 'Lata 350ml', data: [25, 35, 65, 58, 42], backgroundColor: colors.primary },
+                    { label: 'PET 600ml', data: [32, 28, 45, 52, 25], backgroundColor: colors.accent },
+                    { label: 'PET 2L', data: [72, 18, 8, 12, 68], backgroundColor: colors.info },
+                    { label: 'Vidro', data: [8, 48, 5, 8, 38], backgroundColor: colors.purple }
+                ]
+            },
+            options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'top' } }, scales: { y: { beginAtZero: true, max: 80, ticks: { callback: v => v + '%' }, grid: { display: false } }, x: { grid: { display: false } } } }
+        });
+
+        new Chart(document.getElementById('crossEmbMom'), {
+            type: 'bar',
+            data: {
+                labels: ['Almoço', 'Jantar', 'Lanche', 'Lazer', 'Trabalho', 'Exercício'],
+                datasets: [
+                    { label: 'Lata 350ml', data: [28, 25, 52, 58, 62, 35], backgroundColor: colors.primary },
+                    { label: 'PET 600ml', data: [35, 32, 45, 42, 48, 28], backgroundColor: colors.accent },
+                    { label: 'PET 2L', data: [55, 58, 22, 38, 12, 5], backgroundColor: colors.info }
+                ]
+            },
+            options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'top' } }, scales: { y: { beginAtZero: true, max: 70, ticks: { callback: v => v + '%' }, grid: { display: false } }, x: { grid: { display: false } } } }
+        });
+
+        // Novos gráficos Tab 3
+        new Chart(document.getElementById('crossMarcaFator'), {
+            type: 'radar',
+            data: {
+                labels: ['Sabor', 'Preço', 'Marca', 'Qualidade', 'Disponibilidade', 'Promoção'],
+                datasets: [
+                    { label: 'Guaraná', data: [85, 52, 68, 72, 65, 45], borderColor: colors.primary, backgroundColor: 'rgba(0,168,120,0.2)' },
+                    { label: 'Coca-Cola', data: [78, 42, 82, 75, 72, 38], borderColor: colors.danger, backgroundColor: 'rgba(239,68,68,0.2)' },
+                    { label: 'Fanta', data: [72, 58, 55, 62, 58, 52], borderColor: colors.accent, backgroundColor: 'rgba(247,147,30,0.2)' }
+                ]
+            },
+            options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'top' } }, scales: { r: { beginAtZero: true, max: 100, ticks: { stepSize: 20, callback: v => v + '%', backdropColor: 'transparent' }, grid: { color: 'rgba(0,0,0,0.08)' } } } }
+        });
+
+        new Chart(document.getElementById('crossCaracQuem'), {
+            type: 'bar',
+            data: {
+                labels: ['Sabor intenso', 'Menos açúcar', 'Gás forte', 'Naturais', 'Embal. prática'],
+                datasets: [
+                    { label: 'Toda família', data: [75, 58, 35, 42, 32], backgroundColor: colors.primary },
+                    { label: 'Somente eu', data: [82, 48, 68, 35, 72], backgroundColor: colors.accent },
+                    { label: 'Filhos', data: [85, 28, 42, 25, 45], backgroundColor: colors.info }
+                ]
+            },
+            options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'top' } }, scales: { y: { beginAtZero: true, max: 100, ticks: { callback: v => v + '%' }, grid: { display: false } }, x: { grid: { display: false } } } }
+        });
+
+        new Chart(document.getElementById('crossMarcaClasse'), {
+            type: 'bar',
+            data: {
+                labels: ['Guaraná', 'Coca-Cola', 'Fanta', 'Kuat', 'Sprite', 'Regionais'],
+                datasets: [
+                    { label: 'Classe A/B', data: [38, 42, 22, 12, 18, 5], backgroundColor: colors.primary },
+                    { label: 'Classe C', data: [35, 32, 28, 22, 15, 18], backgroundColor: colors.accent },
+                    { label: 'Classe D/E', data: [28, 18, 25, 32, 12, 35], backgroundColor: colors.info }
+                ]
+            },
+            options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'top' } }, scales: { y: { beginAtZero: true, max: 50, ticks: { callback: v => v + '%' }, grid: { display: false } }, x: { grid: { display: false } } } }
+        });
+
+        // Função de exportação de dados
+        function exportData() {
+            const data = {
+                pesquisa: "Bebida Mista e Gaseificada",
+                base: 1247,
+                data: "Janeiro/2026",
+                frequencia_compra: { diario: "8%", "2-3x_semana": "19%", "1x_semana": "23%", quinzenal: "18%", mensal: "22%", raramente: "10%" },
+                frequencia_consumo: { diario: "15%", "2-3x_semana": "27%", "1x_semana": "24%", quinzenal: "14%", mensal: "12%", raramente: "8%" },
+                quem_consome: { familia: "62%", somente_eu: "18%", casal: "12%", filhos: "5%", outros: "3%" },
+                motivos_compra: { sabor: "82%", preco: "67%", refrescancia: "58%", refeicoes: "52%", praticidade: "45%", festas: "38%", qualidade: "35%" },
+                embalagem: { pet_2l: "38%", lata_350ml: "28%", pet_600ml: "18%", pet_1l: "10%", vidro: "4%", outros: "2%" },
+                marcas: { guarana: "34%", coca_cola: "31%", fanta: "18%", kuat: "15%", sprite: "12%" },
+                momentos: { almoco: "45%", jantar: "38%", lanche: "24%", lazer: "54%", cafe: "12%", trabalho: "18%" },
+                locais: { casa: "78%", restaurantes: "45%", festas: "38%", trabalho: "28%", rua: "22%", cinema: "18%" },
+                fatores: { preco: "67%", sabor: "62%", promocao: "48%", marca: "42%", disponibilidade: "38%", recomendacao: "25%", embalagem: "22%", publicidade: "18%", sustentabilidade: "15%" }
+            };
+            const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'foodtest_dados_subcategoria.json';
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+        }
+    </script>
+</body>
+</html>
