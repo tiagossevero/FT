@@ -26,16 +26,17 @@ CARD_COLORS = ['#307FE2','#4ECDC4','#45B7D1','#F7931E','#9B59B6','#14B8A6','#2EC
 st.set_page_config(page_title="Foodtest Analytics", page_icon="🍽️", layout="wide", initial_sidebar_state="expanded")
 st.markdown("""<style>
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
-:root{--bg:#f0f2f5;--card:#ffffff;--text:#1a1a2e;--muted:#6b7280;--border:#e5e7eb;--sidebar-bg:#0f1117;--primary:#307FE2;}
+:root{--bg:#ffffff;--card:#ffffff;--text:#1a1a2e;--muted:#6b7280;--border:#e5e7eb;--sidebar-bg:#ffffff;--primary:#307FE2;}
 .main{background:var(--bg)!important}
 .stApp{font-family:'Inter',sans-serif!important}
 h1,h2,h3,h4{font-family:'Inter',sans-serif!important;font-weight:700!important;color:var(--text)!important}
 section[data-testid="stSidebar"]{background:var(--sidebar-bg)!important}
-section[data-testid="stSidebar"] *{color:#c9d1d9!important}
+section[data-testid="stSidebar"]{border-right:1px solid var(--border)!important}
+section[data-testid="stSidebar"] *{color:var(--text)!important}
 section[data-testid="stSidebar"] .stRadio label{padding:6px 12px;border-radius:8px;transition:background .2s;font-size:.85rem!important}
 section[data-testid="stSidebar"] .stRadio label:hover{background:rgba(48,127,226,.15)}
-section[data-testid="stSidebar"] .stRadio label[data-checked="true"]{background:rgba(48,127,226,.25);color:#fff!important}
-section[data-testid="stSidebar"] .stTextInput input{background:#1a1f36!important;border:1px solid #2d3348!important;color:#c9d1d9!important}
+section[data-testid="stSidebar"] .stRadio label[data-checked="true"]{background:rgba(48,127,226,.15);color:var(--primary)!important;font-weight:600}
+section[data-testid="stSidebar"] .stTextInput input{background:#f9fafb!important;border:1px solid var(--border)!important;color:var(--text)!important}
 section[data-testid="stSidebar"] .stButton button{background:linear-gradient(135deg,#307FE2,#4ECDC4)!important;color:#fff!important;border:none!important;border-radius:8px!important}
 .mc{background:var(--card);border-radius:12px;padding:18px 20px;box-shadow:0 1px 3px rgba(0,0,0,.06);border-left:4px solid var(--primary);transition:box-shadow .2s}
 .mc:hover{box-shadow:0 4px 12px rgba(0,0,0,.1)}
@@ -47,10 +48,10 @@ section[data-testid="stSidebar"] .stButton button{background:linear-gradient(135
 .sh-sub{color:var(--muted);font-size:.9rem;font-weight:400;margin-top:-8px;margin-bottom:16px}
 .chart-card{background:var(--card);border-radius:12px;padding:20px;box-shadow:0 1px 3px rgba(0,0,0,.06);margin-bottom:16px}
 .chart-title{font-size:.95rem;font-weight:600;color:var(--text);margin-bottom:12px}
-.ib{background:#1a1f36;border-radius:12px;padding:18px;color:#fff;margin:10px 0;border:1px solid #2d3348}
-.ib h4{color:#60a5fa;margin-bottom:6px;font-size:.9rem;font-weight:600}.ib p{color:#d1d5db;font-size:.85rem;line-height:1.6}
+.ib{background:#f8f9fa;border-radius:12px;padding:18px;color:var(--text);margin:10px 0;border:1px solid var(--border)}
+.ib h4{color:var(--primary)!important;margin-bottom:6px;font-size:.9rem;font-weight:600}.ib p{color:#4b5563;font-size:.85rem;line-height:1.6}
 .it{display:inline-block;padding:3px 10px;border-radius:6px;font-size:.65rem;font-weight:700;text-transform:uppercase;margin-bottom:8px;letter-spacing:.5px}
-.ts{background:rgba(139,92,246,.2);color:#c4b5fd}.tt{background:rgba(59,130,246,.2);color:#93c5fd}.to{background:rgba(16,185,129,.2);color:#6ee7b7}
+.ts{background:rgba(139,92,246,.12);color:#7c3aed}.tt{background:rgba(59,130,246,.12);color:#2563eb}.to{background:rgba(16,185,129,.12);color:#059669}
 #MainMenu{visibility:hidden}footer{visibility:hidden}
 .stTabs [data-baseweb="tab-list"]{gap:6px;border-bottom:2px solid var(--border)}
 .stTabs [data-baseweb="tab"]{background:transparent;border-radius:8px 8px 0 0;padding:10px 20px;border:none;font-weight:500;color:var(--muted)}
