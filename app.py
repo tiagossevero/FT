@@ -28,10 +28,15 @@ st.markdown("""<style>
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
 :root{--bg:#ffffff;--card:#ffffff;--text:#1a1a2e;--muted:#6b7280;--border:#e5e7eb;--sidebar-bg:#ffffff;--primary:#307FE2;}
 .main{background:var(--bg)!important}
-.stApp{font-family:'Inter',sans-serif!important}
+.stApp{font-family:'Inter',sans-serif!important;background:var(--bg)!important;color:var(--text)!important}
+[data-testid="stHeader"]{background:var(--bg)!important}
+[data-testid="stToolbar"]{background:var(--bg)!important}
+[data-testid="stAppViewContainer"]{background:var(--bg)!important}
+[data-testid="stBottomBlockContainer"]{background:var(--bg)!important}
 h1,h2,h3,h4{font-family:'Inter',sans-serif!important;font-weight:700!important;color:var(--text)!important}
-section[data-testid="stSidebar"]{background:var(--sidebar-bg)!important}
-section[data-testid="stSidebar"]{border-right:1px solid var(--border)!important}
+p,span,label,li,td,th,div{color:var(--text)}
+section[data-testid="stSidebar"]{background:var(--sidebar-bg)!important;border-right:1px solid var(--border)!important}
+section[data-testid="stSidebar"] > div{background:var(--sidebar-bg)!important}
 section[data-testid="stSidebar"] *{color:var(--text)!important}
 section[data-testid="stSidebar"] .stRadio label{padding:6px 12px;border-radius:8px;transition:background .2s;font-size:.85rem!important}
 section[data-testid="stSidebar"] .stRadio label:hover{background:rgba(48,127,226,.15)}
@@ -52,6 +57,22 @@ section[data-testid="stSidebar"] .stButton button{background:linear-gradient(135
 .ib h4{color:var(--primary)!important;margin-bottom:6px;font-size:.9rem;font-weight:600}.ib p{color:#4b5563;font-size:.85rem;line-height:1.6}
 .it{display:inline-block;padding:3px 10px;border-radius:6px;font-size:.65rem;font-weight:700;text-transform:uppercase;margin-bottom:8px;letter-spacing:.5px}
 .ts{background:rgba(139,92,246,.12);color:#7c3aed}.tt{background:rgba(59,130,246,.12);color:#2563eb}.to{background:rgba(16,185,129,.12);color:#059669}
+.stSelectbox div[data-baseweb="select"]>div{background:#f9fafb!important;color:var(--text)!important;border-color:var(--border)!important}
+.stMultiSelect div[data-baseweb="select"]>div{background:#f9fafb!important;color:var(--text)!important;border-color:var(--border)!important}
+.stTextInput input{background:#f9fafb!important;color:var(--text)!important;border-color:var(--border)!important}
+.stTextArea textarea{background:#f9fafb!important;color:var(--text)!important;border-color:var(--border)!important}
+.stNumberInput input{background:#f9fafb!important;color:var(--text)!important;border-color:var(--border)!important}
+.stDateInput input{background:#f9fafb!important;color:var(--text)!important;border-color:var(--border)!important}
+[data-testid="stExpander"]{background:var(--card)!important;border:1px solid var(--border)!important;border-radius:8px!important}
+[data-testid="stExpander"] summary span{color:var(--text)!important}
+[data-testid="stDataFrame"]{background:var(--card)!important}
+[data-testid="stMetric"]{background:var(--card)!important;color:var(--text)!important}
+[data-testid="stMetricValue"]{color:var(--text)!important}
+[data-testid="stMetricLabel"]{color:var(--muted)!important}
+[data-testid="stMarkdownContainer"]{color:var(--text)!important}
+div[data-baseweb="popover"] ul{background:var(--card)!important;color:var(--text)!important}
+div[data-baseweb="menu"] li{color:var(--text)!important}
+div[data-baseweb="menu"] li:hover{background:#f0f2f5!important}
 #MainMenu{visibility:hidden}footer{visibility:hidden}
 .stTabs [data-baseweb="tab-list"]{gap:6px;border-bottom:2px solid var(--border)}
 .stTabs [data-baseweb="tab"]{background:transparent;border-radius:8px 8px 0 0;padding:10px 20px;border:none;font-weight:500;color:var(--muted)}
