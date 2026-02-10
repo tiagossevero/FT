@@ -22,51 +22,82 @@ CL = {
     'dark':'#2C3E50','orange':'#F7931E','teal':'#14B8A6','pink':'#EC4899',
 }
 PAL = ['#307FE2','#FF6B6B','#4ECDC4','#45B7D1','#96CEB4','#FFEAA7','#DDA0DD','#98D8C8','#F39C12','#9B59B6','#1ABC9C','#E74C3C','#3498DB','#2ECC71','#E67E22']
+CARD_COLORS = ['#307FE2','#4ECDC4','#45B7D1','#F7931E','#9B59B6','#14B8A6','#2ECC71','#EC4899','#E74C3C','#FF6B6B']
 st.set_page_config(page_title="Foodtest Analytics", page_icon="🍽️", layout="wide", initial_sidebar_state="expanded")
 st.markdown("""<style>
-@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&family=Space+Grotesk:wght@400;500;700&display=swap');
-.main{background:linear-gradient(135deg,#f8fafc,#e2e8f0)}.stApp{font-family:'DM Sans',sans-serif}
-h1,h2,h3{font-family:'Space Grotesk',sans-serif!important;font-weight:700!important}
-.mc{background:linear-gradient(135deg,#fff,#f8fafc);border-radius:16px;padding:20px;box-shadow:0 4px 20px rgba(0,0,0,.08);border:1px solid rgba(48,127,226,.1);transition:transform .3s,box-shadow .3s}
-.mc:hover{transform:translateY(-3px)}.mv{font-family:'Space Grotesk';font-size:2rem;font-weight:700;color:#307FE2;margin:0;line-height:1.2}
-.ml{font-size:.8rem;color:#64748b;text-transform:uppercase;letter-spacing:.5px;margin-top:6px}
-.md{font-size:.8rem;padding:3px 8px;border-radius:8px;display:inline-block;margin-top:6px}
-.dp{background:rgba(46,204,113,.15);color:#2ECC71}.dn{background:rgba(231,76,60,.15);color:#E74C3C}
-.sh{background:linear-gradient(90deg,#307FE2,#4ECDC4);-webkit-background-clip:text;-webkit-text-fill-color:transparent;font-size:1.4rem;font-weight:700;margin:1.5rem 0 1rem;font-family:'Space Grotesk'}
-.ib{background:linear-gradient(135deg,#1e293b,#334155);border-radius:14px;padding:18px;color:#fff;margin:12px 0}
-.ib h4{color:#60a5fa;margin-bottom:8px;font-size:.9rem}.ib p{color:#e2e8f0;font-size:.85rem;line-height:1.5}
-.it{display:inline-block;padding:2px 10px;border-radius:10px;font-size:.65rem;font-weight:700;text-transform:uppercase;margin-bottom:6px}
-.ts{background:rgba(139,92,246,.3);color:#c4b5fd}.tt{background:rgba(59,130,246,.3);color:#93c5fd}.to{background:rgba(16,185,129,.3);color:#6ee7b7}
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+:root{--bg:#f0f2f5;--card:#ffffff;--text:#1a1a2e;--muted:#6b7280;--border:#e5e7eb;--sidebar-bg:#0f1117;--primary:#307FE2;}
+.main{background:var(--bg)!important}
+.stApp{font-family:'Inter',sans-serif!important}
+h1,h2,h3,h4{font-family:'Inter',sans-serif!important;font-weight:700!important;color:var(--text)!important}
+section[data-testid="stSidebar"]{background:var(--sidebar-bg)!important}
+section[data-testid="stSidebar"] *{color:#c9d1d9!important}
+section[data-testid="stSidebar"] .stRadio label{padding:6px 12px;border-radius:8px;transition:background .2s;font-size:.85rem!important}
+section[data-testid="stSidebar"] .stRadio label:hover{background:rgba(48,127,226,.15)}
+section[data-testid="stSidebar"] .stRadio label[data-checked="true"]{background:rgba(48,127,226,.25);color:#fff!important}
+section[data-testid="stSidebar"] .stTextInput input{background:#1a1f36!important;border:1px solid #2d3348!important;color:#c9d1d9!important}
+section[data-testid="stSidebar"] .stButton button{background:linear-gradient(135deg,#307FE2,#4ECDC4)!important;color:#fff!important;border:none!important;border-radius:8px!important}
+.mc{background:var(--card);border-radius:12px;padding:18px 20px;box-shadow:0 1px 3px rgba(0,0,0,.06);border-left:4px solid var(--primary);transition:box-shadow .2s}
+.mc:hover{box-shadow:0 4px 12px rgba(0,0,0,.1)}
+.mv{font-family:'Inter';font-size:1.75rem;font-weight:700;color:var(--text);margin:0;line-height:1.2}
+.ml{font-size:.75rem;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;margin-top:4px;font-weight:500}
+.md{font-size:.75rem;padding:2px 8px;border-radius:6px;display:inline-block;margin-top:4px;font-weight:600}
+.dp{background:rgba(46,204,113,.12);color:#2ECC71}.dn{background:rgba(231,76,60,.12);color:#E74C3C}
+.sh{color:var(--text)!important;font-size:1.3rem;font-weight:700;margin:1.2rem 0 .8rem;font-family:'Inter';background:none!important;-webkit-text-fill-color:var(--text)!important}
+.sh-sub{color:var(--muted);font-size:.9rem;font-weight:400;margin-top:-8px;margin-bottom:16px}
+.chart-card{background:var(--card);border-radius:12px;padding:20px;box-shadow:0 1px 3px rgba(0,0,0,.06);margin-bottom:16px}
+.chart-title{font-size:.95rem;font-weight:600;color:var(--text);margin-bottom:12px}
+.ib{background:#1a1f36;border-radius:12px;padding:18px;color:#fff;margin:10px 0;border:1px solid #2d3348}
+.ib h4{color:#60a5fa;margin-bottom:6px;font-size:.9rem;font-weight:600}.ib p{color:#d1d5db;font-size:.85rem;line-height:1.6}
+.it{display:inline-block;padding:3px 10px;border-radius:6px;font-size:.65rem;font-weight:700;text-transform:uppercase;margin-bottom:8px;letter-spacing:.5px}
+.ts{background:rgba(139,92,246,.2);color:#c4b5fd}.tt{background:rgba(59,130,246,.2);color:#93c5fd}.to{background:rgba(16,185,129,.2);color:#6ee7b7}
 #MainMenu{visibility:hidden}footer{visibility:hidden}
-.stTabs [data-baseweb="tab-list"]{gap:8px}.stTabs [data-baseweb="tab"]{background:#fff;border-radius:8px;padding:10px 20px;border:1px solid #e2e8f0}
-.stTabs [aria-selected="true"]{background:linear-gradient(90deg,#307FE2,#4ECDC4);color:#fff!important}
+.stTabs [data-baseweb="tab-list"]{gap:6px;border-bottom:2px solid var(--border)}
+.stTabs [data-baseweb="tab"]{background:transparent;border-radius:8px 8px 0 0;padding:10px 20px;border:none;font-weight:500;color:var(--muted)}
+.stTabs [aria-selected="true"]{background:var(--card)!important;color:var(--primary)!important;border-bottom:2px solid var(--primary)!important;font-weight:600}
+.divider{height:1px;background:var(--border);margin:20px 0}
+.page-header{margin-bottom:24px}
+.page-header h2{margin-bottom:2px!important}
 </style>""", unsafe_allow_html=True)
 
 # ============================================================================
 # UI COMPONENTS
 # ============================================================================
 def mcard(v, l, d=None, dt='positive', c=None):
-    cs = f"color:{c};" if c else "color:#307FE2;"
+    bc = c if c else CL['primary']
     dh = f'<span class="md {"dp" if dt=="positive" else "dn"}">{d}</span>' if d else ""
-    return f'<div class="mc"><p class="mv" style="{cs}">{v}</p><p class="ml">{l}</p>{dh}</div>'
+    return f'<div class="mc" style="border-left:4px solid {bc}"><p class="mv">{v}</p><p class="ml">{l}</p>{dh}</div>'
 
 def gauge(v, t, mx=100):
-    fig = go.Figure(go.Indicator(mode="gauge+number",value=v,title={'text':t,'font':{'size':14}},
+    fig = go.Figure(go.Indicator(mode="gauge+number",value=v,title={'text':t,'font':{'size':14,'family':'Inter'}},
         gauge={'axis':{'range':[0,mx]},'bar':{'color':CL['primary']},
         'steps':[{'range':[0,40],'color':'#fee2e2'},{'range':[40,60],'color':'#fef3c7'},{'range':[60,80],'color':'#d1fae5'},{'range':[80,100],'color':'#a7f3d0'}],
         'threshold':{'line':{'color':'red','width':4},'thickness':.75,'value':60}}))
-    fig.update_layout(height=220,margin=dict(l=20,r=20,t=40,b=20),paper_bgcolor='rgba(0,0,0,0)')
+    fig.update_layout(height=220,margin=dict(l=20,r=20,t=40,b=20),paper_bgcolor='rgba(0,0,0,0)',font_family='Inter')
     return fig
 
 def ibox(tag, title, text):
     tc = {'Estratégico':'ts','Tático':'tt','Operacional':'to'}.get(tag,'tt')
-    return f'<div class="ib"><span class="it {tc}">{tag}</span><h4>💡 {title}</h4><p>{text}</p></div>'
+    return f'<div class="ib"><span class="it {tc}">{tag}</span><h4>{title}</h4><p>{text}</p></div>'
 
 def spct(p, t): return round(p/t*100,1) if t>0 else 0
 
 def hbar(xv, yv, cs='Blues', **kw):
     df=pd.DataFrame({'v':list(xv),'n':list(yv)})
     return px.bar(df,x='v',y='n',orientation='h',color='v',color_continuous_scale=cs,**kw)
+
+def chart_layout(fig, h=400):
+    fig.update_layout(height=h,paper_bgcolor='rgba(0,0,0,0)',plot_bgcolor='rgba(0,0,0,0)',
+        font_family='Inter',font_color='#374151',margin=dict(l=10,r=10,t=40,b=10),
+        xaxis=dict(gridcolor='#f0f0f0',zerolinecolor='#e5e7eb'),
+        yaxis=dict(gridcolor='#f0f0f0',zerolinecolor='#e5e7eb'))
+    return fig
+
+def section_header(title, subtitle=None):
+    h = f'<div class="page-header"><h2 class="sh">{title}</h2>'
+    if subtitle: h += f'<p class="sh-sub">{subtitle}</p>'
+    h += '</div>'
+    return h
 
 # ============================================================================
 # DATA LOADER (TODAS AS TABELAS)
@@ -278,69 +309,128 @@ def c_score(dr,drp,de,dv,du):
 # PG1: VISÃO GERAL
 # ============================================================================
 def pg_overview(data):
-    st.markdown('<h2 class="sh">📊 Dashboard Geral da Plataforma</h2>',unsafe_allow_html=True)
+    st.markdown(section_header("Dashboard Geral","Visao consolidada da plataforma Foodtest"),unsafe_allow_html=True)
     us,pr,rp,rq=data['usuario'],data['produto'],data['resp_pergunta'],data['resp_questionario']
     ca,em=data['campanha'],data['empresa']
     nu,nq,nr=len(us),len(rq),len(rp)
     pts=int(rq['pontos_ganhos'].sum()) if 'pontos_ganhos' in rq.columns and len(rq)>0 else 0
+    # Row 1: Main KPIs
     c1,c2,c3,c4,c5=st.columns(5)
-    with c1: st.markdown(mcard(f"{nu:,}","Testadores"),unsafe_allow_html=True)
-    with c2: st.markdown(mcard(f"{nq:,}","Questionários",c=CL['accent1']),unsafe_allow_html=True)
-    with c3: st.markdown(mcard(f"{nr:,}","Respostas",c=CL['accent2']),unsafe_allow_html=True)
-    with c4: st.markdown(mcard(f"{pts:,}","Pontos",c=CL['orange']),unsafe_allow_html=True)
-    with c5: st.markdown(mcard(f"{len(pr):,}","Produtos",c=CL['purple']),unsafe_allow_html=True)
-    c1,c2,c3,c4=st.columns(4)
-    with c1: st.markdown(mcard(f"{len(data['categoria'])}","Categorias",c=CL['teal']),unsafe_allow_html=True)
-    with c2: st.markdown(mcard(f"{len(data['subcategoria'])}","Subcategorias",c=CL['success']),unsafe_allow_html=True)
-    with c3: st.markdown(mcard(f"{len(em)}","Empresas",c=CL['dark']),unsafe_allow_html=True)
-    with c4: st.markdown(mcard(f"{len(ca)}","Campanhas",c=CL['pink']),unsafe_allow_html=True)
-    st.markdown("---")
+    with c1: st.markdown(mcard(f"{nu:,}","Total de Usuarios",c='#307FE2'),unsafe_allow_html=True)
+    with c2: st.markdown(mcard(f"{nq:,}","Questionarios Respondidos",c='#4ECDC4'),unsafe_allow_html=True)
+    with c3: st.markdown(mcard(f"{nr:,}","Total de Respostas",c='#45B7D1'),unsafe_allow_html=True)
+    with c4: st.markdown(mcard(f"{pts:,}","Pontos Distribuidos",c='#F7931E'),unsafe_allow_html=True)
+    with c5: st.markdown(mcard(f"{len(pr):,}","Total de Produtos",c='#9B59B6'),unsafe_allow_html=True)
+    # Row 2: Secondary KPIs
+    ativos=rq['id_usuario'].nunique() if len(rq)>0 and 'id_usuario' in rq.columns else 0
+    tx_conv=spct(ativos,nu) if nu>0 else 0
+    med_resp=round(nr/ativos,1) if ativos>0 else 0
+    c1,c2,c3,c4,c5,c6,c7=st.columns(7)
+    with c1: st.markdown(mcard(f"{tx_conv}%","Taxa de Conversao",c='#14B8A6'),unsafe_allow_html=True)
+    with c2: st.markdown(mcard(f"{med_resp}","Media de Respostas",c='#307FE2'),unsafe_allow_html=True)
+    with c3: st.markdown(mcard(f"{tx_conv}%","Engajamento",c='#2ECC71'),unsafe_allow_html=True)
+    with c4: st.markdown(mcard(f"{len(data['categoria'])}","Categorias Ativas",c='#EC4899'),unsafe_allow_html=True)
+    with c5: st.markdown(mcard(f"{len(data['subcategoria'])}","Subcategorias",c='#4ECDC4'),unsafe_allow_html=True)
+    with c6: st.markdown(mcard(f"{len(em)}","Empresas",c='#2C3E50'),unsafe_allow_html=True)
+    with c7: st.markdown(mcard(f"{len(ca)}","Campanhas",c='#FF6B6B'),unsafe_allow_html=True)
+    st.markdown('<div class="divider"></div>',unsafe_allow_html=True)
+    # Charts Row 1: Tendencia + Genero
     c1,c2=st.columns(2)
     with c1:
-        st.markdown("#### 📁 Distribuição por Categoria")
-        if len(rq)>0 and 'nome_categoria' in rq.columns and rq['nome_categoria'].notna().any():
-            cc=rq['nome_categoria'].value_counts()
-            fig=px.pie(values=cc.values.tolist(),names=cc.index.tolist(),color_discrete_sequence=PAL,hole=.4)
-            fig.update_layout(height=400); st.plotly_chart(fig,use_container_width=True)
-    with c2:
-        st.markdown("#### 📈 Evolução Temporal")
+        st.markdown('<div class="chart-card"><div class="chart-title">Tendencia Mensal de Respostas</div>',unsafe_allow_html=True)
         if len(rq)>0 and 'createdAt' in rq.columns:
-            dt=rq.groupby(rq['createdAt'].dt.date).size().reset_index(); dt.columns=['data','qtd']
-            fig=px.area(dt,x='data',y='qtd',color_discrete_sequence=[CL['primary']])
-            fig.update_layout(height=400); st.plotly_chart(fig,use_container_width=True)
+            mn=rq.groupby(rq['createdAt'].dt.to_period('M')).size().reset_index(name='qtd')
+            mn.columns=['mes','qtd']; mn['mes']=mn['mes'].astype(str)
+            fig=px.bar(mn,x='mes',y='qtd',color_discrete_sequence=[CL['primary']])
+            chart_layout(fig,350); fig.update_layout(xaxis_tickangle=45,xaxis_title="",yaxis_title="")
+            st.plotly_chart(fig,use_container_width=True)
+        st.markdown('</div>',unsafe_allow_html=True)
+    with c2:
+        st.markdown('<div class="chart-card"><div class="chart-title">Distribuicao por Genero</div>',unsafe_allow_html=True)
+        if 'genero' in us.columns and len(us['genero'].dropna())>0:
+            gc=us['genero'].value_counts()
+            fig=px.pie(values=gc.values.tolist(),names=gc.index.tolist(),color_discrete_sequence=['#307FE2','#FF6B6B','#4ECDC4','#F7931E'],hole=.45)
+            chart_layout(fig,350); st.plotly_chart(fig,use_container_width=True)
+        st.markdown('</div>',unsafe_allow_html=True)
+    # Charts Row 2: Faixa Etaria + Top Categorias
     c1,c2=st.columns(2)
     with c1:
-        st.markdown("#### 🏆 Top 10 Subcategorias")
+        st.markdown('<div class="chart-card"><div class="chart-title">Faixa Etaria dos Testadores</div>',unsafe_allow_html=True)
+        if 'idade' in us.columns and us['idade'].notna().any():
+            dv=us[us['idade'].notna()&(us['idade']>0)].copy()
+            if len(dv)>0:
+                dv['fx']=pd.cut(dv['idade'].astype(float),bins=[0,25,35,45,55,65,100],labels=['18-25','26-35','36-45','46-55','56-65','65+'])
+                fc=dv['fx'].value_counts().sort_index()
+                fig=px.bar(x=fc.index.astype(str).tolist(),y=fc.values.tolist(),color_discrete_sequence=[CL['primary']])
+                chart_layout(fig,350); fig.update_layout(xaxis_title="",yaxis_title="")
+                st.plotly_chart(fig,use_container_width=True)
+        st.markdown('</div>',unsafe_allow_html=True)
+    with c2:
+        st.markdown('<div class="chart-card"><div class="chart-title">Top 10 Categorias</div>',unsafe_allow_html=True)
+        if len(rq)>0 and 'nome_categoria' in rq.columns and rq['nome_categoria'].notna().any():
+            cc=rq['nome_categoria'].value_counts().head(10)
+            fig=hbar(cc.values,cc.index,cs='Blues')
+            chart_layout(fig,350); fig.update_layout(yaxis_title="",coloraxis_showscale=False); fig.update_yaxes(autorange="reversed")
+            st.plotly_chart(fig,use_container_width=True)
+        st.markdown('</div>',unsafe_allow_html=True)
+    # Charts Row 3: Subcategorias + Marcas
+    c1,c2=st.columns(2)
+    with c1:
+        st.markdown('<div class="chart-card"><div class="chart-title">Top 10 Subcategorias</div>',unsafe_allow_html=True)
         if len(rq)>0 and 'nome_subcategoria' in rq.columns:
             ts=rq['nome_subcategoria'].value_counts().head(10)
             fig=hbar(ts.values,ts.index,cs='Blues')
-            fig.update_layout(height=400,yaxis_title="",coloraxis_showscale=False); fig.update_yaxes(autorange="reversed")
+            chart_layout(fig,350); fig.update_layout(yaxis_title="",coloraxis_showscale=False); fig.update_yaxes(autorange="reversed")
             st.plotly_chart(fig,use_container_width=True)
+        st.markdown('</div>',unsafe_allow_html=True)
     with c2:
-        st.markdown("#### 👥 Top 10 Testadores")
+        st.markdown('<div class="chart-card"><div class="chart-title">Top 10 Marcas</div>',unsafe_allow_html=True)
+        if len(pr)>0 and 'nome_marca' in pr.columns:
+            tm=pr['nome_marca'].value_counts().head(10)
+            fig=hbar(tm.values,tm.index,cs='Greens')
+            chart_layout(fig,350); fig.update_layout(yaxis_title="",coloraxis_showscale=False); fig.update_yaxes(autorange="reversed")
+            st.plotly_chart(fig,use_container_width=True)
+        st.markdown('</div>',unsafe_allow_html=True)
+    # Charts Row 4: Estado + Top Testadores
+    c1,c2=st.columns(2)
+    with c1:
+        st.markdown('<div class="chart-card"><div class="chart-title">Distribuicao por Estado</div>',unsafe_allow_html=True)
+        if 'nome_estado' in us.columns:
+            ec=us['nome_estado'].value_counts().head(10)
+            fig=hbar(ec.values,ec.index,cs='Purples')
+            chart_layout(fig,350); fig.update_layout(yaxis_title="",coloraxis_showscale=False); fig.update_yaxes(autorange="reversed")
+            st.plotly_chart(fig,use_container_width=True)
+        st.markdown('</div>',unsafe_allow_html=True)
+    with c2:
+        st.markdown('<div class="chart-card"><div class="chart-title">Top 10 Testadores</div>',unsafe_allow_html=True)
         if len(rq)>0 and 'nome_usuario' in rq.columns:
             tu=rq.groupby('nome_usuario').size().sort_values(ascending=False).head(10)
-            fig=hbar(tu.values,tu.index,cs='Greens')
-            fig.update_layout(height=400,yaxis_title="",coloraxis_showscale=False); fig.update_yaxes(autorange="reversed")
+            fig=hbar(tu.values,tu.index,cs='Blues')
+            chart_layout(fig,350); fig.update_layout(yaxis_title="",coloraxis_showscale=False); fig.update_yaxes(autorange="reversed")
             st.plotly_chart(fig,use_container_width=True)
+        st.markdown('</div>',unsafe_allow_html=True)
     # Insights
-    st.markdown("#### 🧠 Insights Automatizados")
+    st.markdown('<div class="divider"></div>',unsafe_allow_html=True)
+    st.markdown('<div class="chart-title" style="font-size:1.1rem;margin-bottom:12px">Insights Estrategicos</div>',unsafe_allow_html=True)
     ih=""
     if len(rq)>0 and 'createdAt' in rq.columns:
         wk=rq.groupby(rq['createdAt'].dt.to_period('W')).size()
         if len(wk)>=2:
             l,p=wk.iloc[-1],wk.iloc[-2]; ch=spct(l-p,p) if p>0 else 0
-            ih+=ibox("Estratégico","Tendência",f"Última semana: {l} questionários ({'↑' if ch>0 else '↓'} {abs(ch)}%). {'Manter campanhas.' if ch>0 else 'Ação de reengajamento recomendada.'}")
+            ih+=ibox("Estrategico","Tendencia de Engajamento",f"Ultima semana: {l} questionarios ({'↑' if ch>0 else '↓'} {abs(ch)}%). {'Momentum positivo - manter campanhas.' if ch>0 else 'Queda detectada - acao de reengajamento recomendada.'}")
     if nu>0 and len(rq)>0 and 'id_usuario' in rq.columns:
         tx=spct(rq['id_usuario'].nunique(),nu)
-        ih+=ibox("Tático","Ativação",f"{tx}% dos {nu:,} testadores responderam. Bonificação para primeiros acessos pode elevar a base ativa.")
+        ih+=ibox("Tatico","Taxa de Ativacao",f"{tx}% dos {nu:,} testadores responderam questionarios. {'Base engajada.' if tx>30 else 'Bonificacao para primeiros acessos pode elevar a base ativa.'}")
+    if len(pr)>0 and nq>0 and 'id_produto' in rq.columns:
+        av=rq['id_produto'].nunique(); cob=spct(av,len(pr))
+        ih+=ibox("Operacional","Cobertura de Produtos",f"{av}/{len(pr)} produtos avaliados ({cob}%). {'Excelente cobertura.' if cob>60 else 'Criar pesquisas para produtos sem avaliacao.'}")
     if ih: st.markdown(ih,unsafe_allow_html=True)
 
 # ============================================================================
 # PG2: RESPOSTAS
 # ============================================================================
 def pg_respostas(data):
-    st.markdown('<h2 class="sh">📝 Análise de Respostas</h2>',unsafe_allow_html=True)
+    st.markdown(section_header("Analise de Respostas","Detalhamento completo das respostas coletadas"),unsafe_allow_html=True)
     rp,rq=data['resp_pergunta'],data['resp_questionario']
     if len(rp)==0: st.warning("Sem dados."); return
     c1,c2,c3,c4=st.columns(4)
@@ -348,7 +438,7 @@ def pg_respostas(data):
     with c2: st.markdown(mcard(f"{len(rq):,}","Questionários",c=CL['accent1']),unsafe_allow_html=True)
     with c3: st.markdown(mcard(f"{rp['id_usuario'].nunique():,}" if 'id_usuario' in rp.columns else "0","Usuários",c=CL['accent2']),unsafe_allow_html=True)
     with c4: st.markdown(mcard(f"{rp['id_produto'].nunique():,}" if 'id_produto' in rp.columns else "0","Produtos",c=CL['purple']),unsafe_allow_html=True)
-    st.markdown("---")
+    st.markdown('<div class="divider"></div>',unsafe_allow_html=True)
     t1,t2,t3,t4=st.tabs(["📋 Pergunta","📦 Produto","👤 Usuário","🔍 Explorar"])
     with t1:
         if 'titulo_pergunta' in rp.columns:
@@ -403,7 +493,7 @@ def pg_respostas(data):
 # PG3: QUALIDADE
 # ============================================================================
 def pg_qualidade(data):
-    st.markdown('<h2 class="sh">🔍 Qualidade de Dados</h2>',unsafe_allow_html=True)
+    st.markdown(section_header("Qualidade dos Dados","Monitoramento de confiabilidade e anomalias"),unsafe_allow_html=True)
     rp,rq=data['resp_pergunta'],data['resp_questionario']; du=data['dicts']['usuario']
     if len(rp)==0: st.warning("Sem dados."); return
     with st.spinner("Calculando..."):
@@ -417,7 +507,7 @@ def pg_qualidade(data):
     with c2: st.markdown(mcard(f"{spct(mc_+co,tot)}%","Confiáveis",f"({mc_+co})"),unsafe_allow_html=True)
     with c3: st.markdown(mcard(f"{at}","Atenção",dt='negative' if at>5 else 'positive'),unsafe_allow_html=True)
     with c4: st.markdown(mcard(f"{su}","Suspeitos",dt='negative' if su>3 else 'positive'),unsafe_allow_html=True)
-    st.markdown("---")
+    st.markdown('<div class="divider"></div>',unsafe_allow_html=True)
     c1,c2=st.columns(2)
     with c1:
         fig=px.histogram(sc,x='score',nbins=20,color_discrete_sequence=[CL['primary']],title="Distribuição Scores")
@@ -428,7 +518,7 @@ def pg_qualidade(data):
         cm={'🟢 Muito Confiável':CL['success'],'🟡 Confiável':CL['warning'],'🟠 Atenção':'#E67E22','🔴 Suspeito':CL['danger'],'⛔ Muito Suspeito':'#8E44AD'}
         fig=px.pie(values=cc.values.tolist(),names=cc.index.tolist(),color=cc.index.tolist(),color_discrete_map=cm,hole=.4)
         fig.update_layout(height=400); st.plotly_chart(fig,use_container_width=True)
-    st.markdown("#### ⚠️ Top 10 Suspeitos")
+    st.markdown('<div class="chart-title">Top 10 Suspeitos</div>',unsafe_allow_html=True)
     top=sc.nsmallest(10,'score')
     fig=px.bar(top,x='score',y='nome_usuario',orientation='h',color='score',color_continuous_scale='RdYlGn')
     fig.update_layout(height=400,coloraxis_showscale=False); fig.update_yaxes(autorange="reversed")
@@ -440,7 +530,7 @@ def pg_qualidade(data):
 # PG4: CONSULTA USUÁRIO
 # ============================================================================
 def pg_usuario(data):
-    st.markdown('<h2 class="sh">👤 Consulta de Usuário</h2>',unsafe_allow_html=True)
+    st.markdown(section_header("Consulta de Usuario","Perfil detalhado e historico individual"),unsafe_allow_html=True)
     us,rp,rq=data['usuario'],data['resp_pergunta'],data['resp_questionario']
     if len(us)==0: st.warning("Sem dados."); return
     ul=us[['id','nome']].copy(); ul['d']=ul['id'].astype(str)+" - "+ul['nome']
@@ -465,7 +555,7 @@ def pg_usuario(data):
     if 'df_scores' in st.session_state:
         sc=st.session_state['df_scores']; us_=sc[sc['id_usuario']==uid]
         if len(us_)>0:
-            st.markdown("#### 🎯 Confiabilidade")
+            st.markdown('<div class="chart-title">Confiabilidade</div>',unsafe_allow_html=True)
             c1,c2=st.columns([1,2])
             with c1: st.plotly_chart(gauge(us_.iloc[0]['score'],"Score"),use_container_width=True); st.markdown(f"<h3 style='text-align:center'>{us_.iloc[0]['classif']}</h3>",unsafe_allow_html=True)
             with c2:
@@ -473,7 +563,7 @@ def pg_usuario(data):
                 fig=px.bar(cp,x='Comp',y='Score',color='Score',color_continuous_scale='RdYlGn_r'); fig.update_layout(height=300,coloraxis_showscale=False)
                 st.plotly_chart(fig,use_container_width=True)
     if len(ru)>0:
-        st.markdown("#### 📋 Últimas 20 Respostas")
+        st.markdown('<div class="chart-title">Ultimas 20 Respostas</div>',unsafe_allow_html=True)
         cols=[c for c in ['createdAt','nome_produto','titulo_pergunta','resposta'] if c in ru.columns]
         st.dataframe(ru[cols].sort_values('createdAt',ascending=False).head(20),hide_index=True,use_container_width=True)
 
@@ -481,7 +571,7 @@ def pg_usuario(data):
 # PG5: MAPEAMENTO
 # ============================================================================
 def pg_mapeamento(data):
-    st.markdown('<h2 class="sh">📂 Mapeamento de Pesquisas</h2>',unsafe_allow_html=True)
+    st.markdown(section_header("Mapeamento de Pesquisas","Relacao entre categorias, produtos e respostas"),unsafe_allow_html=True)
     rq=data['resp_questionario']
     if len(rq)==0: st.warning("Sem dados."); return
     t1,t2,t3,t4=st.tabs(["📁 Categoria","📂 Subcategoria","📦 Produto","📅 Temporal"])
@@ -530,7 +620,7 @@ def pg_mapeamento(data):
 # PG6: DEMOGRÁFICA
 # ============================================================================
 def pg_demografica(data):
-    st.markdown('<h2 class="sh">👥 Análise Demográfica</h2>',unsafe_allow_html=True)
+    st.markdown(section_header("Analise Demografica","Perfil dos testadores por genero, idade, renda e regiao"),unsafe_allow_html=True)
     us=data['usuario']
     if len(us)==0: st.warning("Sem dados."); return
     c1,c2,c3,c4=st.columns(4)
@@ -548,17 +638,17 @@ def pg_demografica(data):
     with c4:
         im=f"{us['idade'].dropna().mean():.0f}a" if 'idade' in us.columns and us['idade'].notna().any() else 'N/A'
         st.markdown(mcard(im,"Idade Média",c=CL['purple']),unsafe_allow_html=True)
-    st.markdown("---")
+    st.markdown('<div class="divider"></div>',unsafe_allow_html=True)
     c1,c2=st.columns(2)
     with c1:
         if 'genero' in us.columns:
-            st.markdown("#### 👤 Gênero")
+            st.markdown('<div class="chart-title">Distribuicao por Genero</div>',unsafe_allow_html=True)
             gc=us['genero'].value_counts()
             fig=px.pie(values=gc.values.tolist(),names=gc.index.tolist(),color_discrete_sequence=[CL['primary'],CL['secondary'],CL['accent1']],hole=.4)
             fig.update_layout(height=400); st.plotly_chart(fig,use_container_width=True)
     with c2:
         if 'idade' in us.columns:
-            st.markdown("#### 📊 Faixa Etária")
+            st.markdown('<div class="chart-title">Faixa Etaria</div>',unsafe_allow_html=True)
             dv=us[us['idade'].notna()&(us['idade']>0)].copy()
             if len(dv)>0:
                 dv['fx']=pd.cut(dv['idade'].astype(float),bins=[0,25,35,45,55,65,100],labels=['18-25','26-35','36-45','46-55','56-65','65+'])
@@ -566,13 +656,13 @@ def pg_demografica(data):
                 fig=px.bar(x=fc.index.astype(str).tolist(),y=fc.values.tolist(),color=fc.values.tolist(),color_continuous_scale='Blues')
                 fig.update_layout(height=400,coloraxis_showscale=False); st.plotly_chart(fig,use_container_width=True)
     if 'faixa_renda' in us.columns:
-        st.markdown("#### 💰 Faixa de Renda")
+        st.markdown('<div class="chart-title">Faixa de Renda</div>',unsafe_allow_html=True)
         rc=us['faixa_renda'].value_counts()
         fig=px.bar(pd.DataFrame({'r':rc.index.tolist(),'q':rc.values.tolist()}),x='q',y='r',orientation='h',color='q',color_continuous_scale='Greens')
         fig.update_layout(height=400,coloraxis_showscale=False); fig.update_yaxes(autorange="reversed")
         st.plotly_chart(fig,use_container_width=True)
     if 'nome_estado' in us.columns:
-        st.markdown("#### 🗺️ Geografia")
+        st.markdown('<div class="chart-title">Distribuicao Geografica</div>',unsafe_allow_html=True)
         ec=us['nome_estado'].value_counts().head(15)
         fig=hbar(ec.values,ec.index,cs='Purples')
         fig.update_layout(height=400,coloraxis_showscale=False); fig.update_yaxes(autorange="reversed")
@@ -589,7 +679,7 @@ def pg_demografica(data):
 # PG7: CAMPANHAS
 # ============================================================================
 def pg_campanhas(data):
-    st.markdown('<h2 class="sh">📢 Campanhas</h2>',unsafe_allow_html=True)
+    st.markdown(section_header("Campanhas","Gestao e performance das campanhas ativas e encerradas"),unsafe_allow_html=True)
     ca=data['campanha']
     if len(ca)==0: st.warning("Sem dados de campanhas."); return
     n=len(ca)
@@ -604,7 +694,7 @@ def pg_campanhas(data):
     with c2: st.markdown(mcard(f"{ativas}","Ativas",c=CL['success']),unsafe_allow_html=True)
     with c3: st.markdown(mcard(f"{enc}","Encerradas",c=CL['danger']),unsafe_allow_html=True)
     with c4: st.markdown(mcard(f"{pts_t:,}","Pontos Totais",c=CL['orange']),unsafe_allow_html=True)
-    st.markdown("---")
+    st.markdown('<div class="divider"></div>',unsafe_allow_html=True)
     t1,t2=st.tabs(["📋 Lista de Campanhas","📅 Timeline"])
     with t1:
         disp=ca.copy()
@@ -635,7 +725,7 @@ def pg_campanhas(data):
 # PG8: CATEGORIAS & SUBCATEGORIAS
 # ============================================================================
 def pg_categorias(data):
-    st.markdown('<h2 class="sh">📂 Categorias & Subcategorias</h2>',unsafe_allow_html=True)
+    st.markdown(section_header("Categorias & Subcategorias","Estrutura do catalogo de produtos"),unsafe_allow_html=True)
     cat,sub=data['categoria'],data['subcategoria']
     pr=data['produto']; rq=data['resp_questionario']
     nc,ns=len(cat),len(sub)
@@ -648,7 +738,7 @@ def pg_categorias(data):
     with c4:
         np_=len(pr)
         st.markdown(mcard(f"{np_}","Produtos",c=CL['purple']),unsafe_allow_html=True)
-    st.markdown("---")
+    st.markdown('<div class="divider"></div>',unsafe_allow_html=True)
     t1,t2,t3=st.tabs(["📁 Categorias","📂 Subcategorias","🌳 Treemap"])
     with t1:
         if len(cat)>0:
@@ -713,7 +803,7 @@ def pg_categorias(data):
 # PG9: PRODUTOS
 # ============================================================================
 def pg_produtos(data):
-    st.markdown('<h2 class="sh">📦 Produtos</h2>',unsafe_allow_html=True)
+    st.markdown(section_header("Produtos","Catalogo completo e analise de produtos"),unsafe_allow_html=True)
     pr=data['produto']; rq=data['resp_questionario']; rp=data['resp_pergunta']
     if len(pr)==0: st.warning("Sem dados de produtos."); return
     np_=len(pr)
@@ -725,7 +815,7 @@ def pg_produtos(data):
     with c2: st.markdown(mcard(f"{nm_}","Marcas",c=CL['accent1']),unsafe_allow_html=True)
     with c3: st.markdown(mcard(f"{ne_}","Empresas",c=CL['teal']),unsafe_allow_html=True)
     with c4: st.markdown(mcard(f"{avaliados}","Avaliados",f"{spct(avaliados,np_)}%",c=CL['success']),unsafe_allow_html=True)
-    st.markdown("---")
+    st.markdown('<div class="divider"></div>',unsafe_allow_html=True)
     t1,t2,t3=st.tabs(["📋 Catálogo","📊 Análise","🔎 Detalhe"])
     with t1:
         df=pr.copy()
@@ -752,21 +842,21 @@ def pg_produtos(data):
     with t2:
         c1,c2=st.columns(2)
         with c1:
-            st.markdown("#### Por Categoria")
+            st.markdown('<div class="chart-title">Por Categoria</div>',unsafe_allow_html=True)
             if 'nome_categoria' in pr.columns:
                 pc=pr['nome_categoria'].value_counts().head(15)
                 fig=hbar(pc.values,pc.index,cs='Blues')
                 fig.update_layout(height=450,yaxis_title="",coloraxis_showscale=False); fig.update_yaxes(autorange="reversed")
                 st.plotly_chart(fig,use_container_width=True)
         with c2:
-            st.markdown("#### Por Marca")
+            st.markdown('<div class="chart-title">Por Marca</div>',unsafe_allow_html=True)
             if 'nome_marca' in pr.columns:
                 pm=pr['nome_marca'].value_counts().head(15)
                 fig=hbar(pm.values,pm.index,cs='Greens')
                 fig.update_layout(height=450,yaxis_title="",coloraxis_showscale=False); fig.update_yaxes(autorange="reversed")
                 st.plotly_chart(fig,use_container_width=True)
         if 'nome_empresa' in pr.columns:
-            st.markdown("#### Por Empresa")
+            st.markdown('<div class="chart-title">Por Empresa</div>',unsafe_allow_html=True)
             pe=pr['nome_empresa'].value_counts().head(10)
             fig=px.pie(values=pe.values.tolist(),names=pe.index.tolist(),color_discrete_sequence=PAL,hole=.4)
             fig.update_layout(height=400); st.plotly_chart(fig,use_container_width=True)
@@ -785,12 +875,12 @@ def pg_produtos(data):
                 pid=p.get('id')
                 if pid and len(rp)>0 and 'id_produto' in rp.columns:
                     rpr=rp[rp['id_produto']==pid]
-                    st.markdown(f"#### 📝 {len(rpr)} respostas para este produto")
+                    st.markdown(f'<div class="chart-title">{len(rpr)} respostas para este produto</div>',unsafe_allow_html=True)
                     if len(rpr)>0 and 'titulo_pergunta' in rpr.columns and 'resposta' in rpr.columns:
                         # Perfil sensorial
                         pergs=rpr.groupby('titulo_pergunta').apply(lambda x: pd.to_numeric(x['resposta'].str.replace('"',''),errors='coerce').mean()).dropna()
                         if len(pergs)>=3:
-                            st.markdown("##### 🎯 Perfil Sensorial")
+                            st.markdown('<div class="chart-title">Perfil Sensorial</div>',unsafe_allow_html=True)
                             fig=go.Figure(go.Scatterpolar(r=pergs.values,theta=pergs.index.tolist(),fill='toself',line_color=CL['primary']))
                             fig.update_layout(polar=dict(radialaxis=dict(visible=True,range=[0,9])),height=400,showlegend=False)
                             st.plotly_chart(fig,use_container_width=True)
@@ -808,7 +898,7 @@ def pg_produtos(data):
 # PG10: MARCAS
 # ============================================================================
 def pg_marcas(data):
-    st.markdown('<h2 class="sh">🏷️ Marcas</h2>',unsafe_allow_html=True)
+    st.markdown(section_header("Marcas","Analise de marcas e distribuicao por produtos"),unsafe_allow_html=True)
     ma=data['marca']; pr=data['produto']
     if len(ma)==0: st.warning("Sem dados de marcas."); return
     nm=len(ma)
@@ -820,7 +910,7 @@ def pg_marcas(data):
     with c3:
         sem=nm-com_prod
         st.markdown(mcard(f"{sem}","Sem Produtos",c=CL['warning']),unsafe_allow_html=True)
-    st.markdown("---")
+    st.markdown('<div class="divider"></div>',unsafe_allow_html=True)
     t1,t2=st.tabs(["📋 Lista","📊 Análise"])
     with t1:
         df=ma.copy()
@@ -838,7 +928,7 @@ def pg_marcas(data):
             st.plotly_chart(fig,use_container_width=True)
             # Por empresa
             if 'nome_empresa' in pr.columns:
-                st.markdown("#### Marcas por Empresa")
+                st.markdown('<div class="chart-title">Marcas por Empresa</div>',unsafe_allow_html=True)
                 me=pr.groupby(['nome_empresa','nome_marca']).size().reset_index(name='qtd').sort_values('qtd',ascending=False).head(30)
                 fig=px.bar(me,x='qtd',y='nome_marca',color='nome_empresa',orientation='h',color_discrete_sequence=PAL)
                 fig.update_layout(height=500,yaxis_title=""); fig.update_yaxes(autorange="reversed")
@@ -848,7 +938,7 @@ def pg_marcas(data):
 # PG11: PARCEIROS
 # ============================================================================
 def pg_parceiros(data):
-    st.markdown('<h2 class="sh">🤝 Parceiros</h2>',unsafe_allow_html=True)
+    st.markdown(section_header("Parceiros","Rede de parceiros e vinculos de produtos"),unsafe_allow_html=True)
     pa=data['parceiro']; pp=data['produto_parceiro']; pr=data['produto']
     if len(pa)==0: st.warning("Sem dados de parceiros."); return
     np_=len(pa)
@@ -860,7 +950,7 @@ def pg_parceiros(data):
     with c3:
         prod_vinc=pp['id_produto'].nunique() if len(pp)>0 and 'id_produto' in pp.columns else 0
         st.markdown(mcard(f"{prod_vinc}","Produtos Vinculados",c=CL['purple']),unsafe_allow_html=True)
-    st.markdown("---")
+    st.markdown('<div class="divider"></div>',unsafe_allow_html=True)
     t1,t2=st.tabs(["📋 Lista","🔗 Vínculos"])
     with t1:
         cols=[c for c in ['id','nome','url','createdAt'] if c in pa.columns]
@@ -890,7 +980,7 @@ def pg_parceiros(data):
 # PG12: GESTÃO DE PESQUISAS
 # ============================================================================
 def pg_pesquisas(data):
-    st.markdown('<h2 class="sh">🔬 Gestão de Pesquisas</h2>',unsafe_allow_html=True)
+    st.markdown(section_header("Gestao de Pesquisas","Instrumentos de coleta, sessoes e perguntas"),unsafe_allow_html=True)
     pp=data['pesq_produto']; ps=data['pesq_subcategoria']; se=data['sessao']; pg_=data['pergunta']
     rq=data['resp_questionario']
     npp=len(pp); nps=len(ps); nse=len(se); npg=len(pg_)
@@ -899,7 +989,7 @@ def pg_pesquisas(data):
     with c2: st.markdown(mcard(f"{nps}","Pesq. Subcategoria",c=CL['accent1']),unsafe_allow_html=True)
     with c3: st.markdown(mcard(f"{nse}","Sessões",c=CL['teal']),unsafe_allow_html=True)
     with c4: st.markdown(mcard(f"{npg}","Perguntas",c=CL['purple']),unsafe_allow_html=True)
-    st.markdown("---")
+    st.markdown('<div class="divider"></div>',unsafe_allow_html=True)
     t1,t2,t3,t4=st.tabs(["📦 Por Produto","📂 Por Subcategoria","📋 Sessões","❓ Perguntas"])
     with t1:
         if len(pp)>0:
@@ -925,7 +1015,7 @@ def pg_pesquisas(data):
             st.dataframe(df[cols],hide_index=True,use_container_width=True)
             if 'id_pesquisa_produto' in se.columns:
                 sc=se.groupby('id_pesquisa_produto').size().reset_index(name='qtd_sessoes')
-                st.markdown("#### Sessões por Pesquisa")
+                st.markdown('<div class="chart-title">Sessoes por Pesquisa</div>',unsafe_allow_html=True)
                 fig=px.bar(sc.head(20),x='id_pesquisa_produto',y='qtd_sessoes',color='qtd_sessoes',color_continuous_scale='Blues')
                 fig.update_layout(height=350,coloraxis_showscale=False); st.plotly_chart(fig,use_container_width=True)
         else: st.info("Sem sessões.")
@@ -960,7 +1050,7 @@ def pg_pesquisas(data):
 # PG13: BENEFÍCIOS & RESGATES
 # ============================================================================
 def pg_beneficios(data):
-    st.markdown('<h2 class="sh">🎁 Benefícios & Resgates</h2>',unsafe_allow_html=True)
+    st.markdown(section_header("Beneficios & Resgates","Programa de recompensas e economia de pontos"),unsafe_allow_html=True)
     bn=data['beneficio']; rg=data['resgate']; pt=data['pontos']
     nb=len(bn); nr=len(rg)
     pts_total=0
@@ -972,7 +1062,7 @@ def pg_beneficios(data):
         usr_r=rg['id_usuario'].nunique() if len(rg)>0 and 'id_usuario' in rg.columns else 0
         st.markdown(mcard(f"{usr_r}","Usuários Resgataram",c=CL['teal']),unsafe_allow_html=True)
     with c4: st.markdown(mcard(f"{pts_total:,}","Pontos Distribuídos",c=CL['orange']),unsafe_allow_html=True)
-    st.markdown("---")
+    st.markdown('<div class="divider"></div>',unsafe_allow_html=True)
     t1,t2,t3=st.tabs(["🎁 Catálogo","📊 Resgates","📈 Dashboard"])
     with t1:
         if len(bn)>0:
@@ -992,14 +1082,14 @@ def pg_beneficios(data):
             c1,c2=st.columns(2)
             with c1:
                 if 'nome_beneficio' in rg.columns:
-                    st.markdown("#### Top Benefícios Resgatados")
+                    st.markdown('<div class="chart-title">Top Beneficios Resgatados</div>',unsafe_allow_html=True)
                     bc=rg['nome_beneficio'].value_counts().head(10)
                     fig=hbar(bc.values,bc.index,cs='Blues')
                     fig.update_layout(height=400,yaxis_title="",coloraxis_showscale=False); fig.update_yaxes(autorange="reversed")
                     st.plotly_chart(fig,use_container_width=True)
             with c2:
                 if 'nome_usuario' in rg.columns:
-                    st.markdown("#### Top Usuários que Resgataram")
+                    st.markdown('<div class="chart-title">Top Usuarios que Resgataram</div>',unsafe_allow_html=True)
                     uc=rg['nome_usuario'].value_counts().head(10)
                     fig=hbar(uc.values,uc.index,cs='Greens')
                     fig.update_layout(height=400,yaxis_title="",coloraxis_showscale=False); fig.update_yaxes(autorange="reversed")
@@ -1012,7 +1102,7 @@ def pg_beneficios(data):
         else: st.info("Sem resgates registrados.")
     with t3:
         if len(rg)>0 and 'createdAt' in rg.columns:
-            st.markdown("#### 📈 Evolução de Resgates")
+            st.markdown('<div class="chart-title">Evolucao de Resgates</div>',unsafe_allow_html=True)
             ev=rg.groupby(rg['createdAt'].dt.date).size().reset_index(name='qtd'); ev.columns=['data','qtd']
             ev['data']=pd.to_datetime(ev['data'])
             fig=px.area(ev,x='data',y='qtd',color_discrete_sequence=[CL['primary']])
@@ -1023,7 +1113,7 @@ def pg_beneficios(data):
             fig=px.bar(ev_m,x='mes',y='qtd',color='qtd',color_continuous_scale='Blues',title="Resgates por Mês")
             fig.update_layout(height=350,coloraxis_showscale=False); st.plotly_chart(fig,use_container_width=True)
         if len(pt)>0:
-            st.markdown("#### 💰 Distribuição de Pontos")
+            st.markdown('<div class="chart-title">Distribuicao de Pontos</div>',unsafe_allow_html=True)
             if 'pontos' in pt.columns:
                 pv=pd.to_numeric(pt['pontos'],errors='coerce').dropna()
                 fig=px.histogram(x=pv,nbins=30,color_discrete_sequence=[CL['orange']],title="Distribuição de Pontos por Transação")
@@ -1044,7 +1134,7 @@ def pg_beneficios(data):
 # PG14: EMPRESAS
 # ============================================================================
 def pg_empresas(data):
-    st.markdown('<h2 class="sh">🏢 Empresas</h2>',unsafe_allow_html=True)
+    st.markdown(section_header("Empresas","Base empresarial e vinculos de produtos"),unsafe_allow_html=True)
     em=data['empresa']; ue=data['usr_empresa']; ge=data['grupo_empresa']; pr=data['produto']
     ne=len(em)
     if ne==0: st.warning("Sem dados de empresas."); return
@@ -1059,7 +1149,7 @@ def pg_empresas(data):
     with c4:
         np_=pr['id_empresa'].nunique() if len(pr)>0 and 'id_empresa' in pr.columns else 0
         st.markdown(mcard(f"{np_}","Com Produtos",c=CL['purple']),unsafe_allow_html=True)
-    st.markdown("---")
+    st.markdown('<div class="divider"></div>',unsafe_allow_html=True)
     t1,t2,t3=st.tabs(["📋 Lista","📊 Análise","👥 Usuários"])
     with t1:
         df=em.copy()
@@ -1077,14 +1167,14 @@ def pg_empresas(data):
         c1,c2=st.columns(2)
         with c1:
             if len(pr)>0 and 'nome_empresa' in pr.columns:
-                st.markdown("#### Produtos por Empresa")
+                st.markdown('<div class="chart-title">Produtos por Empresa</div>',unsafe_allow_html=True)
                 ec=pr['nome_empresa'].value_counts().head(15)
                 fig=hbar(ec.values,ec.index,cs='Blues')
                 fig.update_layout(height=450,yaxis_title="",coloraxis_showscale=False); fig.update_yaxes(autorange="reversed")
                 st.plotly_chart(fig,use_container_width=True)
         with c2:
             if len(pr)>0 and 'nome_empresa' in pr.columns and 'nome_categoria' in pr.columns:
-                st.markdown("#### Categorias por Empresa")
+                st.markdown('<div class="chart-title">Categorias por Empresa</div>',unsafe_allow_html=True)
                 ec2=pr.groupby(['nome_empresa','nome_categoria']).size().reset_index(name='qtd')
                 top_e=pr['nome_empresa'].value_counts().head(8).index
                 ec2=ec2[ec2['nome_empresa'].isin(top_e)]
@@ -1116,13 +1206,13 @@ def pg_empresas(data):
 # PG15: BANNERS & RECOMENDADOS
 # ============================================================================
 def pg_banners(data):
-    st.markdown('<h2 class="sh">🏠 Banners & Recomendados</h2>',unsafe_allow_html=True)
+    st.markdown(section_header("Banners & Recomendados","Gestao de banners da home e produtos em destaque"),unsafe_allow_html=True)
     bh=data['banner_home']; pr=data['prod_recomendado']
     nb=len(bh); nrec=len(pr)
     c1,c2=st.columns(2)
     with c1: st.markdown(mcard(f"{nb}","Banners Home"),unsafe_allow_html=True)
     with c2: st.markdown(mcard(f"{nrec}","Prod. Recomendados",c=CL['accent1']),unsafe_allow_html=True)
-    st.markdown("---")
+    st.markdown('<div class="divider"></div>',unsafe_allow_html=True)
     t1,t2=st.tabs(["🏠 Banners","⭐ Recomendados"])
     with t1:
         if len(bh)>0:
@@ -1149,7 +1239,7 @@ def pg_banners(data):
 # PG16: GESTÃO DE TESTADORES
 # ============================================================================
 def pg_testadores(data):
-    st.markdown('<h2 class="sh">👥 Gestão de Testadores</h2>',unsafe_allow_html=True)
+    st.markdown(section_header("Gestao de Testadores","Base completa, geografia, evolucao e cohorts"),unsafe_allow_html=True)
     us=data['usuario']; rq=data['resp_questionario']; rg=data['resgate']
     if len(us)==0: st.warning("Sem dados."); return
     nu=len(us)
@@ -1169,7 +1259,7 @@ def pg_testadores(data):
     with c3: st.markdown(mcard(f"{ativos:,}","Ativos",f"{spct(ativos,nu)}%",c=CL['accent1']),unsafe_allow_html=True)
     with c4: st.markdown(mcard(f"{nu-ativos:,}","Inativos",c=CL['warning']),unsafe_allow_html=True)
     with c5: st.markdown(mcard(f"{resg:,}","Resgataram",f"{spct(resg,nu)}%",c=CL['orange']),unsafe_allow_html=True)
-    st.markdown("---")
+    st.markdown('<div class="divider"></div>',unsafe_allow_html=True)
     t1,t2,t3,t4=st.tabs(["📋 Base","🗺️ Geografia","📈 Evolução","🎯 Cohorts"])
     with t1:
         df=us.copy()
@@ -1197,21 +1287,21 @@ def pg_testadores(data):
         c1,c2=st.columns(2)
         with c1:
             if 'nome_estado' in us.columns:
-                st.markdown("#### Por Estado")
+                st.markdown('<div class="chart-title">Por Estado</div>',unsafe_allow_html=True)
                 ec=us['nome_estado'].value_counts().head(15)
                 fig=hbar(ec.values,ec.index,cs='Blues')
                 fig.update_layout(height=450,yaxis_title="",coloraxis_showscale=False); fig.update_yaxes(autorange="reversed")
                 st.plotly_chart(fig,use_container_width=True)
         with c2:
             if 'nome_cidade' in us.columns:
-                st.markdown("#### Top 15 Cidades")
+                st.markdown('<div class="chart-title">Top 15 Cidades</div>',unsafe_allow_html=True)
                 cc_=us['nome_cidade'].value_counts().head(15)
                 fig=hbar(cc_.values,cc_.index,cs='Greens')
                 fig.update_layout(height=450,yaxis_title="",coloraxis_showscale=False); fig.update_yaxes(autorange="reversed")
                 st.plotly_chart(fig,use_container_width=True)
         # Mapa de calor estado x gênero
         if 'nome_estado' in us.columns and 'genero' in us.columns:
-            st.markdown("#### Heatmap Estado × Gênero")
+            st.markdown('<div class="chart-title">Heatmap Estado x Genero</div>',unsafe_allow_html=True)
             hm=us.groupby(['nome_estado','genero']).size().reset_index(name='qtd')
             hm_p=hm.pivot_table(index='nome_estado',columns='genero',values='qtd',fill_value=0)
             top_est=us['nome_estado'].value_counts().head(15).index
@@ -1221,7 +1311,7 @@ def pg_testadores(data):
                 fig.update_layout(height=400); st.plotly_chart(fig,use_container_width=True)
     with t3:
         if 'createdAt' in us.columns:
-            st.markdown("#### Cadastros ao Longo do Tempo")
+            st.markdown('<div class="chart-title">Cadastros ao Longo do Tempo</div>',unsafe_allow_html=True)
             ev=us.groupby(us['createdAt'].dt.to_period('M')).size().reset_index(name='novos')
             ev.columns=['mes','novos']; ev['mes']=ev['mes'].astype(str); ev['acum']=ev['novos'].cumsum()
             c1,c2=st.columns(2)
@@ -1233,7 +1323,7 @@ def pg_testadores(data):
                 fig.update_layout(height=350,xaxis_tickangle=45); st.plotly_chart(fig,use_container_width=True)
     with t4:
         if len(rq)>0 and 'id_usuario' in rq.columns:
-            st.markdown("#### Cohorts de Engajamento")
+            st.markdown('<div class="chart-title">Cohorts de Engajamento</div>',unsafe_allow_html=True)
             uc=rq.groupby('id_usuario').size().reset_index(name='qtd')
             uc['cohort']=pd.cut(uc['qtd'],bins=[0,1,5,10,25,50,1000],labels=['1','2-5','6-10','11-25','26-50','50+'])
             cc_=uc['cohort'].value_counts().sort_index()
@@ -1257,11 +1347,10 @@ def pg_testadores(data):
 # PG17: CENTRAL DE INSIGHTS
 # ============================================================================
 def pg_insights(data):
-    st.markdown('<h2 class="sh">🧠 Central de Insights</h2>',unsafe_allow_html=True)
+    st.markdown(section_header("Central de Insights","Visao consolidada de insights estrategicos, taticos e operacionais"),unsafe_allow_html=True)
     us=data['usuario']; pr=data['produto']; rq=data['resp_questionario']; rp=data['resp_pergunta']
     rg=data['resgate']; ca=data['campanha']; em=data['empresa']; bn=data['beneficio']
-    st.markdown("#### Visão consolidada de todos os insights estratégicos, táticos e operacionais da plataforma")
-    st.markdown("---")
+    st.markdown('<div class="divider"></div>',unsafe_allow_html=True)
     nu=len(us); np_=len(pr); nq=len(rq); nr=len(rp); ne=len(em)
     # Score geral
     scores=[]
@@ -1285,7 +1374,7 @@ def pg_insights(data):
         st.markdown(mcard(f"{np_}","Produtos",c=CL['purple']),unsafe_allow_html=True)
         st.markdown(mcard(f"{nq:,}","Questionários",c=CL['accent1']),unsafe_allow_html=True)
     with c3:
-        st.markdown("#### 📊 Indicadores-Chave")
+        st.markdown('<div class="chart-title">Indicadores-Chave</div>',unsafe_allow_html=True)
         kpis=[]
         if nu>0 and nq>0 and 'id_usuario' in rq.columns: kpis.append(f"• Taxa de ativação: **{spct(rq['id_usuario'].nunique(),nu)}%**")
         if nu>0: kpis.append(f"• Cadastros completos: **{spct(cc,nu)}%**")
@@ -1293,9 +1382,9 @@ def pg_insights(data):
         if len(rg)>0 and 'id_usuario' in rg.columns: kpis.append(f"• Taxa de resgate: **{spct(rg['id_usuario'].nunique(),nu)}%**")
         kpis.append(f"• Empresas: **{ne}** | Campanhas: **{len(ca)}**")
         st.markdown("\n".join(kpis))
-    st.markdown("---")
+    st.markdown('<div class="divider"></div>',unsafe_allow_html=True)
     # Todos os insights
-    st.markdown("### 🔮 Insights Estratégicos")
+    st.markdown('<div class="chart-title" style="font-size:1.1rem">Insights Estrategicos</div>',unsafe_allow_html=True)
     ih=""
     # 1. Engajamento
     if nq>0 and 'createdAt' in rq.columns:
@@ -1315,7 +1404,7 @@ def pg_insights(data):
         gc=us['genero'].value_counts(); fem=gc.get('Feminino',0)
         ih+=ibox("Estratégico","Perfil Demográfico",f"Base {spct(fem,nu)}% feminina. {'Equilibrada.' if abs(spct(fem,nu)-50)<20 else 'Diversificar recrutamento.'}")
     if ih: st.markdown(ih,unsafe_allow_html=True)
-    st.markdown("### 🎯 Insights Táticos")
+    st.markdown('<div class="chart-title" style="font-size:1.1rem">Insights Taticos</div>',unsafe_allow_html=True)
     ih=""
     # 5. Benefícios
     if len(rg)>0 and 'id_usuario' in rg.columns:
@@ -1332,7 +1421,7 @@ def pg_insights(data):
             conc=spct(top_e.iloc[0],nu)
             ih+=ibox("Tático","Concentração Geográfica",f"{top_e.index[0]} = {conc}% da base. {top_e.head(3).index.tolist()} são os top 3 estados.")
     if ih: st.markdown(ih,unsafe_allow_html=True)
-    st.markdown("### ⚙️ Insights Operacionais")
+    st.markdown('<div class="chart-title" style="font-size:1.1rem">Insights Operacionais</div>',unsafe_allow_html=True)
     ih=""
     # 8. Cadastro
     inc=nu-cc
@@ -1349,8 +1438,8 @@ def pg_insights(data):
     if len(nt)>0: ih+=ibox("Operacional","Notificações",f"{len(nt)} notificações enviadas no sistema. Verificar efetividade de entrega.")
     if ih: st.markdown(ih,unsafe_allow_html=True)
     # Resumo final
-    st.markdown("---")
-    st.markdown("### 📋 Resumo Executivo")
+    st.markdown('<div class="divider"></div>',unsafe_allow_html=True)
+    st.markdown('<div class="chart-title" style="font-size:1.1rem">Resumo Executivo</div>',unsafe_allow_html=True)
     st.markdown(f"""
 A plataforma Foodtest conta com **{nu:,} testadores**, **{np_} produtos** cadastrados em **{len(data['categoria'])} categorias**,
 atendendo **{ne} empresas**. O score geral da plataforma é **{score_geral:.0f}/100**.
@@ -1373,27 +1462,23 @@ def pg_placeholder(nome):
 # ============================================================================
 def main():
     with st.sidebar:
-        st.markdown("""<div style="text-align:center;padding:1rem 0">
-            <div style="background:linear-gradient(135deg,#307FE2,#4ECDC4);border-radius:14px;padding:12px;margin-bottom:8px">
-            <span style="color:white;font-size:1.3rem;font-weight:700;font-family:'Space Grotesk'">🍽️ FOODTEST</span></div>
-            <span style="color:#64748b;font-size:.75rem">Analytics Platform v2.0</span></div>""",unsafe_allow_html=True)
-        st.markdown("---")
-        data_dir=st.text_input("📁 Diretório dos .txt:",value=".",help="Pasta com os .txt do DBeaver")
-        if st.button("🔄 Recarregar",use_container_width=True): st.session_state['loaded']=False; st.cache_data.clear()
-        st.markdown("---")
-        st.markdown("### 🧭 Navegação")
-        page=st.radio("",options=[
-            "📊 Dashboard Geral","📢 Campanhas","📂 Categorias","📦 Produtos","🏷️ Marcas",
-            "🤝 Parceiros","🏠 Banners","🔬 Pesquisas","📝 Respostas","🔍 Qualidade",
-            "👤 Consulta Usuário","📂 Mapeamento","👥 Demográfica","🎁 Benefícios",
-            "🏢 Empresas","👥 Testadores","🧠 Insights"
+        st.markdown("""<div style="text-align:center;padding:1.2rem 0 .8rem">
+            <div style="background:linear-gradient(135deg,#307FE2,#4ECDC4);border-radius:12px;padding:14px;margin:0 auto 10px;width:fit-content">
+            <span style="color:white;font-size:1.5rem;font-weight:800;font-family:'Inter';letter-spacing:2px">FT</span></div>
+            <div style="color:#8b949e;font-size:.7rem;letter-spacing:1px;text-transform:uppercase">Foodtest Analytics</div></div>""",unsafe_allow_html=True)
+        st.markdown('<div style="height:1px;background:#21262d;margin:8px 0 16px"></div>',unsafe_allow_html=True)
+        data_dir=st.text_input("Diretório:",value=".",help="Pasta com os .txt",label_visibility="collapsed")
+        if st.button("Recarregar Dados",use_container_width=True): st.session_state['loaded']=False; st.cache_data.clear()
+        st.markdown('<div style="height:1px;background:#21262d;margin:12px 0"></div>',unsafe_allow_html=True)
+        page=st.radio("Navegacao",options=[
+            "📊 Dashboard Geral","📝 Respostas","🔍 Qualidade dos Dados",
+            "👤 Consulta Usuário","📂 Mapeamento de Pesquisas","👥 Análise Demográfica",
+            "📢 Campanhas","📂 Categorias & Subcategorias","📦 Produtos","🏷️ Marcas",
+            "🤝 Parceiros","🔬 Gestão de Pesquisas","🎁 Benefícios & Resgates",
+            "🏢 Empresas","🏠 Banners & Recomendados","👥 Gestão de Testadores","🧠 Central de Insights"
         ],label_visibility="collapsed",key="nav")
-        st.markdown("---")
-        st.markdown('<div style="text-align:center;font-size:.75rem;color:#94a3b8">📧 suporte@foodtest.com.br<br>v2.0</div>',unsafe_allow_html=True)
-    # Header
-    st.markdown("""<div style="background:linear-gradient(90deg,#307FE2,#4ECDC4);padding:1.5rem 2rem;border-radius:16px;margin-bottom:1.5rem">
-        <h1 style="color:white;margin:0;font-family:'Space Grotesk'">🍽️ Foodtest Analytics</h1>
-        <p style="color:rgba(255,255,255,.9);margin:.3rem 0 0">Plataforma Completa de Análise Sensorial e Inteligência de Dados</p></div>""",unsafe_allow_html=True)
+        st.markdown('<div style="height:1px;background:#21262d;margin:12px 0"></div>',unsafe_allow_html=True)
+        st.markdown('<div style="text-align:center;font-size:.7rem;color:#484f58;padding:8px 0">suporte@foodtest.com.br<br>v2.0</div>',unsafe_allow_html=True)
     # Load
     if 'data' not in st.session_state or not st.session_state.get('loaded',False):
         with st.spinner("Carregando dados..."):
@@ -1401,17 +1486,20 @@ def main():
                 raw=load_all(data_dir); data=enrich(raw)
                 st.session_state['data']=data; st.session_state['loaded']=True
                 total=sum(len(df) for df in data.values() if isinstance(df,pd.DataFrame))
-                if total==0: st.warning(f"⚠️ Nenhum dado em **{data_dir}**."); return
+                if total==0: st.warning("Nenhum dado encontrado."); return
             except Exception as e: st.error(f"Erro: {e}"); return
     data=st.session_state.get('data',{})
     # Route
     R={
-        "📊 Dashboard Geral":pg_overview,"📝 Respostas":pg_respostas,"🔍 Qualidade":pg_qualidade,
-        "👤 Consulta Usuário":pg_usuario,"📂 Mapeamento":pg_mapeamento,"👥 Demográfica":pg_demografica,
-        "📢 Campanhas":pg_campanhas,"📂 Categorias":pg_categorias,"📦 Produtos":pg_produtos,
-        "🏷️ Marcas":pg_marcas,"🤝 Parceiros":pg_parceiros,
-        "🔬 Pesquisas":pg_pesquisas,"🎁 Benefícios":pg_beneficios,"🏢 Empresas":pg_empresas,
-        "🏠 Banners":pg_banners,"👥 Testadores":pg_testadores,"🧠 Insights":pg_insights,
+        "📊 Dashboard Geral":pg_overview,"📝 Respostas":pg_respostas,
+        "🔍 Qualidade dos Dados":pg_qualidade,
+        "👤 Consulta Usuário":pg_usuario,"📂 Mapeamento de Pesquisas":pg_mapeamento,
+        "👥 Análise Demográfica":pg_demografica,
+        "📢 Campanhas":pg_campanhas,"📂 Categorias & Subcategorias":pg_categorias,
+        "📦 Produtos":pg_produtos,"🏷️ Marcas":pg_marcas,"🤝 Parceiros":pg_parceiros,
+        "🔬 Gestão de Pesquisas":pg_pesquisas,"🎁 Benefícios & Resgates":pg_beneficios,
+        "🏢 Empresas":pg_empresas,"🏠 Banners & Recomendados":pg_banners,
+        "👥 Gestão de Testadores":pg_testadores,"🧠 Central de Insights":pg_insights,
     }
     fn=R.get(page)
     if fn: fn(data)
