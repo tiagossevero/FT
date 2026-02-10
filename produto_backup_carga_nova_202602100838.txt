@@ -1,0 +1,371 @@
+|id   |gtin_ean     |nome                                                                                                   |
+|-----|-------------|-------------------------------------------------------------------------------------------------------|
+|6.512|7908228805656|BALA DE GELATINA MORANGO ZERO AÇÚCAR CORAÇÃO AZEDINHO FINI PACOTE 35G                                  |
+|6.513|7896279600194|MARGARINA COM SAL 50% DE GORDURA COAMO PROFISSIONAL BALDE 14,5KG                                       |
+|6.514|7891331850319|BARRA DE NUTS CACAU NUTRY CAIXA 300G 12 UNIDADES                                                       |
+|6.515|7896279602181|MISTURA PARA BOLO COCO COAMO FÁCIL PACOTE 5KG                                                          |
+|6.516|7898205925630|SOBREMESA LÁCTEA FERMENTADA FRUTAS VERMELHAS ZERO LACTOSE VERDE CAMPO POTE 200G 2 UNIDADES             |
+|6.517|7898205925388|IOGURTE DESNATADO TRADICIONAL ZERO LACTOSE VERDE CAMPO NATURAL WHEY POTE 140G                          |
+|6.518|7898205925395|IOGURTE DESNATADO BICAMADA FRUTAS VERMELHAS ZERO LACTOSE VERDE CAMPO NATURAL WHEY POTE 140G            |
+|6.519|7898403781489|IOGURTE DESNATADO AMEIXA ZERO LACTOSE BETÂNIA YOBEM FRASCO 170G                                        |
+|6.520|7898205924497|IOGURTE DESNATADO ZERO LACTOSE VERDE CAMPO LACFREE FRASCO 170G                                         |
+|6.521|7898205924305|IOGURTE DESNATADO CRANBERRY E GOJI BERRY ZERO LACTOSE VERDE CAMPO LACFREE GARRAFA 500G                 |
+|6.522|7898205924466|IOGURTE DESNATADO MAÇÃ, BANANA E MAMÃO ZERO LACTOSE VERDE CAMPO LACFREE FRASCO 170G                    |
+|6.523|7898205925340|BEBIDA LÁCTEA UHT CARAMELO ZERO LACTOSE VERDE CAMPO NATURAL WHEY CAIXA 250ML                           |
+|6.524|7898205924732|IOGURTE DESNATADO COOKIES & CREAM ZERO LACTOSE VERDE CAMPO NATURAL WHEY GARRAFA 500G                   |
+|6.525|7898205924688|IOGURTE DESNATADO PASTA DE AMENDOIM ZERO LACTOSE VERDE CAMPO NATURAL WHEY FRASCO 250G                  |
+|6.526|7898205924725|IOGURTE DESNATADO MORANGO ZERO LACTOSE VERDE CAMPO NATURAL WHEY GARRAFA 500G                           |
+|6.527|7898205924220|IOGURTE DESNATADO MORANGO ZERO LACTOSE VERDE CAMPO 14G PROTEÍNAS NATURAL WHEY FRASCO 250G              |
+|6.528|7898205925128|IOGURTE DESNATADO COCO ZERO LACTOSE VERDE CAMPO NATURAL WHEY FRASCO 250G                               |
+|6.529|7898205924312|IOGURTE DESNATADO BAUNILHA ZERO LACTOSE VERDE CAMPO NATURAL WHEY FRASCO 250G                           |
+|6.530|7898205923902|IOGURTE DESNATADO ZERO LACTOSE VERDE CAMPO LACFREE COPO 140G                                           |
+|6.531|7898205923827|IOGURTE DESNATADO AMEIXA ZERO LACTOSE VERDE CAMPO LACFREE GARRAFA 500G                                 |
+|6.532|7898205924060|IOGURTE DESNATADO MAÇÃ, BANANA E MAMÃO ZERO LACTOSE VERDE CAMPO LACFREE COPO 140G                      |
+|6.533|7898205923650|IOGURTE DESNATADO MORANGO ZERO LACTOSE VERDE CAMPO LACFREE GARRAFA 500G                                |
+|6.534|7898205925234|IOGURTE DESNATADO MORANGO ZERO LACTOSE VERDE CAMPO PROBIÓTICO TRIPLO ZERO GARRAFA 500G                 |
+|6.535|7898205923988|IOGURTE DESNATADO NATURAL ZERO LACTOSE VERDE CAMPO LACFREE GARRAFA 500G                                |
+|6.536|7896283800191|LEITE UHT DESNATADO JUSSARA MAX GARRAFA 1L                                                             |
+|6.537|7898205925791|BEBIDA LÁCTEA UHT CHOCOLATE ZERO LACTOSE VERDE CAMPO NATURAL 100% WHEY CAIXA 250ML                     |
+|6.538|7898205924411|BEBIDA LÁCTEA UHT CHOCOLATE ZERO LACTOSE VERDE CAMPO NATURAL WHEY CAIXA 250ML                          |
+|6.539|7898064011604|REQUEIJÃO CREMOSO BETÂNIA POTE 400G EMBALAGEM ECONÔMICA                                                |
+|6.540|7898403780147|LEITE UHT DESNATADO BETÂNIA CAIXA 1L                                                                   |
+|6.541|7896283800238|LEITE UHT DESNATADO JUSSARA CAIXA 1L                                                                   |
+|6.542|7898064011710|BEBIDA LÁCTEA UHT CAFÉ EXPRESSO ZERO LACTOSE BETÂNIA YOBEM WHEY CAIXA 250ML                            |
+|6.543|7898403782103|IOGURTE DESNATADO PAPAYA COM LINHAÇA ZERO LACTOSE BETÂNIA YOBEM GARRAFA 800G                           |
+|6.544|7898403782806|PACK LEITE FERMENTADO DESNATADO LARANJA TURMA DA MÔNICA BETÂNIA KIDS CAIXA 6 UNIDADES 80G CADA         |
+|6.545|7898403780154|LEITE PASTEURIZADO HOMOGENEIZADO INTEGRAL BETÂNIA PACOTE 1L                                            |
+|6.546|7896283800184|LEITE UHT INTEGRAL JUSSARA MAX GARRAFA 1L                                                              |
+|6.547|7896283800221|LEITE UHT INTEGRAL JUSSARA CAIXA 1L                                                                    |
+|6.548|7898205925357|IOGURTE DESNATADO TRADICIONAL ZERO LACTOSE VERDE CAMPO NATURAL WHEY GARRAFA 500G                       |
+|6.549|7898205925180|IOGURTE DESNATADO COCO ZERO LACTOSE VERDE CAMPO LACFREE GARRAFA 500G                                   |
+|6.550|7898205925142|IOGURTE DESNATADO JABUTICABA ZERO LACTOSE VERDE CAMPO NATURAL WHEY FRASCO 250G                         |
+|6.551|7896183202088|REQUEIJÃO CREMOSO QUATÁ BISNAGA 400G                                                                   |
+|6.552|7898205924435|IOGURTE DESNATADO COOKIES & CREAM ZERO LACTOSE VERDE CAMPO NATURAL WHEY FRASCO 250G                    |
+|6.553|7898205925210|IOGURTE DESNATADO COCO ZERO LACTOSE VERDE CAMPO NATURAL WHEY GARRAFA 500G                              |
+|6.554|7898205925463|IOGURTE DESNATADO CRANBERRY E GOJI BERRY ZERO LACTOSE VERDE CAMPO NATURAL WHEY FRASCO 170G             |
+|6.555|7898205925470|IOGURTE DESNATADO PÊSSEGO ZERO LACTOSE VERDE CAMPO NATURAL WHEY FRASCO 170G                            |
+|6.556|7896259416357|LEITE UHT INTEGRAL ZERO LACTOSE CAMPONESA CAIXA COM TAMPA 1L                                           |
+|6.557|7898598750567|QUEIJO PRATO ESFÉRICO EM PEDAÇO QUATÁ 170G                                                             |
+|6.558|7896183203085|QUEIJO ESTEPE QUATÁ                                                                                    |
+|6.559|7898403782295|LEITE UHT SEMIDESNATADO BETÂNIA CAIXA COM TAMPA 1L                                                     |
+|6.560|7896259425458|CREAM CHEESE CAMPONESA POTE 150G                                                                       |
+|6.561|7898403780055|MANTEIGA DE PRIMEIRA QUALIDADE COM SAL BETÂNIA POTE 200G                                               |
+|6.562|7898403780062|MANTEIGA DE PRIMEIRA QUALIDADE COM SAL BETÂNIA POTE 500G                                               |
+|6.563|7896279601672|MARGARINA SEM SAL COAMO PACOTE 1,01KG                                                                  |
+|6.564|7896183201029|QUEIJO PARMESÃO RALADO QUATÁ PACOTE 100G                                                               |
+|6.565|7898403780499|BEBIDA LÁCTEA UHT CHOCOLATE BETÂNIA KIDS CAIXA 200ML                                                   |
+|6.566|7896279602198|MISTURA PARA BOLO AIPIM COAMO FÁCIL PACOTE 5KG                                                         |
+|6.567|7891048061794|MISTURA PARA BOLO CREMOSO CHOCOLATE DR. OETKER SACHÊ 300G                                              |
+|6.568|7891048050736|GELATINA PÓ AÇAÍ COM BANANA DR. OETKER CAIXA 20G                                                       |
+|6.569|7891048050729|GELATINA PÓ CEREJA COM AMORA SILVESTRE DR. OETKER CAIXA 20G                                            |
+|6.570|7908228807322|BALA REGALIZ MORANGO E LIMÃO FINI TUBES AZEDÍSSIMO PACOTE 80G                                          |
+|6.571|7896052603497|REFRIGERANTE TUTTI FRUTTI ITUBAÍNA ORIGINAL GARRAFA 355ML                                              |
+|6.572|7896052606191|REFRIGERANTE TUTTI FRUTTI ITUBAÍNA ORIGINAL GARRAFA 500ML                                              |
+|6.573|7896052604999|REFRIGERANTE TUTTI FRUTTI ZERO AÇÚCAR ITUBAÍNA RETRÔ LATA 350ML                                        |
+|6.574|7899975802749|PICOLÉ MORANGO E FRAMBOESA DENTADURAS FINI PACOTE 50G                                                  |
+|6.575|7899975801704|PICOLÉ MORANGO AZEDINHO FINI TUBES PACOTE 45G                                                          |
+|6.576|7899975801995|PACK PICOLÉ MORANGO AZEDINHO FINI TUBES CAIXA 270G 6 UNIDADES                                          |
+|6.577|7899975801759|PACK PICOLÉ MORANGO AZEDINHO FINI TUBES CAIXA 360G 8 UNIDADES LEVE MAIS PAGUE MENOS                    |
+|6.578|7908228805670|BALA DE GELATINA LARANJA, MAÇÃ_VERDE E TUTTI FRUTTI ZERO AÇÚCAR NATUREZA FINI PACOTE 35G               |
+|6.579|7898064011666|BEBIDA LÁCTEA UHT CHOCOLATE ZERO LACTOSE BETÂNIA YOBEM WHEY CAIXA 250ML                                |
+|6.580|7891331850333|PACK BARRA DE NUTS SEMENTES NUTRY CAIXA 50G 2 UNIDADES                                                 |
+|6.581|7891331850340|PACK BARRA DE NUTS COCO NUTRY CAIXA 50G 2 UNIDADES                                                     |
+|6.582|7891331850364|PACK BARRA DE NUTS CRANBERRY NUTRY CAIXA 50G 2 UNIDADES                                                |
+|6.583|7891331850265|BARRA DE NUTS CLÁSSICA NUTRY CAIXA 300G 12 UNIDADES                                                    |
+|6.584|7898010690518|ARROZ TIPO 1 DOM CAMILO PACOTE 5KG_CADASTRO REALIZADO COM AMOSTRA FÍSICA DO PRODUTO                    |
+|6.585|7891331010492|BARRA DE CEREAL AVELÃ COBERTURA CHOCOLATE NUTRY CAIXA 528G 24 UNIDADES                                 |
+|6.586|7891331008369|BARRA DE CEREAL BOLO DE CHOCOLATE NUTRY CAIXA 528G 24 UNIDADES                                         |
+|6.587|7891331010515|BARRA DE CEREAL AVEIA COM BANANA E MEL NUTRY CAIXA 528G 24 UNIDADES                                    |
+|6.588|7898403780284|COALHADA DESNATADA COM ADOÇANTE BETÂNIA POTE 140G                                                      |
+|6.589|7898403781328|MANTEIGA COM SAL BETÂNIA BALDE 3KG                                                                     |
+|6.590|7898403781311|MANTEIGA DE PRIMEIRA QUALIDADE COM SAL BETÂNIA BALDE 3KG                                               |
+|6.591|7896183201210|CREME DE LEITE PASTEURIZADO BATE CHANTILLY QUATÁ GARRAFA 1,01KG                                        |
+|6.592|7896183202095|REQUEIJÃO CREMOSO QUATÁ BISNAGA 1,5KG                                                                  |
+|6.593|7896279602150|MISTURA PARA BOLO BAUNILHA COAMO FÁCIL PACOTE 5KG                                                      |
+|6.594|7896279602204|MISTURA PARA BOLO CHOCOLATE COAMO FÁCIL PACOTE 5KG                                                     |
+|6.595|7891048036907|CHÁ LARANJA_DOCE, GENGIBRE, CHÁ VERDE, HIBISCO, ACEROLA, LIMÃO E MEL DR. OETKER CAIXA 22,5G 15 UNIDADES|
+|6.596|7898205925654|COALHADA SECA VERDE CAMPO POTE 180G                                                                    |
+|6.597|7898205925647|SOBREMESA LÁCTEA FERMENTADA BANANA COM CANELA ZERO LACTOSE VERDE CAMPO POTE 200G 2 UNIDADES            |
+|6.598|7898205925562|IOGURTE BICAMADA BANANA COM CANELA ZERO LACTOSE VERDE CAMPO NATURAL WHEY POTE 140G                     |
+|6.599|7898403781052|PETIT SUISSE MORANGO TURMA DA MÔNICA BETÂNIA KIDS BANDEJA 320G 8 UNIDADES                              |
+|6.600|7896691104355|LEITE FERMENTADO DESNATADO BAUNILHA CAROLINA GARRAFA 1250G TAMANHO FAMÍLIA                             |
+|6.601|7898064011970|LEITE FERMENTADO DESNATADO MORANGO BETÂNIA KIDS CAIXA 80G                                              |
+|6.602|7898403782028|CREME DE LEITE UHT HOMOGENEIZADO ZERO LACTOSE BETÂNIA CAIXA 200G                                       |
+|6.603|7898403780925|CREME DE LEITE UHT LEVE HOMOGENEIZADO BETÂNIA CAIXA 200G                                               |
+|6.604|7896862002107|LEITE FERMENTADO DESNATADO FRUTAP FRASCO 170G                                                          |
+|6.605|7898064011659|BEBIDA LÁCTEA UHT BANANA ZERO LACTOSE BETÂNIA YOBEM WHEY CAIXA 250ML                                   |
+|6.606|7898403782059|IOGURTE DESNATADO NATURAL ZERO LACTOSE BETÂNIA COPO 170G                                               |
+|6.607|7898064011901|IOGURTE PARCIALMENTE DESNATADO NATURAL ZERO LACTOSE BETÂNIA YOBEM WHEY POTE 170G                       |
+|6.608|7898403782691|LEITE FERMENTADO DESNATADO BETÂNIA FRASCO 170G                                                         |
+|6.609|7898205924206|IOGURTE DESNATADO BANANA ZERO LACTOSE VERDE CAMPO NATURAL WHEY FRASCO 250G                             |
+|6.610|7898205923858|REQUEIJÃO CREMOSO ZERO LACTOSE VERDE CAMPO LACFREE COPO 180G                                           |
+|6.611|7896259426165|CREAM CHEESE CAMPONESA PROFISSIONAL BISNAGA 1,01KG                                                     |
+|6.612|7898205923940|IOGURTE DESNATADO MAÇÃ, BANANA E MAMÃO ZERO LACTOSE VERDE CAMPO LACFREE GARRAFA 500G                   |
+|6.613|7898403782714|LEITE FERMENTADO DESNATADO TRADICIONAL BETÂNIA KIDS CAIXA 80G                                          |
+|6.614|7898950516053|IOGURTE DESNATADO MORANGO BETÂNIA COPO 170G                                                            |
+|6.615|7896259426356|DOCE DE LEITE CAMPONESA PROFISSIONAL BISNAGA 1,01KG                                                    |
+|6.616|7898205924398|BEBIDA LÁCTEA UHT BAUNILHA ZERO LACTOSE VERDE CAMPO NATURAL WHEY CAIXA 250ML                           |
+|6.617|7896259416364|LEITE UHT DESNATADO ZERO LACTOSE CAMPONESA CAIXA COM TAMPA 1L                                          |
+|6.618|7896691104256|IOGURTE PARCIALMENTE DESNATADO CALDA MARACUJÁ CAROLINA DUET COPO 130G                                  |
+|6.619|7898403781496|IOGURTE DESNATADO AMEIXA ZERO LACTOSE BETÂNIA YOBEM GARRAFA 800G                                       |
+|6.620|7898403781458|IOGURTE DESNATADO MORANGO ZERO LACTOSE BETÂNIA YOBEM FRASCO 170G                                       |
+|6.621|7898403781465|IOGURTE DESNATADO MORANGO ZERO LACTOSE BETÂNIA YOBEM GARRAFA 800G                                      |
+|6.622|7898403782790|PACK LEITE FERMENTADO DESNATADO TRADICIONAL TURMA DA MÔNICA BETÂNIA KIDS CAIXA 6 UNIDADES 80G CADA     |
+|6.623|7898403782929|LEITE PÓ INTEGRAL BETÂNIA PACOTE 800G EMBALAGEM ECONÔMICA                                              |
+|6.624|7898950516084|BEBIDA LÁCTEA FERMENTADA MORANGO BETÂNIA BANDEJA 680G LEVE 8 PAGUE 7 UNIDADES                          |
+|6.625|7898403780758|BEBIDA LÁCTEA FERMENTADA MORANGO BETÂNIA BAT GUT PACOTE 450G                                           |
+|6.626|7898403780574|BEBIDA LÁCTEA FERMENTADA MORANGO BETÂNIA BANDEJA 540G 6 UNIDADES                                       |
+|6.627|7898403781021|BEBIDA LÁCTEA FERMENTADA GRAVIOLA BETÂNIA BAT GUT PACOTE 900G                                          |
+|6.628|7898403780277|COALHADA INTEGRAL ADOÇADA BETÂNIA POTE 140G                                                            |
+|6.629|7898403780710|IOGURTE INTEGRAL MEL BETÂNIA COPO 170G                                                                 |
+|6.630|7898403782721|IOGURTE INTEGRAL MORANGO _ BANANA E MAÇÃ TURMA DA MÔNICA BETÂNIA KIDS BANDEJA 540G 6 UNIDADES          |
+|6.631|7898403780116|REQUEIJÃO CREMOSO BETÂNIA COPO 200G                                                                    |
+|6.632|7898403781632|IOGURTE INTEGRAL CALDA MORANGO BETÂNIA COPO 150G                                                       |
+|6.633|7898064011796|IOGURTE PARCIALMENTE DESNATADO MORANGO ZERO LACTOSE BETÂNIA YOBEM WHEY FRASCO 250G                     |
+|6.634|7898205924794|IOGURTE PARCIALMENTE DESNATADO TRADICIONAL VERDE CAMPO PROBIÓTICO GARRAFA 500G                         |
+|6.635|7898205924916|IOGURTE DESNATADO MORANGO ZERO LACTOSE VERDE CAMPO 21G PROTEÍNAS NATURAL WHEY FRASCO 250G              |
+|6.636|7896283800849|BEBIDA LÁCTEA UHT BANANA ZERO LACTOSE JUSSARA WHEY PROTEIN CAIXA 250ML                                 |
+|6.637|7898205925203|IOGURTE DESNATADO TORTA DE LIMÃO ZERO LACTOSE VERDE CAMPO NATURAL WHEY FRASCO 250G                     |
+|6.638|7896862000875|IOGURTE PARCIALMENTE DESNATADO MORANGO FRUTAP GARRAFA 900G                                             |
+|6.639|7898064011895|IOGURTE PARCIALMENTE DESNATADO MORANGO E BANANA ZERO LACTOSE BETÂNIA YOBEM WHEY POTE 170G              |
+|6.640|7898205924862|IOGURTE PARCIALMENTE DESNATADO BANANA E MAÇÃ VERDE CAMPO FRASCO 170G                                   |
+|6.641|7898205925265|IOGURTE PARCIALMENTE DESNATADO COCO VERDE CAMPO PROBIÓTICO GARRAFA 500G                                |
+|6.642|7896183203122|QUEIJO REINO QUATÁ                                                                                     |
+|6.643|7896259425410|QUEIJO MUSSARELA FATIADO CAMPONESA 150G                                                                |
+|6.644|7896183203269|QUEIJO EMMENTAL QUATÁ                                                                                  |
+|6.645|7898598750574|QUEIJO EMMENTAL QUATÁ 170G                                                                             |
+|6.646|7896183206031|QUEIJO GORGONZOLA QUATÁ                                                                                |
+|6.647|7896183203184|QUEIJO GORGONZOLA QUATÁ                                                                                |
+|6.648|7896259426387|QUEIJO MINAS PADRÃO FATIADO CAMPONESA 150G                                                             |
+|6.649|7898064011802|IOGURTE PARCIALMENTE DESNATADO MORANGO ZERO LACTOSE BETÂNIA YOBEM WHEY SQUEEZE 160G                    |
+|6.650|7898205924770|IOGURTE PARCIALMENTE DESNATADO AMEIXA VERDE CAMPO PROBIÓTICO GARRAFA 500G                              |
+|6.651|7898205924824|IOGURTE PARCIALMENTE DESNATADO MORANGO VERDE CAMPO PROBIÓTICO FRASCO 170G                              |
+|6.652|7896259420118|LEITE CONDENSADO SEMIDESNATADO CAMPONESA PROFISSIONAL PACOTE 5KG                                       |
+|6.653|7898403780932|IOGURTE PARCIALMENTE DESNATADO FRUTAS VERMELHAS BETÂNIA GARRAFA 900G                                   |
+|6.654|7898403780659|IOGURTE PARCIALMENTE DESNATADO MORANGO BETÂNIA GARRAFA 900G                                            |
+|6.655|7898403782011|LEITE UHT SEMIDESNATADO ZERO LACTOSE BETÂNIA CAIXA COM TAMPA 1L                                        |
+|6.656|7898403780338|LEITE UHT SEMIDESNATADO BETÂNIA CAIXA 1L                                                               |
+|6.657|7898205923797|QUEIJO MUSSARELA LIGHT VERDE CAMPO                                                                     |
+|6.658|7896259421719|LEITE UHT DESNATADO ZERO LACTOSE CAMPONESA PROTEÍNA CAIXA COM TAMPA 1L                                 |
+|6.659|7898403782233|BEBIDA LÁCTEA UHT FARINHA LÁCTEA BETÂNIA CAIXA 1L                                                      |
+|6.660|7898950516138|PACK BEBIDA LÁCTEA UHT CHOCOLATE TURMA DA MÔNICA BETÂNIA KIDS CAIXA 1,8L LEVE 9 PAGUE 8 UNIDADES       |
+|6.661|7896259426363|DOCE DE LEITE CAMPONESA PROFISSIONAL BALDE 4,6KG                                                       |
+|6.662|7898598750642|QUEIJO COALHO EM CUBOS TRADICIONAL QUATÁ POP CHEESE 100G                                               |
+|6.663|7896279600217|MARGARINA SEM SAL 80% DE GORDURA COAMO PROFISSIONAL BALDE 14,5KG                                       |
+|6.664|7896279600200|MARGARINA COM SAL 80% DE GORDURA COAMO PROFISSIONAL BALDE 14,5KG                                       |
+|6.665|7898205923919|IOGURTE DESNATADO MORANGO ZERO LACTOSE VERDE CAMPO LACFREE COPO 140G                                   |
+|6.666|7891331018283|BARRA DE PROTEÍNA CHOCOLATE COBERTURA CHOCOLATE AO LEITE NUTRY CRISPY PROTEIN PACOTE 30G               |
+|6.667|7891331850074|BARRA DE PROTEÍNA BOMBOM DE COCO NUTRY CRISPY PROTEIN PACOTE 30G                                       |
+|6.668|7898598750659|QUEIJO COALHO EM CUBOS PICANTE QUATÁ POP CHEESE 100G                                                   |
+|6.669|7898598750109|FONDUE DE QUEIJO GORGONZOLA QUATÁ CAIXA 400G                                                           |
+|6.670|7898598750062|CREME DE QUEIJO TRADICIONAL QUATÁ COPO 180G                                                            |
+|6.671|7896183201357|BEBIDA LÁCTEA UHT CHOCOLATE QUATÁ CAIXA 1L                                                             |
+|6.672|7898598750499|BEBIDA LÁCTEA UHT CHOCOLATE QUATÁ CAIXA 1L                                                             |
+|6.673|7898403782370|BEBIDA LÁCTEA UHT FARINHA LÁCTEA BETÂNIA CAIXA 200ML                                                   |
+|6.674|7898403781014|BEBIDA LÁCTEA FERMENTADA AMEIXA BETÂNIA BAT GUT PACOTE 900G                                            |
+|6.675|7898403780635|IOGURTE PARCIALMENTE DESNATADO AMEIXA BETÂNIA GARRAFA 900G                                             |
+|6.676|7898403780031|BEBIDA LÁCTEA UHT CHOCOLATE BETÂNIA CAIXA 1L                                                           |
+|6.677|7896183201371|BEBIDA LÁCTEA UHT VITAMINA QUATÁ KIDS CAIXA 200ML                                                      |
+|6.678|7908228806219|BALA DE GELATINA SORTIDA RATO FINI PACOTE 80G                                                          |
+|6.679|7908228808152|BALA DE GELATINA SORTIDA FAZENDO ARTE FINI PACOTE 80G                                                  |
+|6.680|7896183201241|CREAM CHEESE QUATÁ BISNAGA 1,2KG                                                                       |
+|6.681|7891331014490|PACK BARRA DE CEREAL CASTANHA_DE_CAJU COBERTURA CHOCOLATE NUTRY PACOTE 66G 3 UNIDADES                  |
+|6.682|7896691104218|IOGURTE INTEGRAL ABACAXI E COCO CAROLINA PEDAÇOS COPO 100G                                             |
+|6.683|7898205924800|IOGURTE PARCIALMENTE DESNATADO MAÇÃ, BANANA E MAMÃO VERDE CAMPO PROBIÓTICO FRASCO 170G                 |
+|6.684|7896183202217|FONDUE DE QUEIJO GRUYÈRE QUATÁ CAIXA 400G                                                              |
+|6.685|7896279601351|FARINHA DE TRIGO TIPO 1 PARA PANIFICAÇÃO COAMO SACO 25KG                                               |
+|6.686|7896279600668|FARINHA DE TRIGO TIPO 1 TRADICIONAL COAMO PACOTE 1KG                                                   |
+|6.687|7896279600354|FARINHA DE TRIGO TIPO 1 TRADICIONAL COAMO PACOTE 1KG                                                   |
+|6.688|7896862002060|LEITE FERMENTADO DESNATADO FRUTAP GARRAFA 900G FAMILY                                                  |
+|6.689|7898205924480|IOGURTE DESNATADO MORANGO ZERO LACTOSE VERDE CAMPO LACFREE FRASCO 170G                                 |
+|6.690|7898205924763|IOGURTE PARCIALMENTE DESNATADO MAÇÃ, BANANA E MAMÃO VERDE CAMPO PROBIÓTICO GARRAFA 500G                |
+|6.691|7898403781007|MISTURA DE REQUEIJÃO COM QUEIJO E AMIDO BETÂNIA BISNAGA 1,8KG EMBALAGEM ECONÔMICA                      |
+|6.692|7898403780970|BEBIDA LÁCTEA FERMENTADA AMEIXA E MORANGO BETÂNIA BANDEJA 540G 6 UNIDADES                              |
+|6.693|7896259426219|CREME DE LEITE UHT LEVE HOMOGENEIZADO CAMPONESA PROFISSIONAL CAIXA 1,01KG                              |
+|6.694|7898205924671|IOGURTE DESNATADO DOCE DE LEITE ZERO LACTOSE VERDE CAMPO NATURAL WHEY FRASCO 250G                      |
+|6.695|7898598750536|QUEIJO REINO EM PEDAÇO QUATÁ 170G                                                                      |
+|6.696|7896259425403|QUEIJO MUSSARELA FATIADO CAMPONESA 1KG EMBALAGEM ECONÔMICA                                             |
+|6.697|7896259425991|QUEIJO MUSSARELA FATIADO CAMPONESA 300G                                                                |
+|6.698|7898598750505|QUEIJO COALHO EM ESPETO TRADICIONAL QUATÁ 300G 7 UNIDADES                                              |
+|6.699|7896183203030|QUEIJO MINAS PADRÃO EM PEDAÇO QUATÁ                                                                    |
+|6.700|7898598750581|QUEIJO ESTEPE QUATÁ 170G                                                                               |
+|6.701|7898598750512|QUEIJO COALHO EM ESPETO COM ORÉGANO QUATÁ 300G 7 UNIDADES                                              |
+|6.702|7896183203238|QUEIJO BRIE QUATÁ                                                                                      |
+|6.703|7898598750239|QUEIJO MINAS FRESCAL QUATÁ                                                                             |
+|6.704|7896183202019|QUEIJO MINAS FRESCAL TRADICIONAL QUATÁ                                                                 |
+|6.705|7896183202156|QUEIJO MINAS FRESCAL LIGHT QUATÁ                                                                       |
+|6.706|7896183207014|QUEIJO PROVOLONE DEFUMADO QUATÁ                                                                        |
+|6.707|7896183207021|QUEIJO PROVOLONE DEFUMADO QUATÁ                                                                        |
+|6.708|7898598750369|QUEIJO PROVOLONE DEFUMADO QUATÁ 300G                                                                   |
+|6.709|7896183207083|QUEIJO PROVOLONE DEFUMADO EM PEDAÇO QUATÁ                                                              |
+|6.710|7898598750543|QUEIJO GOUDA QUATÁ 170G                                                                                |
+|6.711|7896183203092|QUEIJO GOUDA QUATÁ                                                                                                       |
+|6.712|7896259425427|QUEIJO PRATO FATIADO CAMPONESA 150G                                                                                      |
+|6.713|7898598750598|QUEIJO PARMESÃO QUATÁ 160G                                                                                               |
+|6.714|7896183201043|QUEIJO PARMESÃO RALADO QUATÁ PACOTE 10G                                                                                  |
+|6.715|7898598750079|CREME DE QUEIJO LIGHT QUATÁ COPO 180G                                                                                    |
+|6.716|7908228807230|BALA DE GELATINA SORTIDA OCEANITOS FINI PACOTE 80G                                                                       |
+|6.717|7896331101263|MANTEIGA DE PRIMEIRA QUALIDADE COM SAL ZERO LACTOSE AVIAÇÃO POTE 200G                                                    |
+|6.718|7891331850227|BARRA DE NUTS COCO NUTRY PACOTE 25G                                                                                      |
+|6.719|7891331850371|PACK BARRA DE NUTS CACAU NUTRY CAIXA 50G 2 UNIDADES                                                                      |
+|6.720|7891331850289|BARRA DE NUTS COCO NUTRY CAIXA 300G 12 UNIDADES                                                                          |
+|6.721|7891331018399|PACK BARRA DE CEREAL CAPPUCCINO NUTRY PACOTE 60G 3 UNIDADES                                                              |
+|6.722|7891331010560|PACK BARRA DE CEREAL MORANGO COBERTURA CHOCOLATE NUTRY PACOTE 66G 3 UNIDADES                                             |
+|6.723|7891331008178|BARRA DE CEREAL BOLO DE CHOCOLATE NUTRY PACOTE 22G                                                                       |
+|6.724|7891331008352|PACK BARRA DE CEREAL BOLO DE CHOCOLATE NUTRY PACOTE 66G 3 UNIDADES                                                       |
+|6.725|7891331010546|PACK BARRA DE CEREAL AVELÃ COBERTURA CHOCOLATE NUTRY PACOTE 66G 3 UNIDADES                                               |
+|6.726|7891331010553|PACK BARRA DE CEREAL AVEIA COM BANANA E MEL NUTRY PACOTE 66G 3 UNIDADES                                                  |
+|6.727|7891331014520|BARRA DE CEREAL FRUTAS VERMELHAS NUTRY PACOTE 22G                                                                        |
+|6.728|7891331014483|BARRA DE CEREAL FRUTAS VERMELHAS NUTRY CAIXA 528G 24 UNIDADES                                                            |
+|6.729|7891331014476|PACK BARRA DE CEREAL FRUTAS VERMELHAS NUTRY PACOTE 66G 3 UNIDADES                                                        |
+|6.730|7891331014452|PACK BARRA DE CEREAL COCO COBERTURA CHOCOLATE NUTRY PACOTE 66G 3 UNIDADES                                                |
+|6.731|7891331018375|BARRA DE CEREAL CAPPUCCINO NUTRY PACOTE 20G                                                                              |
+|6.732|7891048038512|CHÁ VERDE, ABACAXI, LIMÃO, COUVE, ESPINAFRE, CAPIM_SANTO, HORTELÃ E GENGIBRE ZERO AÇÚCAR DR. OETKER TI4YOU POTE 180G     |
+|6.733|7891331018290|BARRA DE PROTEÍNA PASTA DE AMENDOIM COBERTURA CHOCOLATE AO LEITE NUTRY CRISPY PROTEIN PACOTE 30G                         |
+|6.734|7891331018603|PACK BARRA DE PROTEÍNA PASTA DE AMENDOIM COBERTURA CHOCOLATE AO LEITE NUTRY CRISPY PROTEIN CAIXA 90G 3 UNIDADES          |
+|6.735|7898205922998|CREME DE LEITE PASTEURIZADO BATE CHANTILLY ZERO LACTOSE VERDE CAMPO LACFREE GARRAFA 500G                                 |
+|6.736|7898205920222|CREME DE LEITE PASTEURIZADO BATE CHANTILLY VERDE CAMPO GARRAFA 500G                                                      |
+|6.737|7896183201203|CREME DE LEITE PASTEURIZADO BATE CHANTILLY QUATÁ GARRAFA 500G                                                            |
+|6.738|7896279602174|MISTURA PARA BOLO LARANJA COAMO FÁCIL PACOTE 5KG                                                                         |
+|6.739|7891331850159|BARRA DE PROTEÍNA TRUFA DE AVELÃ NUTRY CRISPY PROTEIN CAIXA 360G 12 UNIDADES                                             |
+|6.740|7891331850081|BARRA DE PROTEÍNA TRUFA DE AVELÃ NUTRY CRISPY PROTEIN PACOTE 30G                                                         |
+|6.741|7898205925401|IOGURTE DESNATADO BICAMADA MARACUJÁ ZERO LACTOSE VERDE CAMPO NATURAL WHEY POTE 140G                                      |
+|6.742|7898205923643|IOGURTE DESNATADO ZERO LACTOSE VERDE CAMPO LACFREE GARRAFA 500G                                                          |
+|6.743|7898205925807|BEBIDA LÁCTEA UHT MORANGO ZERO LACTOSE VERDE CAMPO NATURAL 100% WHEY CAIXA 250ML                                         |
+|6.744|7898205925821|SOBREMESA LÁCTEA CHOCOLATE ZERO LACTOSE VERDE CAMPO NATURAL WHEY POTE 130G                                               |
+|6.745|7896259417279|LEITE CONDENSADO INTEGRAL CAMPONESA PROFISSIONAL PACOTE 2,5KG                                                            |
+|6.746|7896259417408|LEITE CONDENSADO INTEGRAL CAMPONESA PROFISSIONAL PACOTE 5KG                                                              |
+|6.747|7896183201135|LEITE CONDENSADO SEMIDESNATADO QUATÁ CAIXA 395G                                                                          |
+|6.748|7898064011727|BEBIDA LÁCTEA UHT COCO COM TAPIOCA ZERO LACTOSE BETÂNIA YOBEM WHEY CAIXA 250ML                                           |
+|6.749|7896283800856|BEBIDA LÁCTEA UHT BAUNILHA ZERO LACTOSE JUSSARA WHEY PROTEIN CAIXA 250ML                                                 |
+|6.750|7896283800832|BEBIDA LÁCTEA UHT CHOCOLATE ZERO LACTOSE JUSSARA WHEY PROTEIN CAIXA 250ML                                                |
+|6.751|7898205924787|IOGURTE PARCIALMENTE DESNATADO MORANGO VERDE CAMPO PROBIÓTICO GARRAFA 500G                                               |
+|6.752|7896259425397|QUEIJO MUSSARELA FATIADO CAMPONESA 500G                                                                                  |
+|6.753|7898205925364|BEBIDA LÁCTEA UHT CAPPUCCINO ZERO LACTOSE VERDE CAMPO NATURAL WHEY CAIXA 250ML                                           |
+|6.754|7898403781298|LEITE CONDENSADO BETÂNIA CAIXA 395G                                                                                      |
+|6.755|7896259424659|LEITE CONDENSADO SEMIDESNATADO CAMPONESA PROFISSIONAL PACOTE 2,5KG                                                       |
+|6.756|7891331018597|PACK BARRA DE PROTEÍNA CHOCOLATE COBERTURA CHOCOLATE AO LEITE NUTRY CRISPY PROTEIN CAIXA 90G 3 UNIDADES                  |
+|6.757|7891331850142|BARRA DE PROTEÍNA BOMBOM DE COCO NUTRY CRISPY PROTEIN CAIXA 360G 12 UNIDADES                                             |
+|6.758|7891331018320|BARRA DE PROTEÍNA PASTA DE AMENDOIM COBERTURA CHOCOLATE AO LEITE NUTRY CRISPY PROTEIN CAIXA 360G 12 UNIDADES             |
+|6.759|7908228805663|BALA DE GELATINA TANGERINA, MORANGO E UVA ZERO AÇÚCAR FRUTS FINI PACOTE 35G                                              |
+|6.760|7896052604975|REFRIGERANTE TUTTI FRUTTI ITUBAÍNA RETRÔ LATA 350ML                                                                      |
+|6.761|7891331850241|BARRA DE NUTS CRANBERRY NUTRY PACOTE 25G                                                                                 |
+|6.762|7896259421030|LEITE UHT INTEGRAL CAMPONESA ORIGEM CAIXA COM TAMPA 1L                                                                   |
+|6.763|7898205924879|IOGURTE PARCIALMENTE DESNATADO MORANGO VERDE CAMPO FRASCO 170G                                                           |
+|6.764|7898598750420|BEBIDA LÁCTEA UHT CHOCOLATE QUATÁ KIDS CAIXA 180ML                                                                       |
+|6.765|7896279602167|MISTURA PARA PÃO DE LÓ COAMO FÁCIL PACOTE 5KG                                                                            |
+|6.766|7896183201388|QUEIJO BRIE QUATÁ 125G                                                                                                   |
+|6.767|7899975802572|PICOLÉ GROSELHA E NATA TORÇÃO AZUL FINI PACOTE 45G                                                                       |
+|6.768|7891331850302|BARRA DE NUTS CRANBERRY NUTRY CAIXA 300G 12 UNIDADES                                                                     |
+|6.769|7891331850203|BARRA DE NUTS CLÁSSICA NUTRY PACOTE 25G                                                                                  |
+|6.770|7898010690501|ARROZ TIPO 1 DOM CAMILO PACOTE 1KG_CADASTRO REALIZADO COM AMOSTRA FÍSICA DO PRODUTO                                      |
+|6.771|7898598750031|REQUEIJÃO CREMOSO QUATÁ BISNAGA 250G                                                                                     |
+|6.772|7896279602242|FARINHA DE TRIGO TIPO 1 PARA PIZZA COAMO PACOTE 5KG                                                                      |
+|6.773|7896279602259|FARINHA DE TRIGO TIPO 1 PARA SALGADOS COAMO PACOTE 5KG                                                                   |
+|6.774|7896279602730|MISTURA PARA BOLO NEUTRO COAMO FÁCIL PACOTE 5KG                                                                          |
+|6.775|7896279602716|MISTURA PARA BOLO CENOURA COAMO FÁCIL PACOTE 5KG                                                                         |
+|6.776|7896279600088|FARINHA DE TRIGO TIPO 1 TRADICIONAL COAMO PACOTE 5KG                                                                     |
+|6.777|7896279602655|FARINHA DE TRIGO TIPO 1 PARA MASSA FRESCA E DERIVADOS COAMO PACOTE 5KG                                                   |
+|6.778|7896279602211|FARINHA DE TRIGO TIPO 1 PARA PASTEL COAMO PACOTE 5KG                                                                     |
+|6.779|7898403782073|IOGURTE DESNATADO PAPAYA COM LINHAÇA ZERO LACTOSE BETÂNIA YOBEM FRASCO 170G                                              |
+|6.780|7891048036075|CHÁ ABACAXI E LIMÃO DR. OETKER FLORES E FRUTAS CAIXA 30G 15 UNIDADES                                                     |
+|6.781|7891048036082|CHÁ PÊSSEGO E MARACUJÁ DR. OETKER FLORES E FRUTAS CAIXA 30G 15 UNIDADES                                                  |
+|6.782|7898205925555|IOGURTE BICAMADA ABACAXI COM COCO ZERO LACTOSE VERDE CAMPO NATURAL WHEY POTE 140G                                        |
+|6.783|7896183202194|LEITE UHT DESNATADO QUATÁ CAIXA 1L                                                                                       |
+|6.784|7898205925609|IOGURTE DESNATADO NATURAL ZERO LACTOSE VERDE CAMPO LACFREE COPO 160G                                                     |
+|6.785|7898205925739|REQUEIJÃO CREMOSO VERDE CAMPO COPO 180G                                                                                  |
+|6.786|7896283800818|LEITE UHT DESNATADO JUSSARA CAIXA COM TAMPA 1L                                                                           |
+|6.787|7898598750451|LEITE UHT DESNATADO QUATÁ CAIXA COM TAMPA 1L                                                                             |
+|6.788|7898403780673|IOGURTE DESNATADO NATURAL BETÂNIA COPO 170G                                                                              |
+|6.789|7898403782394|LEITE UHT DESNATADO BETÂNIA CAIXA COM TAMPA 1L                                                                           |
+|6.790|7898403780918|LEITE PÓ INTEGRAL BETÂNIA PACOTE 200G                                                                                    |
+|6.791|7898205925579|IOGURTE INTEGRAL NATURAL VERDE CAMPO COPO 160G                                                                           |
+|6.792|7898403782196|BEBIDA LÁCTEA FERMENTADA COCO BETÂNIA BANDEJA 540G 6 UNIDADES                                                            |
+|6.793|7898950516121|BEBIDA LÁCTEA FERMENTADA MIX DE FRUTAS BETÂNIA BANDEJA 540G 6 UNIDADES                                                   |
+|6.794|7898205924909|QUEIJO MUSSARELA FATIADO ZERO LACTOSE VERDE CAMPO LACFREE 150G                                                           |
+|6.795|7898205924138|QUEIJO MUSSARELA ZERO LACTOSE VERDE CAMPO LACFREE                                                                        |
+|6.796|7898205924015|QUEIJO MUSSARELA ZERO LACTOSE VERDE CAMPO LACFREE                                                                        |
+|6.797|7898205924336|QUEIJO MINAS FRESCAL ZERO LACTOSE VERDE CAMPO LACFREE                                                                    |
+|6.798|7898064011581|QUEIJO COALHO BETÂNIA                                                                                                    |
+|6.799|7898403782677|QUEIJO COALHO BETÂNIA                                                                                                    |
+|6.800|7898403780765|QUEIJO MUSSARELA BETÂNIA                                                                                                 |
+|6.801|7898403780093|QUEIJO MINAS FRESCAL BETÂNIA                                                                                             |
+|6.802|7898403782448|IOGURTE INTEGRAL GREGO TRADICIONAL BETÂNIA BANDEJA 540G 6 UNIDADES                                                       |
+|6.803|7898403782783|IOGURTE INTEGRAL BANANA E MAÇÃ TURMA DA MÔNICA BETÂNIA KIDS FRASCO 100G                                                  |
+|6.804|7898403780727|IOGURTE INTEGRAL CENOURA, LARANJA E MEL BETÂNIA COPO 170G                                                                |
+|6.805|7898403782769|IOGURTE INTEGRAL MORANGO TURMA DA MÔNICA BETÂNIA KIDS FRASCO 100G                                                        |
+|6.806|7898403782936|IOGURTE INTEGRAL MORANGO TURMA DA MÔNICA BETÂNIA KIDS MERENDINHA SQUEEZE 100G                                            |
+|6.807|7896283800801|LEITE UHT INTEGRAL JUSSARA CAIXA COM TAMPA 1L                                                                            |
+|6.808|7896283800566|LEITE UHT INTEGRAL ZERO LACTOSE JUSSARA GARRAFA 1L                                                                       |
+|6.809|7898598750437|LEITE UHT INTEGRAL QUATÁ CAIXA COM TAMPA 1L                                                                              |
+|6.810|7896183202187|LEITE UHT INTEGRAL QUATÁ CAIXA 1L                                                                                        |
+|6.811|7898403782349|IOGURTE INTEGRAL CALDA AMEIXA BETÂNIA COPO 150G                                                                          |
+|6.812|7898403780680|IOGURTE INTEGRAL NATURAL BETÂNIA COPO 170G                                                                               |
+|6.813|7898403781304|REQUEIJÃO CREMOSO COM AMIDO BETÂNIA BALDE 3,5KG                                                                          |
+|6.814|7898403780536|MISTURA DE REQUEIJÃO COM QUEIJO E AMIDO BETÂNIA BISNAGA 400G                                                             |
+|6.815|7896259418788|QUEIJO MINAS PADRÃO FRACIONADO CAMPONESA                                                                                 |
+|6.816|7898403780130|LEITE UHT INTEGRAL BETÂNIA CAIXA 1L                                                                                      |
+|6.817|7898403782387|LEITE UHT INTEGRAL BETÂNIA CAIXA COM TAMPA 1L                                                                            |
+|6.818|7898205925449|IOGURTE DESNATADO NATURAL VERDE CAMPO POTE 140G                                                                          |
+|6.819|7898205923728|QUEIJO MINAS FRESCAL VERDE CAMPO                                                                                         |
+|6.820|7898205923278|QUEIJO MINAS FRESCAL LIGHT VERDE CAMPO                                                                                   |
+|6.821|7898205925197|REQUEIJÃO CREMOSO ZERO LACTOSE VERDE CAMPO LACFREE POTE 400G                                                             |
+|6.822|7896259418801|QUEIJO MINAS MEIA CURA FRACIONADO CAMPONESA                                                                              |
+|6.823|7898205923766|QUEIJO MINAS PADRÃO FRACIONADO LIGHT VERDE CAMPO                                                                         |
+|6.824|7898205924756|QUEIJO MINAS PADRÃO FRACIONADO VERDE CAMPO                                                                               |
+|6.825|7898205923896|QUEIJO MINAS PADRÃO FRACIONADO ZERO LACTOSE VERDE CAMPO LACFREE                                                          |
+|6.826|7896183203139|QUEIJO GRUYÈRE QUATÁ                                                                                                     |
+|6.827|7898598750550|QUEIJO GRUYÈRE QUATÁ 170G                                                                                                |
+|6.828|7896183201456|QUEIJO GRUYÈRE EM PEDAÇO QUATÁ                                                                                           |
+|6.829|7898403780642|IOGURTE PARCIALMENTE DESNATADO AMEIXA BETÂNIA FRASCO 170G                                                                |
+|6.830|7898403780949|IOGURTE PARCIALMENTE DESNATADO FRUTAS VERMELHAS BETÂNIA FRASCO 170G                                                      |
+|6.831|7898403780598|IOGURTE PARCIALMENTE DESNATADO MEL BETÂNIA GARRAFA 900G                                                                  |
+|6.832|7898403780604|IOGURTE PARCIALMENTE DESNATADO MEL BETÂNIA FRASCO 170G                                                                   |
+|6.833|7898403782943|IOGURTE PARCIALMENTE DESNATADO MORANGO BETÂNIA GARRAFA 1,25KG EMBALAGEM ECONÔMICA                                        |
+|6.834|7896283800542|LEITE UHT SEMIDESNATADO JUSSARA MAX GARRAFA 1L                                                                           |
+|6.835|7898403782042|REQUEIJÃO CREMOSO LIGHT ZERO LACTOSE BETÂNIA COPO 200G                                                                   |
+|6.836|7898403780291|REQUEIJÃO CREMOSO LIGHT BETÂNIA COPO 200G                                                                                |
+|6.837|7896283800559|LEITE UHT SEMIDESNATADO ZERO LACTOSE JUSSARA GARRAFA 1L                                                                  |
+|6.838|7898598750468|LEITE UHT SEMIDESNATADO ZERO LACTOSE QUATÁ CAIXA COM TAMPA 1L                                                            |
+|6.839|7896259414674|LEITE UHT SEMIDESNATADO ZERO LACTOSE CAMPONESA CAIXA COM TAMPA 1L                                                        |
+|6.840|7896283800825|LEITE UHT SEMIDESNATADO JUSSARA ÉQUILIBRÉ CAIXA COM TAMPA 1L                                                             |
+|6.841|7896283800429|LEITE UHT SEMIDESNATADO JUSSARA ÉQUILIBRÉ CAIXA 1L                                                                       |
+|6.842|7896183201340|LEITE UHT SEMIDESNATADO QUATÁ CAIXA 1L                                                                                   |
+|6.843|7898598750444|LEITE UHT SEMIDESNATADO QUATÁ CAIXA COM TAMPA 1L                                                                         |
+|6.844|7898403780666|IOGURTE PARCIALMENTE DESNATADO MORANGO BETÂNIA FRASCO 170G                                                               |
+|6.845|7896259425380|REQUEIJÃO CREMOSO COM QUEIJO CAMPONESA PROFISSIONAL BISNAGA 1,5KG                                                        |
+|6.846|7898598750666|CREAM CHEESE QUATÁ BISNAGA 1,01KG                                                                                        |
+|6.847|7896183220181|CREME DE QUEIJO MINAS FRESCAL QUATÁ POTE 150G                                                                            |
+|6.848|7896183203146|QUEIJO PARMESÃO QUATÁ                                                                                                    |
+|6.849|7896183201012|QUEIJO PARMESÃO RALADO QUATÁ PACOTE 50G                                                                                  |
+|6.850|7896259425465|QUEIJO PARMESÃO RALADO CAMPONESA PACOTE 50G                                                                              |
+|6.851|7898403780451|BEBIDA LÁCTEA FERMENTADA MORANGO BETÂNIA BAT GUT PACOTE 900G                                                             |
+|6.852|7896183202026|RICOTA FRESCA QUATÁ                                                                                                      |
+|6.853|7898403781533|BEBIDA LÁCTEA FERMENTADA SALADA DE FRUTAS BETÂNIA BAT GUT PACOTE 900G                                                    |
+|6.854|7891048038505|CHÁ VERDE, FRAMBOESA, MIRTILO, CRANBERRY, MORANGO, BETERRABA, BERINJELA E HIBISCO ZERO AÇÚCAR DR. OETKER TI4YOU POTE 180G|
+|6.855|7891048061817|MISTURA PARA BOLO CREMOSO COCO DR. OETKER SACHÊ 400G                                                                     |
+|6.856|7899975802206|PICOLÉ TUTTI FRUTTI AZEDINHO FINI TUBES PACOTE 45G                                                                       |
+|6.857|7891331850272|BARRA DE NUTS SEMENTES NUTRY CAIXA 300G 12 UNIDADES                                                                      |
+|6.858|7891331850258|BARRA DE NUTS CACAU NUTRY PACOTE 25G                                                                                     |
+|6.859|7891331850210|BARRA DE NUTS SEMENTES NUTRY PACOTE 25G                                                                                  |
+|6.860|7891331850326|PACK BARRA DE NUTS CLÁSSICA NUTRY CAIXA 50G 2 UNIDADES                                                                   |
+|6.861|7891331018368|PACK BARRA DE CEREAL COOKIES & CREAM NUTRY PACOTE 60G 3 UNIDADES                                                         |
+|6.862|7891331005177|PACK BARRA DE CEREAL CASTANHA_DO_BRASIL NUTRY CAIXA 66G 3 UNIDADES                                                       |
+|6.863|7891331001100|PACK BARRA DE CEREAL BANANA NUTRY CAIXA 66G 3 UNIDADES                                                                   |
+|6.864|7891331850425|BARRA DE PROTEÍNA CHOCOLATE CROCANTE NUTRY WHEY CAIXA 600G 12 UNIDADES                                                   |
+|6.865|7891331850395|BARRA DE PROTEÍNA CHOCOLATE CROCANTE NUTRY WHEY PACOTE 50G                                                               |
+|6.866|7891331018337|BARRA DE PROTEÍNA COOKIES AND CREAM COBERTURA CHOCOLATE AO LEITE NUTRY CRISPY PROTEIN CAIXA 360G 12 UNIDADES             |
+|6.867|7891331018306|BARRA DE PROTEÍNA COOKIES AND CREAM COBERTURA CHOCOLATE AO LEITE NUTRY CRISPY PROTEIN PACOTE 30G                         |
+|6.868|7891331018610|PACK BARRA DE PROTEÍNA COOKIES AND CREAM COBERTURA CHOCOLATE AO LEITE NUTRY CRISPY PROTEIN CAIXA 90G 3 UNIDADES          |
+|6.869|7891331010072|PACK BARRA DE CEREAL TRUFA DE CHOCOLATE NUTRY CAIXA 60G 3 UNIDADES                                                       |
+|6.870|7898064011963|LEITE FERMENTADO DESNATADO UVA BETÂNIA KIDS CAIXA 80G                                                                    |
+|6.871|7898403782707|LEITE FERMENTADO DESNATADO BETÂNIA GARRAFA 850G EMBALAGEM ECONÔMICA                                                      |
+|6.872|7898403782752|LEITE FERMENTADO DESNATADO LARANJA BETÂNIA KIDS CAIXA 80G                                                                |
+|6.873|7898064011918|IOGURTE PARCIALMENTE DESNATADO COCO E BAUNILHA ZERO LACTOSE BETÂNIA YOBEM WHEY POTE 170G                                 |
+|6.874|7891331850401|BARRA DE PROTEÍNA TRUFA DE MORANGO NUTRY WHEY PACOTE 50G                                                                 |
+|6.875|7896279600422|MARGARINA CREMOSA COM SAL COAMO POTE 500G                                                                                |
+|6.876|7891331018313|BARRA DE PROTEÍNA CHOCOLATE COBERTURA CHOCOLATE AO LEITE NUTRY CRISPY PROTEIN CAIXA 360G 12 UNIDADES                     |
+|6.877|7891331850432|BARRA DE PROTEÍNA TRUFA DE MORANGO NUTRY WHEY CAIXA 600G 12 UNIDADES                                                     |
+|6.878|7891331850388|BARRA DE PROTEÍNA COOKIES & CREAM NUTRY WHEY PACOTE 50G                                                                  |
+|6.879|7891331850418|BARRA DE PROTEÍNA COOKIES & CREAM NUTRY WHEY CAIXA 600G 12 UNIDADES                                                      |
+|6.880|7908228807766|BALA DE GELATINA SORTIDA MIX SURPRESA FINI PACOTE 80G                                                                    |

@@ -1,0 +1,64 @@
+|id |descricao             |codigo                           |id_categoria_permissao_adm|createdAt                    |updatedAt                    |
+|---|----------------------|---------------------------------|--------------------------|-----------------------------|-----------------------------|
+|1  |Visualizar            |VISUALIZAR_USUARIO               |USUARIO                   |2024-07-30 15:55:27.967 -0300|2024-07-30 15:55:27.967 -0300|
+|2  |Criar                 |CRIAR_USUARIO                    |USUARIO                   |2024-07-30 15:55:27.967 -0300|2024-07-30 15:55:27.967 -0300|
+|3  |Excluir               |EXCLUIR_USUARIO                  |USUARIO                   |2024-07-30 15:55:27.967 -0300|2024-07-30 15:55:27.967 -0300|
+|4  |Visualizar            |VISUALIZAR_GRUPO_USUARIO         |GRUPO_USUARIO             |2024-07-30 15:55:28.120 -0300|2024-07-30 15:55:28.120 -0300|
+|5  |Criar                 |CRIAR_GRUPO_USUARIO              |GRUPO_USUARIO             |2024-07-30 15:55:28.120 -0300|2024-07-30 15:55:28.120 -0300|
+|6  |Excluir               |EXCLUIR_GRUPO_USUARIO            |GRUPO_USUARIO             |2024-07-30 15:55:28.120 -0300|2024-07-30 15:55:28.120 -0300|
+|7  |Visualizar            |VISUALIZAR_CAMPANHA              |CAMPANHA                  |2024-07-30 15:55:54.820 -0300|2024-07-30 15:55:54.820 -0300|
+|8  |Criar                 |CRIAR_CAMPANHA                   |CAMPANHA                  |2024-07-30 15:55:54.820 -0300|2024-07-30 15:55:54.820 -0300|
+|9  |Excluir               |EXCLUIR_CAMPANHA                 |CAMPANHA                  |2024-07-30 15:55:54.820 -0300|2024-07-30 15:55:54.820 -0300|
+|10 |Visualizar            |VISUALIZAR_CATEGORIA             |CATEGORIA                 |2024-07-30 15:55:54.978 -0300|2024-07-30 15:55:54.978 -0300|
+|11 |Criar                 |CRIAR_CATEGORIA                  |CATEGORIA                 |2024-07-30 15:55:54.978 -0300|2024-07-30 15:55:54.978 -0300|
+|12 |Excluir               |EXCLUIR_CATEGORIA                |CATEGORIA                 |2024-07-30 15:55:54.978 -0300|2024-07-30 15:55:54.978 -0300|
+|13 |Visualizar            |VISUALIZAR_SUBCATEGORIA          |SUBCATEGORIA              |2024-07-30 15:55:55.142 -0300|2024-07-30 15:55:55.142 -0300|
+|14 |Criar                 |CRIAR_SUBCATEGORIA               |SUBCATEGORIA              |2024-07-30 15:55:55.142 -0300|2024-07-30 15:55:55.142 -0300|
+|15 |Excluir               |EXCLUIR_SUBCATEGORIA             |SUBCATEGORIA              |2024-07-30 15:55:55.142 -0300|2024-07-30 15:55:55.142 -0300|
+|16 |Visualizar            |VISUALIZAR_PRODUTO               |PRODUTO                   |2024-07-30 15:55:55.300 -0300|2024-07-30 15:55:55.300 -0300|
+|17 |Criar                 |CRIAR_PRODUTO                    |PRODUTO                   |2024-07-30 15:55:55.300 -0300|2024-07-30 15:55:55.300 -0300|
+|18 |Excluir               |EXCLUIR_PRODUTO                  |PRODUTO                   |2024-07-30 15:55:55.300 -0300|2024-07-30 15:55:55.300 -0300|
+|19 |Visualizar            |VISUALIZAR_PARCEIRO              |PARCEIRO                  |2024-07-30 15:55:55.469 -0300|2024-07-30 15:55:55.469 -0300|
+|20 |Criar                 |CRIAR_PARCEIRO                   |PARCEIRO                  |2024-07-30 15:55:55.469 -0300|2024-07-30 15:55:55.469 -0300|
+|21 |Excluir               |EXCLUIR_PARCEIRO                 |PARCEIRO                  |2024-07-30 15:55:55.469 -0300|2024-07-30 15:55:55.469 -0300|
+|22 |Visualizar            |VISUALIZAR_PESQUISA_PRODUTO      |PESQUISA_PRODUTO          |2024-07-30 15:55:55.628 -0300|2024-07-30 15:55:55.628 -0300|
+|23 |Criar                 |CRIAR_PESQUISA_PRODUTO           |PESQUISA_PRODUTO          |2024-07-30 15:55:55.628 -0300|2024-07-30 15:55:55.628 -0300|
+|24 |Excluir               |EXCLUIR_PESQUISA_PRODUTO         |PESQUISA_PRODUTO          |2024-07-30 15:55:55.628 -0300|2024-07-30 15:55:55.628 -0300|
+|25 |Visualizar            |VISUALIZAR_PESQUISA_SUBCATEGORIA |PESQUISA_SUBCATEGORIA     |2024-07-30 15:55:55.787 -0300|2024-07-30 15:55:55.787 -0300|
+|26 |Criar                 |CRIAR_PESQUISA_SUBCATEGORIA      |PESQUISA_SUBCATEGORIA     |2024-07-30 15:55:55.787 -0300|2024-07-30 15:55:55.787 -0300|
+|27 |Excluir               |EXCLUIR_PESQUISA_SUBCATEGORIA    |PESQUISA_SUBCATEGORIA     |2024-07-30 15:55:55.787 -0300|2024-07-30 15:55:55.787 -0300|
+|28 |Visualizar            |VISUALIZAR_RESPOSTA_PESQUISA     |RESPOSTA_PESQUISA         |2024-07-30 15:55:55.944 -0300|2024-07-30 15:55:55.944 -0300|
+|29 |Criar                 |CRIAR_RESPOSTA_PESQUISA          |RESPOSTA_PESQUISA         |2024-07-30 15:55:55.944 -0300|2024-07-30 15:55:55.944 -0300|
+|30 |Excluir               |EXCLUIR_RESPOSTA_PESQUISA        |RESPOSTA_PESQUISA         |2024-07-30 15:55:55.944 -0300|2024-07-30 15:55:55.944 -0300|
+|31 |Visualizar            |VISUALIZAR_PRODUTO_NAO_CADASTRADO|PRODUTO_NAO_CADASTRADO    |2024-07-30 15:55:56.101 -0300|2024-07-30 15:55:56.101 -0300|
+|32 |Criar                 |CRIAR_PRODUTO_NAO_CADASTRADO     |PRODUTO_NAO_CADASTRADO    |2024-07-30 15:55:56.101 -0300|2024-07-30 15:55:56.101 -0300|
+|33 |Excluir               |EXCLUIR_PRODUTO_NAO_CADASTRADO   |PRODUTO_NAO_CADASTRADO    |2024-07-30 15:55:56.101 -0300|2024-07-30 15:55:56.101 -0300|
+|34 |Visualizar            |VISUALIZAR_USUARIO_TESTADOR      |USUARIO_TESTADOR          |2024-07-30 15:55:56.256 -0300|2024-07-30 15:55:56.256 -0300|
+|35 |Criar                 |CRIAR_USUARIO_TESTADOR           |USUARIO_TESTADOR          |2024-07-30 15:55:56.256 -0300|2024-07-30 15:55:56.256 -0300|
+|36 |Excluir               |EXCLUIR_USUARIO_TESTADOR         |USUARIO_TESTADOR          |2024-07-30 15:55:56.256 -0300|2024-07-30 15:55:56.256 -0300|
+|37 |Visualizar            |VISUALIZAR_USUARIO_EMPRESA       |USUARIO_EMPRESA           |2024-07-30 15:55:56.412 -0300|2024-07-30 15:55:56.412 -0300|
+|38 |Criar                 |CRIAR_USUARIO_EMPRESA            |USUARIO_EMPRESA           |2024-07-30 15:55:56.412 -0300|2024-07-30 15:55:56.412 -0300|
+|39 |Excluir               |EXCLUIR_USUARIO_EMPRESA          |USUARIO_EMPRESA           |2024-07-30 15:55:56.412 -0300|2024-07-30 15:55:56.412 -0300|
+|40 |Visualizar            |VISUALIZAR_GRUPO_USUARIO_EMPRESA |GRUPO_USUARIO_EMPRESA     |2024-07-30 15:55:56.569 -0300|2024-07-30 15:55:56.569 -0300|
+|41 |Criar                 |CRIAR_GRUPO_USUARIO_EMPRESA      |GRUPO_USUARIO_EMPRESA     |2024-07-30 15:55:56.569 -0300|2024-07-30 15:55:56.569 -0300|
+|42 |Excluir               |EXCLUIR_GRUPO_USUARIO_EMPRESA    |GRUPO_USUARIO_EMPRESA     |2024-07-30 15:55:56.569 -0300|2024-07-30 15:55:56.569 -0300|
+|43 |Visualizar            |VISUALIZAR_EMPRESA               |EMPRESA                   |2024-07-30 15:55:56.724 -0300|2024-07-30 15:55:56.724 -0300|
+|44 |Criar                 |CRIAR_EMPRESA                    |EMPRESA                   |2024-07-30 15:55:56.724 -0300|2024-07-30 15:55:56.724 -0300|
+|45 |Excluir               |EXCLUIR_EMPRESA                  |EMPRESA                   |2024-07-30 15:55:56.724 -0300|2024-07-30 15:55:56.724 -0300|
+|46 |Visualizar            |VISUALIZAR_BENEFICIO             |BENEFICIO                 |2024-12-23 10:24:01.155 -0300|2024-12-23 10:24:01.155 -0300|
+|47 |Criar                 |CRIAR_BENEFICIO                  |BENEFICIO                 |2024-12-23 10:24:01.155 -0300|2024-12-23 10:24:01.155 -0300|
+|48 |Excluir               |EXCLUIR_BENEFICIO                |BENEFICIO                 |2024-12-23 10:24:01.155 -0300|2024-12-23 10:24:01.155 -0300|
+|49 |Resgatar benefício    |RESGATE_BENEFICIO                |RESGATE_BENEFICIO         |2024-12-23 10:24:13.300 -0300|2024-12-23 10:24:13.300 -0300|
+|50 |Dashboard             |DASHBOARD                        |DASHBOARD                 |2024-12-23 10:24:27.707 -0300|2024-12-23 10:24:27.707 -0300|
+|51 |Visualizar Marca      |VISUALIZAR_MARCA                 |MARCA                     |2025-03-06 15:05:09.068 -0300|2025-03-06 15:05:09.068 -0300|
+|52 |Criar Marca           |CRIAR_MARCA                      |MARCA                     |2025-03-06 15:05:09.068 -0300|2025-03-06 15:05:09.068 -0300|
+|53 |Editar Marca          |EDITAR_MARCA                     |MARCA                     |2025-03-06 15:05:09.068 -0300|2025-03-06 15:05:09.068 -0300|
+|54 |Excluir Marca         |EXCLUIR_MARCA                    |MARCA                     |2025-03-06 15:05:09.068 -0300|2025-03-06 15:05:09.068 -0300|
+|55 |Visualizar Banner Home|VISUALIZAR_BANNER_HOME           |BANNER_HOME               |2025-10-30 17:05:35.279 -0300|2025-10-30 17:05:35.279 -0300|
+|56 |Criar Banner Home     |CRIAR_BANNER_HOME                |BANNER_HOME               |2025-10-30 17:05:35.279 -0300|2025-10-30 17:05:35.279 -0300|
+|57 |Editar Banner Home    |EDITAR_BANNER_HOME               |BANNER_HOME               |2025-10-30 17:05:35.279 -0300|2025-10-30 17:05:35.279 -0300|
+|58 |Excluir Banner Home   |EXCLUIR_BANNER_HOME              |BANNER_HOME               |2025-10-30 17:05:35.279 -0300|2025-10-30 17:05:35.279 -0300|
+|59 |Visualizar Notificação|VISUALIZAR_NOTIFICACAO           |NOTIFICACAO               |2025-10-30 17:05:58.034 -0300|2025-10-30 17:05:58.034 -0300|
+|60 |Criar Notificação     |CRIAR_NOTIFICACAO                |NOTIFICACAO               |2025-10-30 17:05:58.034 -0300|2025-10-30 17:05:58.034 -0300|
+|61 |Editar Notificação    |EDITAR_NOTIFICACAO               |NOTIFICACAO               |2025-10-30 17:05:58.034 -0300|2025-10-30 17:05:58.034 -0300|
+|62 |Excluir Notificação   |EXCLUIR_NOTIFICACAO              |NOTIFICACAO               |2025-10-30 17:05:58.034 -0300|2025-10-30 17:05:58.034 -0300|

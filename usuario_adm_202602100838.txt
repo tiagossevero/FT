@@ -1,0 +1,3 @@
+|id |nome         |email            |senha                                                       |id_grupo_usuario_adm|createdAt                    |updatedAt                    |
+|---|-------------|-----------------|------------------------------------------------------------|--------------------|-----------------------------|-----------------------------|
+|1  |Administrador|admin@dimo.com.br|$2b$10$mAXLRn.PjZbE1S5wEWlK4u2HtZfBNk7PVZubUxwd.mEnzTOnnBnzC|1                   |2024-07-30 15:59:40.664 -0300|2024-07-30 15:59:40.664 -0300|

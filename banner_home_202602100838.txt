@@ -1,0 +1,2 @@
+|id |link_imagem|link_banner|ativo|createdAt|updatedAt|
+|---|-----------|-----------|-----|---------|---------|

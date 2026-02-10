@@ -1,0 +1,13 @@
+|id |descricao |codigo                  |id_categoria_permissao_empresa|createdAt                    |updatedAt                    |
+|---|----------|------------------------|------------------------------|-----------------------------|-----------------------------|
+|1  |Visualizar|VISUALIZAR_DASHBOARD    |DASHBOARD                     |2024-07-30 15:56:25.015 -0300|2024-07-30 15:56:25.015 -0300|
+|2  |Visualizar|VISUALIZAR_PESQUISA     |PESQUISA                      |2024-07-30 15:56:25.174 -0300|2024-07-30 15:56:25.174 -0300|
+|3  |Visualizar|VISUALIZAR_PRODUTO      |PRODUTO                       |2024-07-30 15:56:25.325 -0300|2024-07-30 15:56:25.325 -0300|
+|4  |Visualizar|VISUALIZAR_USUARIO      |USUARIO                       |2024-07-30 15:56:25.481 -0300|2024-07-30 15:56:25.481 -0300|
+|5  |Criar     |CRIAR_USUARIO           |USUARIO                       |2024-07-30 15:56:25.481 -0300|2024-07-30 15:56:25.481 -0300|
+|6  |Excluir   |EXCLUIR_USUARIO         |USUARIO                       |2024-07-30 15:56:25.481 -0300|2024-07-30 15:56:25.481 -0300|
+|7  |Visualizar|VISUALIZAR_GRUPO_USUARIO|GRUPO_USUARIO                 |2024-07-30 15:56:25.635 -0300|2024-07-30 15:56:25.635 -0300|
+|8  |Criar     |CRIAR_GRUPO_USUARIO     |GRUPO_USUARIO                 |2024-07-30 15:56:25.635 -0300|2024-07-30 15:56:25.635 -0300|
+|9  |Excluir   |EXCLUIR_GRUPO_USUARIO   |GRUPO_USUARIO                 |2024-07-30 15:56:25.635 -0300|2024-07-30 15:56:25.635 -0300|
+|10 |Visualizar|VISUALIZAR_SUBCATEGORIA |SUBCATEGORIA                  |2024-12-23 10:23:35.809 -0300|2024-12-23 10:23:35.809 -0300|
+|11 |Visualizar|VISUALIZAR_BENCHMARK    |BENCHMARK                     |2024-12-23 10:23:47.959 -0300|2024-12-23 10:23:47.959 -0300|

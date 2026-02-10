@@ -1,0 +1,2 @@
+|id |id_produto|id_parceiro|link_produto|createdAt|updatedAt|
+|---|----------|-----------|------------|---------|---------|

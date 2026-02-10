@@ -1,0 +1,3 @@
+|id |nome         |email                    |senha                                                       |id_grupo_usuario_empresa|id_empresa|createdAt                    |updatedAt                    |
+|---|-------------|-------------------------|------------------------------------------------------------|------------------------|----------|-----------------------------|-----------------------------|
+|6  |Luma Oliveira|projetofoodtest@gmail.com|$2b$10$CSWm3VqAaqHi2WKYVzvGq.guB1I6hJaqFZYCH7G42VI9ll.0QqFPe|14                      |222       |2026-02-02 08:05:37.555 -0300|2026-02-02 08:05:37.555 -0300|
