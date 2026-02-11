@@ -7,6 +7,8 @@ import pandas as pd
 import numpy as np
 import plotly.express as px
 import plotly.graph_objects as go
+import plotly.io as pio
+pio.templates.default = "plotly_white"
 import json, os, glob, csv
 from datetime import datetime, timedelta
 from io import StringIO
@@ -114,7 +116,7 @@ def gauge(v, t, mx=100):
         gauge={'axis':{'range':[0,mx]},'bar':{'color':CL['primary']},
         'steps':[{'range':[0,40],'color':'#fee2e2'},{'range':[40,60],'color':'#fef3c7'},{'range':[60,80],'color':'#d1fae5'},{'range':[80,100],'color':'#a7f3d0'}],
         'threshold':{'line':{'color':'red','width':4},'thickness':.75,'value':60}}))
-    fig.update_layout(height=220,margin=dict(l=20,r=20,t=40,b=20),paper_bgcolor='rgba(0,0,0,0)',font_family='Inter')
+    fig.update_layout(height=220,margin=dict(l=20,r=20,t=40,b=20),paper_bgcolor='#ffffff',font_family='Inter',font_color='#1a1a2e')
     return fig
 
 def ibox(tag, title, text):
@@ -128,11 +130,46 @@ def hbar(xv, yv, cs='Blues', **kw):
     return px.bar(df,x='v',y='n',orientation='h',color='v',color_continuous_scale=cs,**kw)
 
 def chart_layout(fig, h=400):
-    fig.update_layout(height=h,paper_bgcolor='rgba(0,0,0,0)',plot_bgcolor='rgba(0,0,0,0)',
+    fig.update_layout(height=h,paper_bgcolor='#ffffff',plot_bgcolor='#ffffff',
         font_family='Inter',font_color='#374151',margin=dict(l=10,r=10,t=40,b=10),
         xaxis=dict(gridcolor='#f0f0f0',zerolinecolor='#e5e7eb'),
         yaxis=dict(gridcolor='#f0f0f0',zerolinecolor='#e5e7eb'))
     return fig
+
+def add_labels(fig):
+    bar_total=0
+    for t in fig.data:
+        if getattr(t,'type','')=='bar':
+            vals=t.x if getattr(t,'orientation',None)=='h' else t.y
+            if vals is not None:
+                try: bar_total+=sum(float(v) for v in vals if v is not None)
+                except: pass
+    for t in fig.data:
+        tp=getattr(t,'type','')
+        if tp=='pie':
+            t.update(textinfo='value+percent',textposition='inside',textfont_size=11)
+        elif tp=='bar' and bar_total>0:
+            vals=t.x if getattr(t,'orientation',None)=='h' else t.y
+            if vals is not None:
+                try:
+                    nums=[float(v) if v is not None else 0 for v in vals]
+                    def _fmt(v):
+                        s=f"{int(v):,}" if v==int(v) else f"{v:,.1f}"
+                        return f"{s} ({v/bar_total*100:.1f}%)"
+                    t.update(text=[_fmt(v) for v in nums],textposition='auto',textfont_size=10)
+                except: pass
+        elif tp=='treemap':
+            t.update(texttemplate='%{label}<br>%{value:,} (%{percentRoot:.1%})')
+    return fig
+
+_st_plotly=st.plotly_chart
+def _plotly_white(fig,**kw):
+    try:
+        fig.update_layout(paper_bgcolor='#ffffff',plot_bgcolor='#ffffff')
+        add_labels(fig)
+    except: pass
+    return _st_plotly(fig,**kw)
+st.plotly_chart=_plotly_white
 
 def section_header(title, subtitle=None):
     h = f'<div class="page-header"><h2 class="sh">{title}</h2>'
@@ -1506,11 +1543,11 @@ def main():
         st.markdown("""<div style="text-align:center;padding:1.2rem 0 .8rem">
             <div style="background:linear-gradient(135deg,#307FE2,#4ECDC4);border-radius:12px;padding:14px;margin:0 auto 10px;width:fit-content">
             <span style="color:white;font-size:1.5rem;font-weight:800;font-family:'Inter';letter-spacing:2px">FT</span></div>
-            <div style="color:#8b949e;font-size:.7rem;letter-spacing:1px;text-transform:uppercase">Foodtest Analytics</div></div>""",unsafe_allow_html=True)
-        st.markdown('<div style="height:1px;background:#21262d;margin:8px 0 16px"></div>',unsafe_allow_html=True)
+            <div style="color:#6b7280;font-size:.7rem;letter-spacing:1px;text-transform:uppercase">Foodtest Analytics</div></div>""",unsafe_allow_html=True)
+        st.markdown('<div style="height:1px;background:#e5e7eb;margin:8px 0 16px"></div>',unsafe_allow_html=True)
         data_dir=st.text_input("Diretório:",value=".",help="Pasta com os .txt",label_visibility="collapsed")
         if st.button("Recarregar Dados",use_container_width=True): st.session_state['loaded']=False; st.cache_data.clear()
-        st.markdown('<div style="height:1px;background:#21262d;margin:12px 0"></div>',unsafe_allow_html=True)
+        st.markdown('<div style="height:1px;background:#e5e7eb;margin:12px 0"></div>',unsafe_allow_html=True)
         page=st.radio("Navegacao",options=[
             "📊 Dashboard Geral","📝 Respostas","🔍 Qualidade dos Dados",
             "👤 Consulta Usuário","📂 Mapeamento de Pesquisas","👥 Análise Demográfica",
@@ -1518,8 +1555,8 @@ def main():
             "🤝 Parceiros","🔬 Gestão de Pesquisas","🎁 Benefícios & Resgates",
             "🏢 Empresas","🏠 Banners & Recomendados","👥 Gestão de Testadores","🧠 Central de Insights"
         ],label_visibility="collapsed",key="nav")
-        st.markdown('<div style="height:1px;background:#21262d;margin:12px 0"></div>',unsafe_allow_html=True)
-        st.markdown('<div style="text-align:center;font-size:.7rem;color:#484f58;padding:8px 0">suporte@foodtest.com.br<br>v2.0</div>',unsafe_allow_html=True)
+        st.markdown('<div style="height:1px;background:#e5e7eb;margin:12px 0"></div>',unsafe_allow_html=True)
+        st.markdown('<div style="text-align:center;font-size:.7rem;color:#9ca3af;padding:8px 0">suporte@foodtest.com.br<br>v2.0</div>',unsafe_allow_html=True)
     # Load
     if 'data' not in st.session_state or not st.session_state.get('loaded',False):
         with st.spinner("Carregando dados..."):
