@@ -15,6 +15,15 @@ from io import StringIO
 import warnings
 warnings.filterwarnings('ignore')
 
+# Force light theme programmatically (equivalent to config.toml but in app.py)
+try:
+    st._config.set_option('theme.base', 'light')
+    st._config.set_option('theme.backgroundColor', '#ffffff')
+    st._config.set_option('theme.secondaryBackgroundColor', '#f8f9fa')
+    st._config.set_option('theme.textColor', '#1a1a2e')
+    st._config.set_option('theme.primaryColor', '#307FE2')
+except: pass
+
 # ============================================================================
 # CONFIG
 # ============================================================================
@@ -62,15 +71,15 @@ section[data-testid="stSidebar"] .stButton button{background:linear-gradient(135
 .mc{background:#ffffff;border-radius:12px;padding:18px 20px;box-shadow:0 1px 3px rgba(0,0,0,.06);border-left:4px solid #307FE2;transition:box-shadow .2s}
 .mc:hover{box-shadow:0 4px 12px rgba(0,0,0,.1)}
 .mv{font-family:'Inter';font-size:1.75rem;font-weight:700;color:#1a1a2e!important;margin:0;line-height:1.2}
-.ml{font-size:.75rem;color:#6b7280!important;text-transform:uppercase;letter-spacing:.5px;margin-top:4px;font-weight:500}
+.ml{font-size:.75rem;color:#1a1a2e!important;text-transform:uppercase;letter-spacing:.5px;margin-top:4px;font-weight:600}
 .md{font-size:.75rem;padding:2px 8px;border-radius:6px;display:inline-block;margin-top:4px;font-weight:600}
 .dp{background:rgba(46,204,113,.12);color:#2ECC71!important}.dn{background:rgba(231,76,60,.12);color:#E74C3C!important}
 .sh{color:#1a1a2e!important;font-size:1.3rem;font-weight:700;margin:1.2rem 0 .8rem;font-family:'Inter';background:none!important;-webkit-text-fill-color:#1a1a2e!important}
-.sh-sub{color:#6b7280!important;font-size:.9rem;font-weight:400;margin-top:-8px;margin-bottom:16px}
+.sh-sub{color:#1a1a2e!important;font-size:.9rem;font-weight:400;margin-top:-8px;margin-bottom:16px}
 .chart-card{background:#ffffff!important;border-radius:12px;padding:20px;box-shadow:0 1px 3px rgba(0,0,0,.06);margin-bottom:16px}
 .chart-title{font-size:.95rem;font-weight:600;color:#1a1a2e!important;margin-bottom:12px}
 .ib{background:#f8f9fa!important;border-radius:12px;padding:18px;color:#1a1a2e!important;margin:10px 0;border:1px solid #e5e7eb}
-.ib h4{color:#307FE2!important;margin-bottom:6px;font-size:.9rem;font-weight:600}.ib p{color:#4b5563!important;font-size:.85rem;line-height:1.6}
+.ib h4{color:#307FE2!important;margin-bottom:6px;font-size:.9rem;font-weight:600}.ib p{color:#1a1a2e!important;font-size:.85rem;line-height:1.6}
 .it{display:inline-block;padding:3px 10px;border-radius:6px;font-size:.65rem;font-weight:700;text-transform:uppercase;margin-bottom:8px;letter-spacing:.5px}
 .ts{background:rgba(139,92,246,.12);color:#7c3aed!important}.tt{background:rgba(59,130,246,.12);color:#2563eb!important}.to{background:rgba(16,185,129,.12);color:#059669!important}
 .stSelectbox div[data-baseweb="select"]>div,
@@ -78,10 +87,11 @@ section[data-testid="stSidebar"] .stButton button{background:linear-gradient(135
 .stTextInput input,.stTextArea textarea,.stNumberInput input,.stDateInput input{background:#f9fafb!important;color:#1a1a2e!important;border-color:#e5e7eb!important}
 [data-testid="stExpander"]{background:#ffffff!important;border:1px solid #e5e7eb!important;border-radius:8px!important}
 [data-testid="stExpander"] summary span{color:#1a1a2e!important}
-[data-testid="stDataFrame"]{background:#ffffff!important}
+[data-testid="stDataFrame"],[data-testid="stDataFrame"]>div,[data-testid="stDataFrame"] iframe,
+[data-testid="stDataFrameResizable"],[data-testid="stDataFrame"] [class*="glide"]{background:#ffffff!important;background-color:#ffffff!important}
 [data-testid="stMetric"]{background:#ffffff!important}
 [data-testid="stMetricValue"]{color:#1a1a2e!important}
-[data-testid="stMetricLabel"]{color:#6b7280!important}
+[data-testid="stMetricLabel"]{color:#1a1a2e!important}
 [data-testid="stMarkdownContainer"]{color:#1a1a2e!important}
 [data-testid="stMarkdownContainer"] p{color:#1a1a2e!important}
 div[data-baseweb="popover"] ul{background:#ffffff!important}
@@ -96,7 +106,7 @@ div[data-baseweb="menu"] li:hover{background:#f0f2f5!important}
 .stDataFrame td{background:#ffffff!important;color:#1a1a2e!important}
 #MainMenu{visibility:hidden}footer{visibility:hidden}
 .stTabs [data-baseweb="tab-list"]{gap:6px;border-bottom:2px solid #e5e7eb}
-.stTabs [data-baseweb="tab"]{background:transparent;border-radius:8px 8px 0 0;padding:10px 20px;border:none;font-weight:500;color:#6b7280}
+.stTabs [data-baseweb="tab"]{background:transparent;border-radius:8px 8px 0 0;padding:10px 20px;border:none;font-weight:500;color:#1a1a2e}
 .stTabs [aria-selected="true"]{background:#ffffff!important;color:#307FE2!important;border-bottom:2px solid #307FE2!important;font-weight:600}
 .divider{height:1px;background:#e5e7eb;margin:20px 0}
 .page-header{margin-bottom:24px}
@@ -131,7 +141,7 @@ def hbar(xv, yv, cs='Blues', **kw):
 
 def chart_layout(fig, h=400):
     fig.update_layout(height=h,paper_bgcolor='#ffffff',plot_bgcolor='#ffffff',
-        font_family='Inter',font_color='#374151',margin=dict(l=10,r=10,t=40,b=10),
+        font_family='Inter',font_color='#1a1a2e',margin=dict(l=10,r=10,t=40,b=10),
         xaxis=dict(gridcolor='#f0f0f0',zerolinecolor='#e5e7eb'),
         yaxis=dict(gridcolor='#f0f0f0',zerolinecolor='#e5e7eb'))
     return fig
@@ -165,7 +175,9 @@ def add_labels(fig):
 _st_plotly=st.plotly_chart
 def _plotly_white(fig,**kw):
     try:
-        fig.update_layout(paper_bgcolor='#ffffff',plot_bgcolor='#ffffff')
+        fig.update_layout(paper_bgcolor='#ffffff',plot_bgcolor='#ffffff',
+            font=dict(color='#1a1a2e',family='Inter'),
+            legend=dict(font=dict(color='#1a1a2e',size=12)))
         add_labels(fig)
     except: pass
     return _st_plotly(fig,**kw)
