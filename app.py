@@ -14,6 +14,7 @@ from datetime import datetime, timedelta
 from io import StringIO
 import warnings
 warnings.filterwarnings('ignore')
+from sqlalchemy import create_engine, text
 
 # Force light theme programmatically (equivalent to config.toml but in app.py)
 try:
@@ -190,30 +191,39 @@ def section_header(title, subtitle=None):
     return h
 
 # ============================================================================
+# CONEXÃO POSTGRESQL DIGITALOCEAN
+# ============================================================================
+@st.cache_resource
+def get_db_engine():
+    """Cria conexão com PostgreSQL da DigitalOcean"""
+    DB_CONFIG = {
+        'host': 'postgres-vermelho-do-user-1297912-0.c.db.ondigitalocean.com',
+        'port': 25060,
+        'database': 'foodtest_production',
+        'user': 'foodtest_view',
+        'password': 'k9JuoWaWt8',
+        'sslmode': 'require'
+    }
+    connection_string = (
+        f"postgresql://{DB_CONFIG['user']}:{DB_CONFIG['password']}"
+        f"@{DB_CONFIG['host']}:{DB_CONFIG['port']}/{DB_CONFIG['database']}"
+        f"?sslmode={DB_CONFIG['sslmode']}"
+    )
+    return create_engine(connection_string, pool_size=5, max_overflow=10, pool_timeout=30, pool_recycle=1800)
+
+def query_db(sql: str) -> pd.DataFrame:
+    """Executa query e retorna DataFrame"""
+    try:
+        engine = get_db_engine()
+        with engine.connect() as conn:
+            return pd.read_sql(text(sql), conn)
+    except Exception as e:
+        st.error(f"Erro na consulta: {e}")
+        return pd.DataFrame()
+
+# ============================================================================
 # DATA LOADER (TODAS AS TABELAS)
 # ============================================================================
-@st.cache_data(ttl=3600)
-def find_f(pat, d="."):
-    f = glob.glob(os.path.join(d, f"{pat}[0-9]*.txt"))
-    return max(f, key=os.path.getmtime) if f else None
-
-@st.cache_data(ttl=3600)
-def load_t(fp):
-    if fp is None: return pd.DataFrame()
-    try:
-        with open(fp,'r',encoding='utf-8') as f: lines=f.readlines()
-        fl = [l for l in lines if l.strip().replace('|','').replace('-','').strip()!='']
-        df = pd.read_csv(StringIO(''.join(fl)),sep='|',skipinitialspace=True,dtype=str,quoting=csv.QUOTE_NONE)
-        df = df.loc[:,~df.columns.str.contains('^Unnamed')]; df.columns=df.columns.str.strip()
-        df = df.loc[:, df.columns != '']
-        for c in df.columns:
-            df[c]=df[c].astype(str).str.strip()
-            df[c]=df[c].str.replace('\\"','"',regex=False)
-            m=df[c].str.match(r'^".*"$',na=False); df.loc[m,c]=df.loc[m,c].str[1:-1]
-        for c in [c for c in df.columns if c.startswith('id') or c=='id']:
-            df[c]=pd.to_numeric(df[c].str.replace('.','',regex=False),errors='coerce')
-        return df
-    except: return pd.DataFrame()
 
 def pj(v):
     if pd.isna(v) or v in('','""','nan','None'): return {}
@@ -222,25 +232,41 @@ def pj(v):
         return json.loads(v)
     except: return {}
 
-@st.cache_data(ttl=3600)
-def load_all(dr):
-    P = {
-        'categoria':'categoria_produto_','subcategoria':'subcategoria_produto_',
-        'produto':'produto_','marca':'marca_','parceiro':'parceiro_',
-        'produto_parceiro':'produto_parceiro_','banner_home':'banner_home_',
-        'prod_recomendado':'pesquisa_produto_recomendado_','campanha':'campanha_',
-        'pesq_produto':'pesquisa_produto_','pesq_subcategoria':'pesquisa_subcategoria_',
-        'sessao':'sessao_pesquisa_','pergunta':'pergunta_pesquisa_',
-        'resp_pergunta':'resposta_pergunta_pesquisa_',
-        'resp_questionario':'resposta_questionario_usuario_',
-        'comentarios':'comentarios_','beneficio':'beneficio_',
-        'resgate':'resgate_beneficio_','pontos':'pontos_usuario_',
-        'empresa':'empresa_','usr_empresa':'usuario_empresa_',
-        'grupo_empresa':'grupo_usuario_empresa_','usuario':'usuario_',
-        'estado':'estado_','cidade':'cidade_',
-        'prod_nao_cadastrado':'produto_nao_cadastrado_','notificacoes':'notificacoes_',
-    }
-    return {k: load_t(find_f(v, dr)) for k, v in P.items()}
+# Mapeamento de tabelas do banco (schema foodtest)
+TABLE_MAPPING = {
+    'categoria': 'foodtest.categoria_produto',
+    'subcategoria': 'foodtest.subcategoria_produto',
+    'produto': 'foodtest.produto',
+    'marca': 'foodtest.marca',
+    'parceiro': 'foodtest.parceiro',
+    'produto_parceiro': 'foodtest.produto_parceiro',
+    'banner_home': 'foodtest.banner_home',
+    'prod_recomendado': 'foodtest.pesquisa_produto_recomendado',
+    'campanha': 'foodtest.campanha',
+    'pesq_produto': 'foodtest.pesquisa_produto',
+    'pesq_subcategoria': 'foodtest.pesquisa_subcategoria',
+    'sessao': 'foodtest.sessao_pesquisa',
+    'pergunta': 'foodtest.pergunta_pesquisa',
+    'resp_pergunta': 'foodtest.resposta_pergunta_pesquisa',
+    'resp_questionario': 'foodtest.resposta_questionario_usuario',
+    'comentarios': 'foodtest.comentarios',
+    'beneficio': 'foodtest.beneficio',
+    'resgate': 'foodtest.resgate_beneficio',
+    'pontos': 'foodtest.pontos_usuario',
+    'empresa': 'foodtest.empresa',
+    'usr_empresa': 'foodtest.usuario_empresa',
+    'grupo_empresa': 'foodtest.grupo_usuario_empresa',
+    'usuario': 'foodtest.usuario',
+    'estado': 'foodtest.estado',
+    'cidade': 'foodtest.cidade',
+    'prod_nao_cadastrado': 'foodtest.produto_nao_cadastrado',
+    'notificacoes': 'foodtest.notificacoes',
+}
+
+@st.cache_data(ttl=300)
+def load_all(dr=None):
+    """Carrega todas as tabelas do PostgreSQL"""
+    return {k: query_db(f"SELECT * FROM {table}") for k, table in TABLE_MAPPING.items()}
 
 def enrich(raw):
     d = {k: v.copy() if len(v)>0 else pd.DataFrame() for k, v in raw.items()}
@@ -1557,8 +1583,7 @@ def main():
             <span style="color:white;font-size:1.5rem;font-weight:800;font-family:'Inter';letter-spacing:2px">FT</span></div>
             <div style="color:#6b7280;font-size:.7rem;letter-spacing:1px;text-transform:uppercase">Foodtest Analytics</div></div>""",unsafe_allow_html=True)
         st.markdown('<div style="height:1px;background:#e5e7eb;margin:8px 0 16px"></div>',unsafe_allow_html=True)
-        data_dir=st.text_input("Diretório:",value=".",help="Pasta com os .txt",label_visibility="collapsed")
-        if st.button("Recarregar Dados",use_container_width=True): st.session_state['loaded']=False; st.cache_data.clear()
+        if st.button("Recarregar Dados",use_container_width=True): st.session_state['loaded']=False; st.cache_data.clear(); st.cache_resource.clear()
         st.markdown('<div style="height:1px;background:#e5e7eb;margin:12px 0"></div>',unsafe_allow_html=True)
         page=st.radio("Navegacao",options=[
             "📊 Dashboard Geral","📝 Respostas","🔍 Qualidade dos Dados",
@@ -1573,7 +1598,7 @@ def main():
     if 'data' not in st.session_state or not st.session_state.get('loaded',False):
         with st.spinner("Carregando dados..."):
             try:
-                raw=load_all(data_dir); data=enrich(raw)
+                raw=load_all(); data=enrich(raw)
                 st.session_state['data']=data; st.session_state['loaded']=True
                 total=sum(len(df) for df in data.values() if isinstance(df,pd.DataFrame))
                 if total==0: st.warning("Nenhum dado encontrado."); return
