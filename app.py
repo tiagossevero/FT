@@ -555,36 +555,134 @@ def pg_respostas(data):
     with c3: st.markdown(mcard(f"{rp['id_usuario'].nunique():,}" if 'id_usuario' in rp.columns else "0","Usuários",c=CL['accent2']),unsafe_allow_html=True)
     with c4: st.markdown(mcard(f"{rp['id_produto'].nunique():,}" if 'id_produto' in rp.columns else "0","Produtos",c=CL['purple']),unsafe_allow_html=True)
     st.markdown('<div class="divider"></div>',unsafe_allow_html=True)
-    t1,t2,t3,t4=st.tabs(["📋 Pergunta","📦 Produto","👤 Usuário","🔍 Explorar"])
+    # Survey reference data
+    se_df,pg_q,pesq_p,pesq_s=data['sessao'],data['pergunta'],data['pesq_produto'],data['pesq_subcategoria']
+    di=data['dicts']
+    def _qa(rs):
+        if len(rs)==0 or 'resposta' not in rs.columns: st.info("Sem respostas."); return
+        cl=rs['resposta'].astype(str).str.replace('"','').str.strip(); nm=pd.to_numeric(cl,errors='coerce')
+        if nm.notna().sum()>len(rs)*.5:
+            ca,cb=st.columns(2)
+            with ca:
+                fig=px.histogram(x=nm.dropna(),nbins=9,color_discrete_sequence=[CL['primary']]); fig.update_layout(height=300)
+                st.plotly_chart(fig,use_container_width=True)
+            with cb: st.dataframe(pd.DataFrame({'Métrica':['Média','Mediana','DP','Mín','Máx'],'Valor':[f"{nm.mean():.2f}",f"{nm.median():.2f}",f"{nm.std():.2f}",f"{nm.min():.0f}",f"{nm.max():.0f}"]}),hide_index=True)
+        else:
+            rc=cl.value_counts().head(15); fig=hbar(rc.values,rc.index,cs='Blues')
+            fig.update_layout(height=min(400,max(200,len(rc)*30)),coloraxis_showscale=False); fig.update_yaxes(autorange="reversed")
+            st.plotly_chart(fig,use_container_width=True)
+    def _radar(resps,color=CL['primary']):
+        if len(resps)==0 or 'titulo_pergunta' not in resps.columns: return
+        pergs=resps.groupby('titulo_pergunta').apply(lambda x: pd.to_numeric(x['resposta'].str.replace('"',''),errors='coerce').mean()).dropna()
+        if len(pergs)>=3:
+            st.markdown('<div class="chart-title">Perfil Sensorial</div>',unsafe_allow_html=True)
+            fig=go.Figure(go.Scatterpolar(r=pergs.values,theta=pergs.index.tolist(),fill='toself',line_color=color))
+            fig.update_layout(polar=dict(radialaxis=dict(visible=True,range=[0,9])),height=400,showlegend=False)
+            st.plotly_chart(fig,use_container_width=True)
+    def _detail_questions(resps):
+        if len(resps)==0 or 'titulo_pergunta' not in resps.columns: return
+        st.markdown('<div class="chart-title">Detalhamento por Pergunta</div>',unsafe_allow_html=True)
+        q_c=resps.groupby('titulo_pergunta').size().sort_values(ascending=False)
+        for qtit in q_c.index:
+            qr=resps[resps['titulo_pergunta']==qtit]
+            with st.expander(f"📝 {qtit} ({len(qr)} respostas)"):
+                _qa(qr)
+    t1,t2,t3,t4,t5,t6=st.tabs(["📋 Pergunta","📊 Questionário","📦 Produto","📂 Subcategoria","👤 Usuário","🔍 Explorar"])
     with t1:
         if 'titulo_pergunta' in rp.columns:
-            ps=rp.groupby('titulo_pergunta').agg({'id':'count','id_usuario':'nunique'}).rename(columns={'id':'resp','id_usuario':'usr'}).sort_values('resp',ascending=False)
+            pst=rp.groupby('titulo_pergunta').agg({'id':'count','id_usuario':'nunique'}).rename(columns={'id':'resp','id_usuario':'usr'}).sort_values('resp',ascending=False)
             b=st.text_input("🔍 Buscar:",key="bp")
-            pf=[p for p in ps.index if b.lower() in str(p).lower()] if b else ps.index[:20].tolist()
+            pf=[p for p in pst.index if b.lower() in str(p).lower()] if b else pst.index[:20].tolist()
             if pf:
                 sel=st.selectbox("Selecione:",pf,key="sp")
                 if sel:
                     rs=rp[rp['titulo_pergunta']==sel]; st.metric("Respostas",f"{len(rs):,}")
-                    if 'resposta' in rs.columns:
-                        cl=rs['resposta'].astype(str).str.replace('"','').str.strip(); nm=pd.to_numeric(cl,errors='coerce')
-                        if nm.notna().sum()>len(rs)*.5:
-                            c1,c2=st.columns(2)
-                            with c1:
-                                fig=px.histogram(x=nm.dropna(),nbins=9,color_discrete_sequence=[CL['primary']]); fig.update_layout(height=350)
-                                st.plotly_chart(fig,use_container_width=True)
-                            with c2: st.dataframe(pd.DataFrame({'Métrica':['Média','Mediana','DP','Mín','Máx'],'Valor':[f"{nm.mean():.2f}",f"{nm.median():.2f}",f"{nm.std():.2f}",f"{nm.min():.0f}",f"{nm.max():.0f}"]}),hide_index=True)
-                        else:
-                            rc=cl.value_counts().head(15)
-                            fig=hbar(rc.values,rc.index,cs='Blues')
-                            fig.update_layout(height=400,coloraxis_showscale=False); fig.update_yaxes(autorange="reversed")
-                            st.plotly_chart(fig,use_container_width=True)
+                    _qa(rs)
     with t2:
-        if 'nome_produto' in rp.columns:
-            pp=rp.groupby('nome_produto').size().sort_values(ascending=False).head(20)
-            fig=hbar(pp.values,pp.index,cs='Greens')
-            fig.update_layout(height=500,yaxis_title="",coloraxis_showscale=False); fig.update_yaxes(autorange="reversed")
-            st.plotly_chart(fig,use_container_width=True)
+        surveys=[]
+        if len(pesq_p)>0:
+            for _,r in pesq_p.iterrows():
+                pn=di['produto'].get(r.get('id_produto'),'')
+                tit=r.get('titulo',f"Pesquisa #{r['id']}")
+                lbl=f"[Produto] {tit}{' - '+pn if pn else ''}"
+                surveys.append(('produto',r['id'],lbl))
+        if len(pesq_s)>0:
+            for _,r in pesq_s.iterrows():
+                sn=di['subcategoria'].get(r.get('id_subcategoria_produto'),'')
+                tit=r.get('titulo',f"Pesquisa #{r['id']}")
+                lbl=f"[Subcategoria] {tit}{' - '+sn if sn else ''}"
+                surveys.append(('subcategoria',r['id'],lbl))
+        if surveys:
+            labels=[s[2] for s in surveys]
+            bq=st.text_input("🔍 Buscar questionário:",key="bq")
+            fl=[l for l in labels if bq.lower() in l.lower()] if bq else labels
+            if fl:
+                sel=st.selectbox("Selecione o questionário:",fl,key="sq")
+                idx=labels.index(sel); stype,sid,_=surveys[idx]
+                filt='id_pesquisa_produto' if stype=='produto' else 'id_pesquisa_subcategoria'
+                sess=se_df[se_df[filt]==sid] if filt in se_df.columns else pd.DataFrame()
+                if len(sess)>0:
+                    sids=sess['id'].tolist()
+                    qs=pg_q[pg_q['id_sessao_pesquisa'].isin(sids)] if 'id_sessao_pesquisa' in pg_q.columns else pd.DataFrame()
+                    if len(qs)>0:
+                        qids=qs['id'].tolist()
+                        resps=rp[rp['id_pergunta_pesquisa'].isin(qids)] if 'id_pergunta_pesquisa' in rp.columns else pd.DataFrame()
+                        ca,cb,cc=st.columns(3)
+                        with ca: st.metric("Perguntas",f"{len(qs)}")
+                        with cb: st.metric("Respostas",f"{len(resps):,}")
+                        with cc: st.metric("Respondentes",f"{resps['id_usuario'].nunique():,}" if len(resps)>0 and 'id_usuario' in resps.columns else "0")
+                        _radar(resps)
+                        sort_col='ordem' if 'ordem' in qs.columns else 'id'
+                        st.markdown('<div class="chart-title">Perguntas do Questionário</div>',unsafe_allow_html=True)
+                        for _,q in qs.sort_values(sort_col).iterrows():
+                            qid=q['id']; qtit=q.get('titulo',f'Pergunta #{qid}')
+                            qr=resps[resps['id_pergunta_pesquisa']==qid]
+                            with st.expander(f"📝 {qtit} ({len(qr)} respostas)"):
+                                _qa(qr)
+                    else: st.info("Nenhuma pergunta encontrada para este questionário.")
+                else: st.info("Nenhuma sessão encontrada para este questionário.")
+        else: st.info("Nenhum questionário encontrado.")
     with t3:
+        if 'nome_produto' in rp.columns:
+            pp_c=rp.groupby('nome_produto').size().sort_values(ascending=False)
+            sel_p=st.selectbox("📦 Selecione o Produto:",pp_c.index.tolist(),key="sp_prod_cons")
+            if sel_p:
+                prod_r=rp[rp['nome_produto']==sel_p]
+                ca,cb,cc=st.columns(3)
+                with ca: st.metric("Respostas",f"{len(prod_r):,}")
+                with cb: st.metric("Perguntas",f"{prod_r['titulo_pergunta'].nunique() if 'titulo_pergunta' in prod_r.columns else 0}")
+                with cc: st.metric("Respondentes",f"{prod_r['id_usuario'].nunique() if 'id_usuario' in prod_r.columns else 0}")
+                _radar(prod_r)
+                _detail_questions(prod_r)
+    with t4:
+        if len(pesq_s)>0 and 'id_subcategoria_produto' in pesq_s.columns:
+            sc_groups={}
+            for _,r in pesq_s.iterrows():
+                scid=r.get('id_subcategoria_produto')
+                key=di['subcategoria'].get(scid,f'Subcategoria #{scid}') if pd.notna(scid) else 'Sem subcategoria'
+                sc_groups.setdefault(key,[]).append(r['id'])
+            sc_names=sorted(sc_groups.keys())
+            sel_sc=st.selectbox("📂 Selecione a Subcategoria:",sc_names,key="ssc_resp")
+            if sel_sc:
+                sv_ids=sc_groups[sel_sc]
+                sess=se_df[se_df['id_pesquisa_subcategoria'].isin(sv_ids)] if 'id_pesquisa_subcategoria' in se_df.columns else pd.DataFrame()
+                if len(sess)>0:
+                    sids=sess['id'].tolist()
+                    qs=pg_q[pg_q['id_sessao_pesquisa'].isin(sids)] if 'id_sessao_pesquisa' in pg_q.columns else pd.DataFrame()
+                    if len(qs)>0:
+                        qids=qs['id'].tolist()
+                        resps=rp[rp['id_pergunta_pesquisa'].isin(qids)] if 'id_pergunta_pesquisa' in rp.columns else pd.DataFrame()
+                        ca,cb,cc,cd=st.columns(4)
+                        with ca: st.metric("Pesquisas",f"{len(sv_ids)}")
+                        with cb: st.metric("Perguntas",f"{len(qs)}")
+                        with cc: st.metric("Respostas",f"{len(resps):,}")
+                        with cd: st.metric("Respondentes",f"{resps['id_usuario'].nunique():,}" if len(resps)>0 and 'id_usuario' in resps.columns else "0")
+                        _radar(resps,CL['accent1'])
+                        _detail_questions(resps)
+                    else: st.info("Nenhuma pergunta encontrada.")
+                else: st.info("Nenhuma sessão encontrada.")
+        else: st.info("Sem pesquisas de subcategoria.")
+    with t5:
         if 'id_usuario' in rp.columns:
             us=rp.groupby('id_usuario').agg({'id':'count','id_produto':'nunique'}).rename(columns={'id':'resp','id_produto':'prod'})
             if 'nome_usuario' in rp.columns: us=us.join(rp.groupby('id_usuario')['nome_usuario'].first())
@@ -592,7 +690,7 @@ def pg_respostas(data):
             fig=hbar(us.head(15)['resp'].values,us.head(15)['nome_usuario'].values if 'nome_usuario' in us.columns else us.head(15).index.astype(str),cs='Blues')
             fig.update_layout(height=450,coloraxis_showscale=False); fig.update_yaxes(autorange="reversed")
             st.plotly_chart(fig,use_container_width=True)
-    with t4:
+    with t6:
         c1,c2,c3=st.columns(3)
         with c1: fp=st.selectbox("📦 Produto:",['Todos']+(rp['nome_produto'].dropna().unique().tolist() if 'nome_produto' in rp.columns else []),key="fpe")
         with c2: fu=st.selectbox("👤 Usuário:",['Todos']+(rp['nome_usuario'].dropna().unique().tolist()[:100] if 'nome_usuario' in rp.columns else []),key="fue")
