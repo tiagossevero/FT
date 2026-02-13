@@ -1,6 +1,7 @@
 """
-FOODTEST - Dashboard Completo de Analytics v2.0
+FOODTEST - Dashboard Completo de Analytics v3.0
 Plataforma de Analise Sensorial, Gestao e Inteligencia de Dados
+Inclui: Analise Estatistica Avancada, EDA, Performance de Produtos, Engajamento e Gamificacao
 """
 import streamlit as st
 import pandas as pd
@@ -15,6 +16,12 @@ from io import StringIO
 import warnings
 warnings.filterwarnings('ignore')
 from sqlalchemy import create_engine, text
+try:
+    from scipy import stats as scipy_stats
+    HAS_SCIPY = True
+except ImportError:
+    HAS_SCIPY = False
+from plotly.subplots import make_subplots
 
 # Force light theme programmatically (equivalent to config.toml but in app.py)
 try:
@@ -1727,6 +1734,687 @@ atendendo **{ne} empresas**. O score geral da plataforma é **{score_geral:.0f}/
 """)
 
 # ============================================================================
+# HELPERS - ANALISES AVANCADAS
+# ============================================================================
+def _nresp(rp):
+    """Extrai respostas numericas convertendo string->float"""
+    if len(rp)==0 or 'resposta' not in rp.columns: return pd.DataFrame()
+    df=rp.copy(); df['valor']=pd.to_numeric(df['resposta'].astype(str).str.replace('"','').str.strip(),errors='coerce')
+    return df.dropna(subset=['valor'])
+
+def _dstats(s):
+    """Estatisticas descritivas completas de uma Series numerica"""
+    s=s.dropna()
+    if len(s)==0: return {}
+    d={'N':f"{len(s):,}",'Media':f"{s.mean():.3f}",'Mediana':f"{s.median():.3f}",
+       'Moda':f"{s.mode().iloc[0]:.3f}" if not s.mode().empty else "N/A",
+       'Desvio Padrao':f"{s.std():.3f}",'Variancia':f"{s.var():.3f}",
+       'Minimo':f"{s.min():.3f}",'Maximo':f"{s.max():.3f}",
+       'Amplitude':f"{s.max()-s.min():.3f}",
+       'Q1 (25%)':f"{s.quantile(.25):.3f}",'Q3 (75%)':f"{s.quantile(.75):.3f}",
+       'IQR':f"{s.quantile(.75)-s.quantile(.25):.3f}",
+       'Assimetria (Skew)':f"{s.skew():.3f}",'Curtose (Kurt)':f"{s.kurtosis():.3f}",
+       'Coef. Variacao (%)':f"{s.std()/s.mean()*100:.1f}" if s.mean()!=0 else "N/A",
+       'Erro Padrao':f"{s.sem():.3f}"}
+    if HAS_SCIPY and len(s)>1:
+        ci=scipy_stats.t.interval(0.95,len(s)-1,loc=s.mean(),scale=scipy_stats.sem(s))
+        d['IC 95% Inferior']=f"{ci[0]:.3f}"; d['IC 95% Superior']=f"{ci[1]:.3f}"
+    return d
+
+# ============================================================================
+# PG18: ANALISE ESTATISTICA AVANCADA
+# ============================================================================
+def pg_estatistica(data):
+    st.markdown(section_header("Analise Estatistica","Testes estatisticos, distribuicoes, correlacoes e deteccao de anomalias"),unsafe_allow_html=True)
+    rp=data['resp_pergunta']; rq=data['resp_questionario']
+    if len(rp)==0: st.warning("Sem dados de respostas."); return
+    rn=_nresp(rp)
+    if len(rn)==0: st.warning("Sem respostas numericas para analise."); return
+    # KPIs gerais
+    c1,c2,c3,c4,c5=st.columns(5)
+    with c1: st.markdown(mcard(f"{len(rn):,}","Respostas Numericas"),unsafe_allow_html=True)
+    with c2: st.markdown(mcard(f"{rn['valor'].mean():.2f}","Media Geral",c=CL['accent1']),unsafe_allow_html=True)
+    with c3: st.markdown(mcard(f"{rn['valor'].median():.2f}","Mediana",c=CL['teal']),unsafe_allow_html=True)
+    with c4: st.markdown(mcard(f"{rn['valor'].std():.2f}","Desvio Padrao",c=CL['orange']),unsafe_allow_html=True)
+    with c5:
+        cv=rn['valor'].std()/rn['valor'].mean()*100 if rn['valor'].mean()!=0 else 0
+        st.markdown(mcard(f"{cv:.1f}%","Coef. Variacao",c=CL['purple']),unsafe_allow_html=True)
+    st.markdown('<div class="divider"></div>',unsafe_allow_html=True)
+    t1,t2,t3,t4,t5=st.tabs(["Descritiva Completa","Normalidade","Correlacoes","Comparacao de Grupos","Outliers"])
+    # --- TAB 1: DESCRITIVA ---
+    with t1:
+        c1,c2=st.columns(2)
+        with c1: opcao=st.selectbox("Analisar:",["Geral (todas respostas)","Por Pergunta","Por Produto"],key="ed_op")
+        df_a=rn['valor']
+        if opcao=="Por Pergunta" and 'titulo_pergunta' in rn.columns:
+            with c2: sel=st.selectbox("Pergunta:",sorted(rn['titulo_pergunta'].dropna().unique().tolist()),key="ed_perg")
+            df_a=rn[rn['titulo_pergunta']==sel]['valor']
+        elif opcao=="Por Produto" and 'nome_produto' in rn.columns:
+            with c2: sel=st.selectbox("Produto:",sorted(rn['nome_produto'].dropna().unique().tolist()),key="ed_prod")
+            df_a=rn[rn['nome_produto']==sel]['valor']
+        if len(df_a)>0:
+            c1,c2=st.columns([1,1])
+            with c1:
+                st.markdown('<div class="chart-title">Estatisticas Descritivas Completas</div>',unsafe_allow_html=True)
+                sd=_dstats(df_a)
+                st.dataframe(pd.DataFrame({'Metrica':list(sd.keys()),'Valor':list(sd.values())}),hide_index=True,use_container_width=True)
+            with c2:
+                fig=make_subplots(rows=2,cols=1,row_heights=[.7,.3],shared_xaxes=True,vertical_spacing=0.05)
+                fig.add_trace(go.Histogram(x=df_a,nbinsx=20,marker_color=CL['primary'],opacity=.7,name='Distribuicao'),row=1,col=1)
+                fig.add_trace(go.Box(x=df_a,marker_color=CL['primary'],name='Box Plot',boxpoints='outliers'),row=2,col=1)
+                fig.update_layout(height=500,showlegend=False,paper_bgcolor='#FFFFFF',plot_bgcolor='#FFFFFF')
+                st.plotly_chart(fig,use_container_width=True,key="ed_hb")
+            # Interpretacao automatica
+            sk=df_a.skew(); kt=df_a.kurtosis()
+            sim='aprox. simetrica' if abs(sk)<0.5 else ('positiva (cauda direita)' if sk>0 else 'negativa (cauda esquerda)')
+            ktp='mesocurtica (normal)' if abs(kt)<1 else ('leptocurtica (pico acentuado)' if kt>0 else 'platicurtica (achatada)')
+            st.markdown(ibox("Operacional","Interpretacao Automatica",f"Assimetria {sim} (skew={sk:.2f}). Curtose {ktp} (kurt={kt:.2f}). CV={cv:.1f}% indica {'baixa' if cv<15 else 'moderada' if cv<30 else 'alta'} dispersao relativa."),unsafe_allow_html=True)
+    # --- TAB 2: NORMALIDADE ---
+    with t2:
+        if not HAS_SCIPY: st.warning("Instale scipy para testes de normalidade: pip install scipy"); return
+        st.markdown('<div class="chart-title">Teste de Normalidade (Shapiro-Wilk)</div>',unsafe_allow_html=True)
+        opts_n=["Todas respostas"]
+        if 'titulo_pergunta' in rn.columns: opts_n+=sorted(rn['titulo_pergunta'].dropna().unique().tolist())
+        sel_n=st.selectbox("Dados para teste:",opts_n,key="norm_s")
+        vals=rn['valor'] if sel_n=="Todas respostas" else rn[rn['titulo_pergunta']==sel_n]['valor']
+        if len(vals)>=3:
+            smp=vals.sample(min(5000,len(vals)),random_state=42)
+            try: sw_s,sw_p=scipy_stats.shapiro(smp[:5000]); ok=sw_p>0.05
+            except: sw_s,sw_p,ok=0,0,False
+            c1,c2,c3=st.columns(3)
+            with c1: st.markdown(mcard(f"{sw_s:.4f}","Estatistica W"),unsafe_allow_html=True)
+            with c2: st.markdown(mcard(f"{sw_p:.6f}","p-valor",c=CL['success'] if ok else CL['danger']),unsafe_allow_html=True)
+            with c3: st.markdown(mcard("Normal" if ok else "Nao-Normal","Resultado (alfa=0.05)",c=CL['success'] if ok else CL['warning']),unsafe_allow_html=True)
+            c1,c2=st.columns(2)
+            with c1:
+                # QQ-Plot
+                st.markdown('<div class="chart-title">QQ-Plot</div>',unsafe_allow_html=True)
+                qq=scipy_stats.probplot(smp)
+                fig=go.Figure()
+                fig.add_trace(go.Scatter(x=qq[0][0],y=qq[0][1],mode='markers',marker=dict(color=CL['primary'],size=3),name='Dados'))
+                sl_,ic_=qq[1][0],qq[1][1]; xl=[qq[0][0].min(),qq[0][0].max()]
+                fig.add_trace(go.Scatter(x=xl,y=[sl_*x+ic_ for x in xl],mode='lines',line=dict(color=CL['danger'],dash='dash'),name='Normal Teorica'))
+                fig.update_layout(height=400,xaxis_title="Quantis Teoricos",yaxis_title="Quantis Observados",paper_bgcolor='#FFFFFF',plot_bgcolor='#FFFFFF')
+                st.plotly_chart(fig,use_container_width=True,key="qq_plt")
+            with c2:
+                # Histograma vs curva normal
+                st.markdown('<div class="chart-title">Distribuicao vs Normal Teorica</div>',unsafe_allow_html=True)
+                fig=go.Figure()
+                fig.add_trace(go.Histogram(x=smp,nbinsx=30,histnorm='probability density',marker_color=CL['primary'],opacity=.7,name='Dados'))
+                xr=np.linspace(smp.min(),smp.max(),100)
+                fig.add_trace(go.Scatter(x=xr,y=scipy_stats.norm.pdf(xr,smp.mean(),smp.std()),mode='lines',line=dict(color=CL['danger'],width=2),name='Normal'))
+                fig.update_layout(height=400,paper_bgcolor='#FFFFFF',plot_bgcolor='#FFFFFF')
+                st.plotly_chart(fig,use_container_width=True,key="hist_norm")
+            st.markdown(ibox("Estrategico","Resultado do Teste",f"{'Dados seguem distribuicao normal (p={sw_p:.4f} > 0.05). Testes parametricos (t-Student, ANOVA) sao aplicaveis.' if ok else f'Dados NAO seguem distribuicao normal (p={sw_p:.6f} < 0.05). Recomenda-se testes nao-parametricos (Mann-Whitney, Kruskal-Wallis).'}"),unsafe_allow_html=True)
+        else: st.info("Minimo 3 observacoes para teste de normalidade.")
+    # --- TAB 3: CORRELACOES ---
+    with t3:
+        st.markdown('<div class="chart-title">Matriz de Correlacao entre Perguntas</div>',unsafe_allow_html=True)
+        if 'titulo_pergunta' in rn.columns and 'id_usuario' in rn.columns:
+            top_p=rn['titulo_pergunta'].value_counts().head(12).index.tolist()
+            pv=rn[rn['titulo_pergunta'].isin(top_p)].pivot_table(index='id_usuario',columns='titulo_pergunta',values='valor',aggfunc='mean')
+            if pv.shape[1]>=2:
+                met=st.radio("Metodo:",["Pearson","Spearman"],horizontal=True,key="corr_m")
+                cr=pv.corr(method=met.lower())
+                # Heatmap de correlacao
+                fig=px.imshow(cr,text_auto='.2f',color_continuous_scale='RdBu_r',zmin=-1,zmax=1,aspect='auto')
+                fig.update_layout(height=max(400,len(cr)*40),paper_bgcolor='#FFFFFF')
+                st.plotly_chart(fig,use_container_width=True,key="corr_hm")
+                # Top pares correlacionados
+                st.markdown('<div class="chart-title">Top Pares Correlacionados</div>',unsafe_allow_html=True)
+                pairs=[]
+                for i in range(len(cr.columns)):
+                    for j in range(i+1,len(cr.columns)):
+                        r=cr.iloc[i,j]
+                        pairs.append({'Variavel 1':cr.columns[i][:40],'Variavel 2':cr.columns[j][:40],'Correlacao':round(r,4),
+                            'Forca':'Forte' if abs(r)>.7 else 'Moderada' if abs(r)>.4 else 'Fraca','Direcao':'Positiva' if r>0 else 'Negativa'})
+                pf=pd.DataFrame(pairs).sort_values('Correlacao',key=lambda x:x.abs(),ascending=False)
+                st.dataframe(pf.head(15),hide_index=True,use_container_width=True)
+                # Scatter do top par
+                if len(pf)>0:
+                    tp=pf.iloc[0]
+                    v1_name=tp['Variavel 1']; v2_name=tp['Variavel 2']
+                    if v1_name in pv.columns and v2_name in pv.columns:
+                        fig=px.scatter(pv.dropna(subset=[v1_name,v2_name]),x=v1_name,y=v2_name,trendline='ols',
+                            color_discrete_sequence=[CL['primary']],title=f"Dispersao: {v1_name[:25]} vs {v2_name[:25]}")
+                        fig.update_layout(height=400,paper_bgcolor='#FFFFFF',plot_bgcolor='#FFFFFF')
+                        st.plotly_chart(fig,use_container_width=True,key="corr_sc")
+                # Insight
+                fortes=[p for p in pairs if abs(p['Correlacao'])>.7]
+                st.markdown(ibox("Estrategico","Analise de Correlacao",f"{len(fortes)} pares com correlacao forte (|r|>0.7) de {len(pairs)} pares analisados. {'Perguntas fortemente correlacionadas podem indicar redundancia no questionario.' if len(fortes)>2 else 'Perguntas com correlacoes variadas indicam boa diversidade no instrumento.'}"),unsafe_allow_html=True)
+            else: st.info("Minimo 2 perguntas com respostas numericas para analise de correlacao.")
+        else: st.info("Dados insuficientes para correlacao.")
+    # --- TAB 4: COMPARACAO DE GRUPOS ---
+    with t4:
+        st.markdown('<div class="chart-title">Comparacao Estatistica entre Grupos</div>',unsafe_allow_html=True)
+        gp=st.selectbox("Agrupar por:",["Produto","Pergunta"],key="gp4")
+        col='nome_produto' if gp=="Produto" else 'titulo_pergunta'
+        if col in rn.columns and rn[col].notna().any():
+            tg=rn[col].value_counts().head(10).index.tolist()
+            dg=rn[rn[col].isin(tg)]
+            if len(tg)>=2:
+                # Violin plot comparativo
+                fig=px.violin(dg,x=col,y='valor',box=True,points='outliers',color=col,color_discrete_sequence=PAL)
+                fig.update_layout(height=500,xaxis_title="",yaxis_title="Valor",showlegend=False,paper_bgcolor='#FFFFFF',plot_bgcolor='#FFFFFF',xaxis_tickangle=45)
+                st.plotly_chart(fig,use_container_width=True,key="viol_g4")
+                # ANOVA
+                if HAS_SCIPY:
+                    grps=[g['valor'].values for _,g in dg.groupby(col) if len(g)>1]
+                    if len(grps)>=2:
+                        try:
+                            f_s,p_v=scipy_stats.f_oneway(*grps)
+                            c1,c2,c3=st.columns(3)
+                            with c1: st.markdown(mcard(f"{f_s:.4f}","F (ANOVA)"),unsafe_allow_html=True)
+                            with c2: st.markdown(mcard(f"{p_v:.6f}","p-valor",c=CL['success'] if p_v>.05 else CL['danger']),unsafe_allow_html=True)
+                            with c3: st.markdown(mcard("Sim" if p_v<.05 else "Nao","Diferenca Significativa?",c=CL['danger'] if p_v<.05 else CL['success']),unsafe_allow_html=True)
+                            st.markdown(ibox("Estrategico","Resultado ANOVA",f"{'Diferenca SIGNIFICATIVA entre grupos (F={f_s:.2f}, p={p_v:.6f}). Pelo menos dois grupos possuem medias estatisticamente diferentes.' if p_v<.05 else f'SEM diferenca significativa entre grupos (F={f_s:.2f}, p={p_v:.4f}). As medias sao estatisticamente similares.'}"),unsafe_allow_html=True)
+                        except: st.info("Dados insuficientes para ANOVA.")
+                # Tabela de estatisticas por grupo
+                st.markdown('<div class="chart-title">Estatisticas por Grupo</div>',unsafe_allow_html=True)
+                gs=dg.groupby(col)['valor'].agg(['count','mean','median','std','min','max']).round(3)
+                gs.columns=['N','Media','Mediana','DP','Min','Max']
+                gs['CV (%)']=((gs['DP']/gs['Media'])*100).round(1)
+                st.dataframe(gs.sort_values('Media',ascending=False),use_container_width=True)
+            else: st.info("Minimo 2 grupos para comparacao.")
+        else: st.info("Coluna de agrupamento nao encontrada.")
+    # --- TAB 5: OUTLIERS ---
+    with t5:
+        st.markdown('<div class="chart-title">Deteccao de Outliers</div>',unsafe_allow_html=True)
+        mt_o=st.radio("Metodo:",["IQR (Interquartil)","Z-Score"],horizontal=True,key="out_m")
+        vals=rn['valor']
+        if mt_o=="IQR (Interquartil)":
+            Q1,Q3=vals.quantile(.25),vals.quantile(.75); IQR_=Q3-Q1
+            lo,hi=Q1-1.5*IQR_,Q3+1.5*IQR_
+            outs=rn[(vals<lo)|(vals>hi)]; norms=rn[(vals>=lo)&(vals<=hi)]
+            c1,c2,c3,c4=st.columns(4)
+            with c1: st.markdown(mcard(f"{len(outs):,}","Outliers Detectados",c=CL['danger']),unsafe_allow_html=True)
+            with c2: st.markdown(mcard(f"{spct(len(outs),len(rn))}%","Percentual"),unsafe_allow_html=True)
+            with c3: st.markdown(mcard(f"{lo:.2f}","Limite Inferior",c=CL['teal']),unsafe_allow_html=True)
+            with c4: st.markdown(mcard(f"{hi:.2f}","Limite Superior",c=CL['teal']),unsafe_allow_html=True)
+        else:
+            zs=scipy_stats.zscore(vals) if HAS_SCIPY else (vals-vals.mean())/vals.std()
+            outs=rn[np.abs(zs)>3]; norms=rn[np.abs(zs)<=3]
+            c1,c2,c3=st.columns(3)
+            with c1: st.markdown(mcard(f"{len(outs):,}","Outliers (|Z|>3)",c=CL['danger']),unsafe_allow_html=True)
+            with c2: st.markdown(mcard(f"{spct(len(outs),len(rn))}%","Percentual"),unsafe_allow_html=True)
+            with c3: st.markdown(mcard(f"{len(norms):,}","Dentro do Esperado",c=CL['success']),unsafe_allow_html=True)
+        c1,c2=st.columns(2)
+        with c1:
+            fig=px.box(rn,y='valor',points='outliers',color_discrete_sequence=[CL['primary']])
+            fig.update_layout(height=400,paper_bgcolor='#FFFFFF',plot_bgcolor='#FFFFFF',yaxis_title="Valor")
+            st.plotly_chart(fig,use_container_width=True,key="out_box")
+        with c2:
+            fig=go.Figure()
+            fig.add_trace(go.Histogram(x=norms['valor'],marker_color=CL['primary'],opacity=.7,name='Normal'))
+            if len(outs)>0: fig.add_trace(go.Histogram(x=outs['valor'],marker_color=CL['danger'],opacity=.7,name='Outliers'))
+            fig.update_layout(height=400,barmode='overlay',paper_bgcolor='#FFFFFF',plot_bgcolor='#FFFFFF',legend=dict(font=dict(color='#202124')))
+            st.plotly_chart(fig,use_container_width=True,key="out_hist")
+        if len(outs)>0 and 'nome_usuario' in outs.columns:
+            st.markdown('<div class="chart-title">Usuarios com Mais Outliers</div>',unsafe_allow_html=True)
+            ou=outs['nome_usuario'].value_counts().head(10)
+            fig=hbar(ou.values,ou.index,cs='Reds')
+            fig.update_layout(height=350,yaxis_title="",coloraxis_showscale=False); fig.update_yaxes(autorange="reversed")
+            st.plotly_chart(fig,use_container_width=True,key="out_usr")
+        st.markdown(ibox("Tatico","Analise de Outliers",f"{len(outs):,} outliers detectados ({spct(len(outs),len(rn))}% das respostas). {'Volume baixo - dados consistentes.' if spct(len(outs),len(rn))<5 else 'Volume significativo - investigar respostas anomalas e possivel impacto nas medias.'}"),unsafe_allow_html=True)
+
+# ============================================================================
+# PG19: ANALISE EXPLORATORIA (EDA)
+# ============================================================================
+def pg_eda(data):
+    st.markdown(section_header("Analise Exploratoria (EDA)","Visualizacoes avancadas e exploracoes multidimensionais dos dados"),unsafe_allow_html=True)
+    rp=data['resp_pergunta']; rq=data['resp_questionario']; pr=data['produto']
+    us=data['usuario']; cat=data['categoria']; sub=data['subcategoria']
+    rn=_nresp(rp)
+    if len(rn)==0: st.warning("Sem respostas numericas."); return
+    # KPIs
+    n_pergs=rn['titulo_pergunta'].nunique() if 'titulo_pergunta' in rn.columns else 0
+    n_prods=rn['nome_produto'].nunique() if 'nome_produto' in rn.columns else 0
+    n_usrs=rn['id_usuario'].nunique() if 'id_usuario' in rn.columns else 0
+    c1,c2,c3,c4=st.columns(4)
+    with c1: st.markdown(mcard(f"{len(rn):,}","Respostas Analisadas"),unsafe_allow_html=True)
+    with c2: st.markdown(mcard(f"{n_pergs}","Perguntas",c=CL['accent1']),unsafe_allow_html=True)
+    with c3: st.markdown(mcard(f"{n_prods}","Produtos",c=CL['teal']),unsafe_allow_html=True)
+    with c4: st.markdown(mcard(f"{n_usrs:,}","Avaliadores",c=CL['purple']),unsafe_allow_html=True)
+    st.markdown('<div class="divider"></div>',unsafe_allow_html=True)
+    t1,t2,t3,t4=st.tabs(["Distribuicoes","Hierarquias","Multivariada","Perfil Comparativo"])
+    # --- TAB 1: DISTRIBUICOES ---
+    with t1:
+        st.markdown('<div class="chart-title">Distribuicao de Respostas por Pergunta</div>',unsafe_allow_html=True)
+        if 'titulo_pergunta' in rn.columns:
+            # Boxplot com jitter por pergunta (top 8)
+            top_pergs=rn['titulo_pergunta'].value_counts().head(8).index.tolist()
+            df_bp=rn[rn['titulo_pergunta'].isin(top_pergs)]
+            fig=px.box(df_bp,x='titulo_pergunta',y='valor',points='all',color='titulo_pergunta',color_discrete_sequence=PAL)
+            fig.update_layout(height=500,xaxis_title="",yaxis_title="Valor",showlegend=False,paper_bgcolor='#FFFFFF',plot_bgcolor='#FFFFFF',xaxis_tickangle=45)
+            fig.update_traces(marker=dict(size=2,opacity=0.3),jitter=0.3)
+            st.plotly_chart(fig,use_container_width=True,key="eda_box")
+        # Violin por produto (top 6)
+        if 'nome_produto' in rn.columns:
+            st.markdown('<div class="chart-title">Violin Plot por Produto (Top 6)</div>',unsafe_allow_html=True)
+            top_prods=rn['nome_produto'].value_counts().head(6).index.tolist()
+            df_vp=rn[rn['nome_produto'].isin(top_prods)]
+            fig=px.violin(df_vp,x='nome_produto',y='valor',box=True,points='outliers',color='nome_produto',color_discrete_sequence=PAL)
+            fig.update_layout(height=450,xaxis_title="",showlegend=False,paper_bgcolor='#FFFFFF',plot_bgcolor='#FFFFFF',xaxis_tickangle=45)
+            st.plotly_chart(fig,use_container_width=True,key="eda_violin")
+        # Histograma comparativo
+        st.markdown('<div class="chart-title">Distribuicao Comparativa de Notas</div>',unsafe_allow_html=True)
+        fig=go.Figure()
+        fig.add_trace(go.Histogram(x=rn['valor'],nbinsx=9,marker_color=CL['primary'],opacity=.8,name='Todas'))
+        fig.update_layout(height=350,paper_bgcolor='#FFFFFF',plot_bgcolor='#FFFFFF',xaxis_title="Nota",yaxis_title="Frequencia",bargap=0.05)
+        st.plotly_chart(fig,use_container_width=True,key="eda_hist")
+    # --- TAB 2: HIERARQUIAS ---
+    with t2:
+        # Sunburst hierarquico
+        st.markdown('<div class="chart-title">Sunburst: Categoria > Subcategoria > Produto</div>',unsafe_allow_html=True)
+        if len(rq)>0 and 'nome_categoria' in rq.columns and 'nome_subcategoria' in rq.columns:
+            sb_data=rq.dropna(subset=['nome_categoria','nome_subcategoria'])
+            if 'nome_produto' in sb_data.columns:
+                sb_g=sb_data.groupby(['nome_categoria','nome_subcategoria','nome_produto']).size().reset_index(name='qtd')
+                sb_g=sb_g[sb_g['qtd']>0]
+                if len(sb_g)>0:
+                    fig=px.sunburst(sb_g,path=['nome_categoria','nome_subcategoria','nome_produto'],values='qtd',
+                        color='qtd',color_continuous_scale='Blues')
+                    fig.update_layout(height=600,paper_bgcolor='#FFFFFF')
+                    st.plotly_chart(fig,use_container_width=True,key="eda_sun")
+            else:
+                sb_g=sb_data.groupby(['nome_categoria','nome_subcategoria']).size().reset_index(name='qtd')
+                if len(sb_g)>0:
+                    fig=px.sunburst(sb_g,path=['nome_categoria','nome_subcategoria'],values='qtd',
+                        color='qtd',color_continuous_scale='Blues')
+                    fig.update_layout(height=600,paper_bgcolor='#FFFFFF')
+                    st.plotly_chart(fig,use_container_width=True,key="eda_sun2")
+        # Treemap detalhado de respostas
+        if len(rq)>0 and 'nome_categoria' in rq.columns:
+            st.markdown('<div class="chart-title">Treemap de Volume por Hierarquia</div>',unsafe_allow_html=True)
+            cols_tm=['nome_categoria']
+            if 'nome_subcategoria' in rq.columns: cols_tm.append('nome_subcategoria')
+            tm_g=rq.dropna(subset=cols_tm).groupby(cols_tm).size().reset_index(name='questionarios')
+            if len(tm_g)>0:
+                fig=px.treemap(tm_g,path=cols_tm,values='questionarios',color='questionarios',color_continuous_scale='Greens')
+                fig.update_layout(height=500,paper_bgcolor='#FFFFFF')
+                st.plotly_chart(fig,use_container_width=True,key="eda_tm")
+    # --- TAB 3: MULTIVARIADA ---
+    with t3:
+        if 'titulo_pergunta' in rn.columns and 'id_usuario' in rn.columns:
+            # Parallel coordinates
+            st.markdown('<div class="chart-title">Coordenadas Paralelas (Perfil Multidimensional)</div>',unsafe_allow_html=True)
+            top_pc=rn['titulo_pergunta'].value_counts().head(6).index.tolist()
+            pv_pc=rn[rn['titulo_pergunta'].isin(top_pc)].pivot_table(index='id_usuario',columns='titulo_pergunta',values='valor',aggfunc='mean').dropna()
+            if len(pv_pc)>=10 and pv_pc.shape[1]>=3:
+                pv_pc['media_geral']=pv_pc.mean(axis=1)
+                # Amostra para performance
+                smp_pc=pv_pc.sample(min(500,len(pv_pc)),random_state=42)
+                dims=[dict(label=c[:20],values=smp_pc[c]) for c in smp_pc.columns if c!='media_geral']
+                fig=go.Figure(go.Parcoords(line=dict(color=smp_pc['media_geral'],colorscale='Bluered',showscale=True,cmin=1,cmax=9),dimensions=dims))
+                fig.update_layout(height=500,paper_bgcolor='#FFFFFF',font=dict(size=10))
+                st.plotly_chart(fig,use_container_width=True,key="eda_pc")
+                st.markdown(ibox("Estrategico","Coordenadas Paralelas","Cada linha representa um avaliador. A cor indica a media geral (azul=baixa, vermelho=alta). Padroes visuais revelam perfis de avaliacao consistentes ou discrepantes."),unsafe_allow_html=True)
+            else: st.info("Dados insuficientes para coordenadas paralelas (min. 10 usuarios, 3 perguntas).")
+            # Scatter Matrix
+            st.markdown('<div class="chart-title">Matriz de Dispersao (Scatter Matrix)</div>',unsafe_allow_html=True)
+            top_sm=rn['titulo_pergunta'].value_counts().head(4).index.tolist()
+            pv_sm=rn[rn['titulo_pergunta'].isin(top_sm)].pivot_table(index='id_usuario',columns='titulo_pergunta',values='valor',aggfunc='mean').dropna()
+            if pv_sm.shape[1]>=2:
+                smp_sm=pv_sm.sample(min(300,len(pv_sm)),random_state=42)
+                fig=px.scatter_matrix(smp_sm,dimensions=smp_sm.columns.tolist(),color_discrete_sequence=[CL['primary']])
+                fig.update_layout(height=600,paper_bgcolor='#FFFFFF'); fig.update_traces(diagonal_visible=True,marker=dict(size=3,opacity=0.4))
+                st.plotly_chart(fig,use_container_width=True,key="eda_sm")
+        else: st.info("Dados insuficientes para analise multivariada.")
+    # --- TAB 4: PERFIL COMPARATIVO ---
+    with t4:
+        st.markdown('<div class="chart-title">Radar Comparativo de Produtos</div>',unsafe_allow_html=True)
+        if 'nome_produto' in rn.columns and 'titulo_pergunta' in rn.columns:
+            prods_disp=rn.groupby('nome_produto').filter(lambda x: x['titulo_pergunta'].nunique()>=3)['nome_produto'].unique().tolist()
+            if len(prods_disp)>=2:
+                prods_sel=st.multiselect("Selecione produtos para comparar (2-5):",sorted(prods_disp),default=sorted(prods_disp)[:min(3,len(prods_disp))],key="eda_radar_sel",max_selections=5)
+                if len(prods_sel)>=2:
+                    fig=go.Figure()
+                    for i,prd in enumerate(prods_sel):
+                        rpr=rn[rn['nome_produto']==prd]
+                        pergs=rpr.groupby('titulo_pergunta')['valor'].mean().sort_index()
+                        if len(pergs)>=3:
+                            fig.add_trace(go.Scatterpolar(r=pergs.values.tolist()+[pergs.values[0]],
+                                theta=pergs.index.tolist()+[pergs.index[0]],
+                                fill='toself',name=prd[:30],line_color=PAL[i%len(PAL)],opacity=0.6))
+                    fig.update_layout(polar=dict(radialaxis=dict(visible=True,range=[0,9])),height=500,
+                        showlegend=True,paper_bgcolor='#FFFFFF',legend=dict(font=dict(color='#202124')))
+                    st.plotly_chart(fig,use_container_width=True,key="eda_radar")
+                    # Tabela comparativa
+                    st.markdown('<div class="chart-title">Tabela Comparativa</div>',unsafe_allow_html=True)
+                    comp_data=[]
+                    for prd in prods_sel:
+                        rpr=rn[rn['nome_produto']==prd]
+                        comp_data.append({'Produto':prd[:35],'N':len(rpr),'Media':round(rpr['valor'].mean(),2),
+                            'Mediana':round(rpr['valor'].median(),2),'DP':round(rpr['valor'].std(),2),
+                            'Min':round(rpr['valor'].min(),2),'Max':round(rpr['valor'].max(),2)})
+                    st.dataframe(pd.DataFrame(comp_data),hide_index=True,use_container_width=True)
+                else: st.info("Selecione pelo menos 2 produtos.")
+            else: st.info("Menos de 2 produtos com perfil sensorial completo.")
+        else: st.info("Dados de produto/pergunta nao disponiveis.")
+
+# ============================================================================
+# PG20: PERFORMANCE DE PRODUTOS
+# ============================================================================
+def pg_performance(data):
+    st.markdown(section_header("Performance de Produtos","Ranking, benchmarks e analise de consistencia dos produtos avaliados"),unsafe_allow_html=True)
+    rp=data['resp_pergunta']; rq=data['resp_questionario']; pr=data['produto']
+    rn=_nresp(rp)
+    if len(rn)==0 or 'nome_produto' not in rn.columns: st.warning("Sem dados suficientes."); return
+    # Calcular metricas por produto
+    prod_stats=rn.groupby('nome_produto')['valor'].agg(['count','mean','median','std']).round(3)
+    prod_stats.columns=['avaliacoes','media','mediana','dp']
+    prod_stats['cv']=(prod_stats['dp']/prod_stats['media']*100).round(1)
+    prod_stats=prod_stats[prod_stats['avaliacoes']>=5].sort_values('media',ascending=False)  # min 5 avaliacoes
+    if len(prod_stats)==0: st.warning("Nenhum produto com minimo de 5 avaliacoes."); return
+    # KPIs
+    c1,c2,c3,c4,c5=st.columns(5)
+    with c1: st.markdown(mcard(f"{len(prod_stats)}","Produtos Avaliados"),unsafe_allow_html=True)
+    with c2: st.markdown(mcard(f"{prod_stats['media'].mean():.2f}","Media Global",c=CL['accent1']),unsafe_allow_html=True)
+    with c3: st.markdown(mcard(f"{prod_stats['dp'].mean():.2f}","DP Medio",c=CL['orange']),unsafe_allow_html=True)
+    with c4:
+        best=prod_stats.index[0] if len(prod_stats)>0 else "N/A"
+        st.markdown(mcard(f"{prod_stats['media'].max():.2f}","Melhor Nota",c=CL['success']),unsafe_allow_html=True)
+    with c5:
+        st.markdown(mcard(f"{prod_stats['media'].min():.2f}","Menor Nota",c=CL['danger']),unsafe_allow_html=True)
+    st.markdown('<div class="divider"></div>',unsafe_allow_html=True)
+    t1,t2,t3=st.tabs(["Ranking","Benchmark por Categoria","Consistencia"])
+    # --- TAB 1: RANKING ---
+    with t1:
+        # Filtro
+        n_show=st.slider("Exibir top:",5,min(50,len(prod_stats)),15,key="perf_n")
+        top=prod_stats.head(n_show).reset_index()
+        # Grafico de ranking com barras + IC
+        fig=go.Figure()
+        fig.add_trace(go.Bar(y=top['nome_produto'],x=top['media'],orientation='h',marker_color=CL['primary'],
+            text=[f"{m:.2f} (n={n})" for m,n in zip(top['media'],top['avaliacoes'])],textposition='outside',name='Media'))
+        # Erro padrao como barra de erro
+        if HAS_SCIPY:
+            erros=[]
+            for prd in top['nome_produto']:
+                vals=rn[rn['nome_produto']==prd]['valor']
+                erros.append(scipy_stats.sem(vals) if len(vals)>1 else 0)
+            fig.data[0].error_x=dict(type='data',array=erros,visible=True,color=CL['danger'])
+        fig.update_layout(height=max(400,n_show*35),yaxis_title="",xaxis_title="Nota Media",paper_bgcolor='#FFFFFF',plot_bgcolor='#FFFFFF')
+        fig.update_yaxes(autorange="reversed")
+        st.plotly_chart(fig,use_container_width=True,key="perf_rank")
+        # Tabela completa
+        st.markdown('<div class="chart-title">Tabela Detalhada</div>',unsafe_allow_html=True)
+        disp=prod_stats.reset_index()
+        disp.columns=['Produto','Avaliacoes','Media','Mediana','DP','CV (%)']
+        st.dataframe(disp,hide_index=True,use_container_width=True,height=400)
+        # Insight
+        if len(prod_stats)>=3:
+            best_p=prod_stats.index[0]; worst_p=prod_stats.index[-1]
+            diff=prod_stats['media'].max()-prod_stats['media'].min()
+            st.markdown(ibox("Estrategico","Ranking de Produtos",f"Melhor: '{best_p[:30]}' (media {prod_stats['media'].max():.2f}). Pior: '{worst_p[:30]}' (media {prod_stats['media'].min():.2f}). Amplitude de {diff:.2f} pontos entre melhor e pior produto."),unsafe_allow_html=True)
+    # --- TAB 2: BENCHMARK POR CATEGORIA ---
+    with t2:
+        if len(rq)>0 and 'nome_categoria' in rq.columns and 'id_produto' in rq.columns:
+            # Mapear produto -> categoria
+            prod_cat=rq[['id_produto','nome_categoria']].dropna().drop_duplicates()
+            if 'id_produto' in rn.columns:
+                rn_cat=rn.merge(prod_cat,on='id_produto',how='left',suffixes=('','_cat'))
+                col_cat='nome_categoria' if 'nome_categoria' in rn_cat.columns else 'nome_categoria_cat'
+                if col_cat in rn_cat.columns and rn_cat[col_cat].notna().any():
+                    # Media por categoria
+                    cat_stats=rn_cat.groupby(col_cat)['valor'].agg(['count','mean','std']).round(3)
+                    cat_stats.columns=['N','Media','DP']
+                    cat_stats=cat_stats[cat_stats['N']>=10].sort_values('Media',ascending=False)
+                    if len(cat_stats)>0:
+                        st.markdown('<div class="chart-title">Benchmark: Nota Media por Categoria</div>',unsafe_allow_html=True)
+                        cs_r=cat_stats.reset_index()
+                        fig=px.bar(cs_r,x='Media',y=col_cat,orientation='h',color='Media',
+                            color_continuous_scale='RdYlGn',text='Media')
+                        fig.update_layout(height=max(300,len(cat_stats)*40),yaxis_title="",paper_bgcolor='#FFFFFF',plot_bgcolor='#FFFFFF',coloraxis_showscale=False)
+                        fig.update_yaxes(autorange="reversed"); fig.update_traces(texttemplate='%{text:.2f}',textposition='outside')
+                        st.plotly_chart(fig,use_container_width=True,key="perf_bench")
+                        # Boxplot comparativo de categorias
+                        st.markdown('<div class="chart-title">Distribuicao de Notas por Categoria</div>',unsafe_allow_html=True)
+                        top_cats=cat_stats.head(8).index.tolist()
+                        df_cb=rn_cat[rn_cat[col_cat].isin(top_cats)]
+                        fig=px.box(df_cb,x=col_cat,y='valor',color=col_cat,color_discrete_sequence=PAL,points='outliers')
+                        fig.update_layout(height=450,showlegend=False,paper_bgcolor='#FFFFFF',plot_bgcolor='#FFFFFF',xaxis_tickangle=45)
+                        st.plotly_chart(fig,use_container_width=True,key="perf_catbox")
+                        # Insight
+                        best_c=cat_stats.index[0]; worst_c=cat_stats.index[-1]
+                        st.markdown(ibox("Tatico","Benchmark por Categoria",f"Melhor categoria: '{best_c}' (media {cat_stats['Media'].max():.2f}). Pior: '{worst_c}' (media {cat_stats['Media'].min():.2f}). Categorias com notas baixas podem necessitar de reformulacao ou investigacao."),unsafe_allow_html=True)
+                    else: st.info("Nenhuma categoria com minimo de 10 avaliacoes.")
+                else: st.info("Informacao de categoria nao disponivel.")
+            else: st.info("Coluna id_produto nao encontrada.")
+        else: st.info("Dados de categoria nao disponiveis.")
+    # --- TAB 3: CONSISTENCIA ---
+    with t3:
+        st.markdown('<div class="chart-title">Analise de Consistencia (Variabilidade entre Avaliadores)</div>',unsafe_allow_html=True)
+        # Scatter: Media x DP por produto
+        ps_r=prod_stats.reset_index()
+        fig=px.scatter(ps_r,x='media',y='dp',size='avaliacoes',color='cv',
+            color_continuous_scale='RdYlGn_r',hover_name='nome_produto',
+            labels={'media':'Nota Media','dp':'Desvio Padrao','avaliacoes':'N Avaliacoes','cv':'CV (%)'},
+            title="Media vs Desvio Padrao por Produto")
+        fig.update_layout(height=500,paper_bgcolor='#FFFFFF',plot_bgcolor='#FFFFFF')
+        st.plotly_chart(fig,use_container_width=True,key="perf_cons")
+        # Produtos mais e menos consistentes
+        c1,c2=st.columns(2)
+        with c1:
+            st.markdown('<div class="chart-title">Mais Consistentes (Menor CV)</div>',unsafe_allow_html=True)
+            cons=prod_stats.nsmallest(10,'cv').reset_index()
+            fig=px.bar(cons,x='cv',y='nome_produto',orientation='h',color='cv',color_continuous_scale='Greens_r',text='cv')
+            fig.update_layout(height=350,yaxis_title="",coloraxis_showscale=False,paper_bgcolor='#FFFFFF',plot_bgcolor='#FFFFFF')
+            fig.update_yaxes(autorange="reversed"); fig.update_traces(texttemplate='%{text:.1f}%',textposition='outside')
+            st.plotly_chart(fig,use_container_width=True,key="perf_cons_best")
+        with c2:
+            st.markdown('<div class="chart-title">Menos Consistentes (Maior CV)</div>',unsafe_allow_html=True)
+            incons=prod_stats.nlargest(10,'cv').reset_index()
+            fig=px.bar(incons,x='cv',y='nome_produto',orientation='h',color='cv',color_continuous_scale='Reds',text='cv')
+            fig.update_layout(height=350,yaxis_title="",coloraxis_showscale=False,paper_bgcolor='#FFFFFF',plot_bgcolor='#FFFFFF')
+            fig.update_yaxes(autorange="reversed"); fig.update_traces(texttemplate='%{text:.1f}%',textposition='outside')
+            st.plotly_chart(fig,use_container_width=True,key="perf_cons_worst")
+        # Insight
+        avg_cv=prod_stats['cv'].mean()
+        st.markdown(ibox("Operacional","Consistencia",f"CV medio: {avg_cv:.1f}%. {'Boa consistencia geral entre avaliadores.' if avg_cv<25 else 'Alta variabilidade sugere divergencia nas percepcoes sensoriais ou necessidade de calibracao dos avaliadores.'}"),unsafe_allow_html=True)
+
+# ============================================================================
+# PG21: ENGAJAMENTO E GAMIFICACAO
+# ============================================================================
+def pg_engajamento(data):
+    st.markdown(section_header("Engajamento e Gamificacao","Funil de conversao, retencao, NPS e economia de pontos"),unsafe_allow_html=True)
+    us=data['usuario']; rq=data['resp_questionario']; rp=data['resp_pergunta']
+    rg=data['resgate']; pt=data['pontos']; bn=data['beneficio']
+    nu=len(us)
+    if nu==0: st.warning("Sem dados de usuarios."); return
+    # Calculos base
+    cc=0
+    if 'is_cadastro_completo' in us.columns:
+        cv_=us['is_cadastro_completo'].fillna(False)
+        if cv_.dtype=='object': cv_=cv_.astype(str).str.lower().map({'true':True,'false':False,'1':True,'0':False,'nan':False}).fillna(False)
+        cc=int(cv_.sum())
+    ativos=rq['id_usuario'].nunique() if len(rq)>0 and 'id_usuario' in rq.columns else 0
+    resgataram=rg['id_usuario'].nunique() if len(rg)>0 and 'id_usuario' in rg.columns else 0
+    pts_total=int(pd.to_numeric(pt['pontos'],errors='coerce').fillna(0).sum()) if len(pt)>0 and 'pontos' in pt.columns else 0
+    # KPIs
+    c1,c2,c3,c4,c5=st.columns(5)
+    with c1: st.markdown(mcard(f"{nu:,}","Cadastrados"),unsafe_allow_html=True)
+    with c2: st.markdown(mcard(f"{cc:,}","Cad. Completo",f"{spct(cc,nu)}%",c=CL['success']),unsafe_allow_html=True)
+    with c3: st.markdown(mcard(f"{ativos:,}","Ativos",f"{spct(ativos,nu)}%",c=CL['accent1']),unsafe_allow_html=True)
+    with c4: st.markdown(mcard(f"{resgataram:,}","Resgataram",f"{spct(resgataram,nu)}%",c=CL['orange']),unsafe_allow_html=True)
+    with c5: st.markdown(mcard(f"{pts_total:,}","Pontos Totais",c=CL['purple']),unsafe_allow_html=True)
+    st.markdown('<div class="divider"></div>',unsafe_allow_html=True)
+    t1,t2,t3,t4=st.tabs(["Funil de Conversao","Retencao e Cohorts","NPS","Economia de Pontos"])
+    # --- TAB 1: FUNIL ---
+    with t1:
+        st.markdown('<div class="chart-title">Funil de Engajamento</div>',unsafe_allow_html=True)
+        # Calcular etapas do funil
+        usr_5plus=0
+        if len(rq)>0 and 'id_usuario' in rq.columns:
+            uc=rq.groupby('id_usuario').size()
+            usr_5plus=int((uc>=5).sum())
+        etapas=['Cadastrados','Cadastro Completo','Responderam 1+','Responderam 5+','Resgataram Beneficio']
+        valores=[nu,cc,ativos,usr_5plus,resgataram]
+        # Funnel chart
+        fig=go.Figure(go.Funnel(y=etapas,x=valores,textinfo="value+percent initial",
+            marker=dict(color=[CL['primary'],CL['accent1'],CL['teal'],CL['orange'],CL['success']]),
+            connector=dict(line=dict(color='#E8EAED',width=2))))
+        fig.update_layout(height=450,paper_bgcolor='#FFFFFF',plot_bgcolor='#FFFFFF',font=dict(family='Inter',color='#202124'))
+        st.plotly_chart(fig,use_container_width=True,key="eng_funnel")
+        # Taxas de conversao entre etapas
+        st.markdown('<div class="chart-title">Taxas de Conversao entre Etapas</div>',unsafe_allow_html=True)
+        conv_data=[]
+        for i in range(1,len(etapas)):
+            prev=valores[i-1]; curr=valores[i]
+            taxa=spct(curr,prev) if prev>0 else 0
+            conv_data.append({'De':etapas[i-1],'Para':etapas[i],'Convertidos':curr,'Taxa':f"{taxa}%"})
+        st.dataframe(pd.DataFrame(conv_data),hide_index=True,use_container_width=True)
+        # Insight funil
+        gargalo_idx=0; min_taxa=100
+        for i in range(1,len(valores)):
+            t_=spct(valores[i],valores[i-1]) if valores[i-1]>0 else 0
+            if t_<min_taxa: min_taxa=t_; gargalo_idx=i
+        st.markdown(ibox("Estrategico","Gargalo do Funil",f"Maior queda: {etapas[gargalo_idx-1]} -> {etapas[gargalo_idx]} (taxa {min_taxa}%). Foco em acoes para melhorar esta conversao."),unsafe_allow_html=True)
+    # --- TAB 2: RETENCAO E COHORTS ---
+    with t2:
+        if len(rq)>0 and 'id_usuario' in rq.columns and 'createdAt' in rq.columns:
+            st.markdown('<div class="chart-title">Retencao: Usuarios que Voltam a Avaliar</div>',unsafe_allow_html=True)
+            # Usuarios por numero de questionarios
+            uc=rq.groupby('id_usuario').size().reset_index(name='qtd')
+            uc['cohort']=pd.cut(uc['qtd'],bins=[0,1,3,5,10,25,50,1000],labels=['1','2-3','4-5','6-10','11-25','26-50','50+'])
+            cc_=uc['cohort'].value_counts().sort_index()
+            fig=px.bar(x=cc_.index.astype(str).tolist(),y=cc_.values.tolist(),color=cc_.values.tolist(),
+                color_continuous_scale='Blues',labels={'x':'Questionarios Respondidos','y':'Usuarios'})
+            fig.update_layout(height=400,coloraxis_showscale=False,paper_bgcolor='#FFFFFF',plot_bgcolor='#FFFFFF')
+            st.plotly_chart(fig,use_container_width=True,key="eng_cohort")
+            # Retencao mensal
+            st.markdown('<div class="chart-title">Atividade Mensal de Usuarios</div>',unsafe_allow_html=True)
+            rq_m=rq.copy(); rq_m['mes']=rq_m['createdAt'].dt.to_period('M')
+            usr_mes=rq_m.groupby('mes')['id_usuario'].nunique().reset_index(name='usuarios_ativos')
+            usr_mes['mes']=usr_mes['mes'].astype(str)
+            fig=px.area(usr_mes,x='mes',y='usuarios_ativos',color_discrete_sequence=[CL['primary']],
+                labels={'mes':'Mes','usuarios_ativos':'Usuarios Ativos'})
+            fig.update_layout(height=350,paper_bgcolor='#FFFFFF',plot_bgcolor='#FFFFFF',xaxis_tickangle=45)
+            st.plotly_chart(fig,use_container_width=True,key="eng_ret_mes")
+            # Heatmap dia da semana x hora
+            if 'hora' in rq.columns and 'dia_semana' in rq.columns:
+                st.markdown('<div class="chart-title">Heatmap: Horario de Atividade</div>',unsafe_allow_html=True)
+                hm=rq.groupby(['dia_semana','hora']).size().reset_index(name='qtd')
+                do_map={'Monday':0,'Tuesday':1,'Wednesday':2,'Thursday':3,'Friday':4,'Saturday':5,'Sunday':6}
+                dn_map={'Monday':'Seg','Tuesday':'Ter','Wednesday':'Qua','Thursday':'Qui','Friday':'Sex','Saturday':'Sab','Sunday':'Dom'}
+                hm['ordem']=hm['dia_semana'].map(do_map); hm['dia']=hm['dia_semana'].map(dn_map)
+                hm_pv=hm.pivot_table(index='dia',columns='hora',values='qtd',fill_value=0)
+                # Reordenar dias
+                dias_ordem=['Seg','Ter','Qua','Qui','Sex','Sab','Dom']
+                hm_pv=hm_pv.reindex([d for d in dias_ordem if d in hm_pv.index])
+                fig=px.imshow(hm_pv,color_continuous_scale='Blues',aspect='auto',labels=dict(x='Hora',y='Dia',color='Respostas'))
+                fig.update_layout(height=300,paper_bgcolor='#FFFFFF')
+                st.plotly_chart(fig,use_container_width=True,key="eng_heatmap")
+            # Metricas de retencao
+            retorno=int((uc['qtd']>1).sum()); tx_ret=spct(retorno,len(uc))
+            power_users=int((uc['qtd']>=10).sum())
+            st.markdown(ibox("Tatico","Retencao",f"{tx_ret}% dos usuarios voltaram para 2+ avaliacoes. {power_users} power users (10+ avaliacoes). {'Boa retencao!' if tx_ret>40 else 'Melhorar retencao com notificacoes e incentivos.'}"),unsafe_allow_html=True)
+        else: st.info("Dados de questionarios insuficientes para analise de retencao.")
+    # --- TAB 3: NPS ---
+    with t3:
+        st.markdown('<div class="chart-title">Net Promoter Score (NPS)</div>',unsafe_allow_html=True)
+        rn_nps=_nresp(rp)
+        if len(rn_nps)>0:
+            vals=rn_nps['valor']
+            # Escala 1-9: Promotores 8-9, Neutros 6-7, Detratores 1-5
+            promotores=int((vals>=8).sum()); neutros=int(((vals>=6)&(vals<8)).sum()); detratores=int((vals<6).sum())
+            total_nps=promotores+neutros+detratores
+            pct_p=spct(promotores,total_nps); pct_d=spct(detratores,total_nps)
+            nps_score=round(pct_p-pct_d,1)
+            c1,c2,c3,c4=st.columns(4)
+            with c1:
+                nps_color=CL['success'] if nps_score>50 else CL['orange'] if nps_score>0 else CL['danger']
+                st.markdown(mcard(f"{nps_score}","NPS Score",c=nps_color),unsafe_allow_html=True)
+            with c2: st.markdown(mcard(f"{pct_p}%","Promotores (8-9)",f"{promotores:,}",c=CL['success']),unsafe_allow_html=True)
+            with c3: st.markdown(mcard(f"{spct(neutros,total_nps)}%","Neutros (6-7)",f"{neutros:,}",c=CL['warning']),unsafe_allow_html=True)
+            with c4: st.markdown(mcard(f"{pct_d}%","Detratores (1-5)",f"{detratores:,}",c=CL['danger']),unsafe_allow_html=True)
+            # Gauge NPS
+            c1,c2=st.columns([1,1])
+            with c1:
+                fig=go.Figure(go.Indicator(mode="gauge+number+delta",value=nps_score,
+                    title={'text':'NPS Score','font':{'size':14,'family':'Poppins','color':'#202124'}},
+                    number={'font':{'family':'JetBrains Mono','size':36,'color':'#202124'}},
+                    delta={'reference':0,'increasing':{'color':CL['success']},'decreasing':{'color':CL['danger']}},
+                    gauge={'axis':{'range':[-100,100]},'bar':{'color':CL['primary']},
+                        'steps':[{'range':[-100,0],'color':'#FEECEB'},{'range':[0,50],'color':'#FFF3E0'},{'range':[50,100],'color':'#E8F5E9'}],
+                        'threshold':{'line':{'color':CL['danger'],'width':3},'thickness':.75,'value':0}}))
+                fig.update_layout(height=280,margin=dict(l=20,r=20,t=50,b=20),paper_bgcolor='#FFFFFF')
+                st.plotly_chart(fig,use_container_width=True,key="nps_gauge")
+            with c2:
+                # Distribuicao NPS
+                fig=px.pie(values=[promotores,neutros,detratores],names=['Promotores','Neutros','Detratores'],
+                    color_discrete_map={'Promotores':CL['success'],'Neutros':CL['warning'],'Detratores':CL['danger']},hole=.4)
+                fig.update_layout(height=280,paper_bgcolor='#FFFFFF')
+                st.plotly_chart(fig,use_container_width=True,key="nps_pie")
+            # NPS por produto
+            if 'nome_produto' in rn_nps.columns:
+                st.markdown('<div class="chart-title">NPS por Produto (Top 15)</div>',unsafe_allow_html=True)
+                nps_prod=[]
+                for prd,grp in rn_nps.groupby('nome_produto'):
+                    if len(grp)>=10:
+                        v=grp['valor']; p_=spct(int((v>=8).sum()),len(v)); d_=spct(int((v<6).sum()),len(v))
+                        nps_prod.append({'Produto':prd,'NPS':round(p_-d_,1),'N':len(v),'Media':round(v.mean(),2)})
+                if nps_prod:
+                    nps_df=pd.DataFrame(nps_prod).sort_values('NPS',ascending=False).head(15)
+                    fig=px.bar(nps_df,x='NPS',y='Produto',orientation='h',color='NPS',
+                        color_continuous_scale='RdYlGn',text='NPS')
+                    fig.update_layout(height=max(300,len(nps_df)*30),yaxis_title="",paper_bgcolor='#FFFFFF',plot_bgcolor='#FFFFFF',coloraxis_showscale=False)
+                    fig.update_yaxes(autorange="reversed"); fig.update_traces(texttemplate='%{text:.1f}',textposition='outside')
+                    st.plotly_chart(fig,use_container_width=True,key="nps_prod")
+            zona='Excelente' if nps_score>75 else 'Muito Bom' if nps_score>50 else 'Bom' if nps_score>0 else 'Critico'
+            st.markdown(ibox("Estrategico","Net Promoter Score",f"NPS = {nps_score} (Zona {zona}). {pct_p}% promotores vs {pct_d}% detratores. {'Manter o padrao de qualidade.' if nps_score>50 else 'Investir em melhorias para converter neutros em promotores.'}"),unsafe_allow_html=True)
+        else: st.info("Dados insuficientes para calculo de NPS.")
+    # --- TAB 4: ECONOMIA DE PONTOS ---
+    with t4:
+        st.markdown('<div class="chart-title">Economia de Pontos da Plataforma</div>',unsafe_allow_html=True)
+        # Pontos distribuidos vs resgatados
+        pts_dist=pts_total
+        pts_resg=0
+        if len(rg)>0 and len(bn)>0 and 'id_beneficio' in rg.columns and 'pontos_necessarios' in bn.columns:
+            bn_pts=bn.set_index('id')['pontos_necessarios'].to_dict()
+            rg_pts=rg['id_beneficio'].map(bn_pts)
+            pts_resg=int(pd.to_numeric(rg_pts,errors='coerce').fillna(0).sum())
+        pts_saldo=pts_dist-pts_resg
+        c1,c2,c3,c4=st.columns(4)
+        with c1: st.markdown(mcard(f"{pts_dist:,}","Pontos Distribuidos",c=CL['primary']),unsafe_allow_html=True)
+        with c2: st.markdown(mcard(f"{pts_resg:,}","Pontos Resgatados",c=CL['orange']),unsafe_allow_html=True)
+        with c3:
+            tx_uso=spct(pts_resg,pts_dist) if pts_dist>0 else 0
+            st.markdown(mcard(f"{tx_uso}%","Taxa de Uso",c=CL['teal']),unsafe_allow_html=True)
+        with c4: st.markdown(mcard(f"{pts_saldo:,}","Saldo Circulante",c=CL['purple']),unsafe_allow_html=True)
+        # Gauge de utilizacao
+        c1,c2=st.columns(2)
+        with c1:
+            fig=go.Figure(go.Indicator(mode="gauge+number",value=tx_uso,
+                title={'text':'Taxa de Utilizacao de Pontos (%)','font':{'size':13,'family':'Poppins','color':'#202124'}},
+                number={'suffix':'%','font':{'family':'JetBrains Mono','size':32,'color':'#202124'}},
+                gauge={'axis':{'range':[0,100]},'bar':{'color':CL['primary']},
+                    'steps':[{'range':[0,30],'color':'#FEECEB'},{'range':[30,60],'color':'#FFF3E0'},{'range':[60,100],'color':'#E8F5E9'}]}))
+            fig.update_layout(height=280,margin=dict(l=20,r=20,t=50,b=20),paper_bgcolor='#FFFFFF')
+            st.plotly_chart(fig,use_container_width=True,key="pts_gauge")
+        with c2:
+            # Distribuicao de pontos por usuario
+            if len(pt)>0 and 'id_usuario' in pt.columns and 'pontos' in pt.columns:
+                usr_pts=pt.groupby('id_usuario')['pontos'].apply(lambda x: pd.to_numeric(x,errors='coerce').sum()).dropna()
+                fig=px.histogram(x=usr_pts.values,nbins=30,color_discrete_sequence=[CL['primary']],
+                    labels={'x':'Pontos Acumulados','y':'Usuarios'})
+                fig.update_layout(height=280,paper_bgcolor='#FFFFFF',plot_bgcolor='#FFFFFF',title='Distribuicao de Pontos por Usuario')
+                st.plotly_chart(fig,use_container_width=True,key="pts_hist")
+        # Sankey: Fluxo de pontos
+        if pts_dist>0:
+            st.markdown('<div class="chart-title">Fluxo de Pontos (Sankey)</div>',unsafe_allow_html=True)
+            labels=['Pontos Distribuidos','Em Circulacao','Resgatados']
+            fig=go.Figure(go.Sankey(
+                node=dict(pad=15,thickness=20,line=dict(color='#E8EAED',width=0.5),
+                    label=labels,color=[CL['primary'],CL['teal'],CL['orange']]),
+                link=dict(source=[0,0],target=[1,2],value=[pts_saldo,pts_resg],
+                    color=['rgba(0,180,216,0.3)','rgba(255,149,0,0.3)'])))
+            fig.update_layout(height=300,paper_bgcolor='#FFFFFF',font=dict(family='Inter',size=12,color='#202124'))
+            st.plotly_chart(fig,use_container_width=True,key="pts_sankey")
+        # Insight
+        st.markdown(ibox("Estrategico","Economia de Pontos",f"{'Taxa de uso saudavel ({tx_uso}%). Pontos estao sendo consumidos adequadamente.' if tx_uso>30 else f'Baixa taxa de uso ({tx_uso}%). Usuarios acumulam pontos sem resgatar. Considerar: melhorar catalogo de beneficios, criar campanhas de resgate, notificar sobre saldo disponivel.'}"),unsafe_allow_html=True)
+
+# ============================================================================
 # PLACEHOLDER
 # ============================================================================
 def pg_placeholder(nome):
@@ -1755,7 +2443,10 @@ def main():
             "Parceiros","Gestao de Pesquisas","Beneficios e Resgates",
             "Empresas","Banners e Recomendados","Gestao de Testadores",
             "--- USUARIO ---",
-            "Consulta Usuario"
+            "Consulta Usuario",
+            "--- ANALYTICS AVANCADO ---",
+            "Analise Estatistica","Analise Exploratoria (EDA)",
+            "Performance de Produtos","Engajamento e Gamificacao"
         ],label_visibility="collapsed",key="nav")
         # Handle section dividers
         if page and page.startswith("---"):
@@ -1766,11 +2457,12 @@ def main():
         section[data-testid="stSidebar"] .stRadio label:has(div p:only-child) {cursor:default}
         section[data-testid="stSidebar"] .stRadio div[role="radiogroup"] > label:nth-child(3),
         section[data-testid="stSidebar"] .stRadio div[role="radiogroup"] > label:nth-child(8),
-        section[data-testid="stSidebar"] .stRadio div[role="radiogroup"] > label:nth-child(19)
+        section[data-testid="stSidebar"] .stRadio div[role="radiogroup"] > label:nth-child(19),
+        section[data-testid="stSidebar"] .stRadio div[role="radiogroup"] > label:nth-child(21)
         {font-size:.62rem!important;font-weight:700!important;text-transform:uppercase;letter-spacing:1.2px;color:#9AA0A6!important;padding:16px 16px 6px!important;pointer-events:none;opacity:1;background:none!important;border:none!important}
         </style>""",unsafe_allow_html=True)
         st.markdown('<div style="height:1px;background:#E8EAED;margin:12px 16px"></div>',unsafe_allow_html=True)
-        st.markdown('<div style="text-align:center;font-size:.68rem;color:#9AA0A6;padding:8px 0;font-family:Inter,sans-serif">suporte@foodtest.com.br<br><span style="font-weight:600">v2.0</span></div>',unsafe_allow_html=True)
+        st.markdown('<div style="text-align:center;font-size:.68rem;color:#9AA0A6;padding:8px 0;font-family:Inter,sans-serif">suporte@foodtest.com.br<br><span style="font-weight:600">v3.0</span></div>',unsafe_allow_html=True)
     # Load
     if 'data' not in st.session_state or not st.session_state.get('loaded',False):
         with st.spinner("Carregando dados..."):
@@ -1794,6 +2486,8 @@ def main():
         "Gestao de Pesquisas":pg_pesquisas,"Beneficios e Resgates":pg_beneficios,
         "Empresas":pg_empresas,"Banners e Recomendados":pg_banners,
         "Gestao de Testadores":pg_testadores,"Central de Insights":pg_insights,
+        "Analise Estatistica":pg_estatistica,"Analise Exploratoria (EDA)":pg_eda,
+        "Performance de Produtos":pg_performance,"Engajamento e Gamificacao":pg_engajamento,
     }
     fn=R.get(page)
     if fn: fn(data)
