@@ -1,6 +1,6 @@
 """
-🍽️ FOODTEST - Dashboard Completo de Analytics v2.0
-Plataforma de Análise Sensorial, Gestão e Inteligência de Dados
+FOODTEST - Dashboard Completo de Analytics v2.0
+Plataforma de Analise Sensorial, Gestao e Inteligencia de Dados
 """
 import streamlit as st
 import pandas as pd
@@ -19,99 +19,146 @@ from sqlalchemy import create_engine, text
 # Force light theme programmatically (equivalent to config.toml but in app.py)
 try:
     st._config.set_option('theme.base', 'light')
-    st._config.set_option('theme.backgroundColor', '#ffffff')
-    st._config.set_option('theme.secondaryBackgroundColor', '#f8f9fa')
-    st._config.set_option('theme.textColor', '#1a1a2e')
-    st._config.set_option('theme.primaryColor', '#307FE2')
+    st._config.set_option('theme.backgroundColor', '#F5F7FA')
+    st._config.set_option('theme.secondaryBackgroundColor', '#FFFFFF')
+    st._config.set_option('theme.textColor', '#202124')
+    st._config.set_option('theme.primaryColor', '#0052CC')
 except: pass
 
 # ============================================================================
 # CONFIG
 # ============================================================================
 CL = {
-    'primary':'#307FE2','secondary':'#FF6B6B','accent1':'#4ECDC4','accent2':'#45B7D1',
-    'success':'#2ECC71','warning':'#F1C40F','danger':'#E74C3C','purple':'#9B59B6',
-    'dark':'#2C3E50','orange':'#F7931E','teal':'#14B8A6','pink':'#EC4899',
+    'primary':'#0052CC','secondary':'#00B4D8','accent1':'#0052CC','accent2':'#00B4D8',
+    'success':'#31A24C','warning':'#FF9500','danger':'#EE5A52','purple':'#7B61FF',
+    'dark':'#202124','orange':'#FF9500','teal':'#00B4D8','pink':'#E8457C',
 }
-PAL = ['#307FE2','#FF6B6B','#4ECDC4','#45B7D1','#96CEB4','#FFEAA7','#DDA0DD','#98D8C8','#F39C12','#9B59B6','#1ABC9C','#E74C3C','#3498DB','#2ECC71','#E67E22']
-CARD_COLORS = ['#307FE2','#4ECDC4','#45B7D1','#F7931E','#9B59B6','#14B8A6','#2ECC71','#EC4899','#E74C3C','#FF6B6B']
-st.set_page_config(page_title="Foodtest Analytics", page_icon="🍽️", layout="wide", initial_sidebar_state="expanded")
+PAL = ['#0052CC','#00B4D8','#31A24C','#FF9500','#7B61FF','#E8457C','#0097A7','#5C6BC0','#EE5A52','#43A047','#8D6E63','#78909C','#F06292','#4DB6AC','#FFB74D']
+CARD_COLORS = ['#0052CC','#00B4D8','#31A24C','#FF9500','#7B61FF','#0097A7','#E8457C','#5C6BC0','#EE5A52','#43A047']
+st.set_page_config(page_title="Foodtest Analytics", page_icon="", layout="wide", initial_sidebar_state="expanded")
 st.markdown("""<style>
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@500;600;700&family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap');
 :root,html,body,[data-testid="stAppViewContainer"],[data-testid="stApp"]{
---bg:#ffffff!important;--card:#ffffff!important;--text:#1a1a2e!important;--muted:#6b7280!important;
---border:#e5e7eb!important;--sidebar-bg:#ffffff!important;--primary:#307FE2!important;
---primary-color:#307FE2!important;--background-color:#ffffff!important;
---secondary-background-color:#f8f9fa!important;--text-color:#1a1a2e!important;
---font:'Inter',sans-serif!important;
+--primary:#0052CC;--primary-light:#E6EFFA;--primary-dark:#003D99;
+--secondary:#00B4D8;--secondary-light:#E0F7FA;
+--success:#31A24C;--success-light:#E8F5E9;
+--warning:#FF9500;--warning-light:#FFF3E0;
+--danger:#EE5A52;--danger-light:#FEECEB;
+--bg:#F5F7FA;--card:#FFFFFF;
+--border:#E8EAED;--border-light:#F0F2F5;
+--text-primary:#202124;--text-secondary:#5E6368;--text-muted:#9AA0A6;
+--font-heading:'Poppins',sans-serif;--font-body:'Inter',sans-serif;--font-mono:'JetBrains Mono',monospace;
+--sp-1:4px;--sp-2:8px;--sp-3:12px;--sp-4:16px;--sp-5:20px;--sp-6:24px;--sp-7:32px;--sp-8:40px;
+--radius-sm:6px;--radius-md:8px;--radius-lg:12px;--radius-xl:16px;
+--shadow-sm:0 1px 2px rgba(0,0,0,0.06);--shadow-md:0 2px 8px rgba(0,0,0,0.08);--shadow-lg:0 4px 16px rgba(0,0,0,0.12);
 color-scheme:light!important;
 }
+/* === BASE === */
 html,body,.main,.stApp,
-[data-testid="stAppViewContainer"],
-[data-testid="stHeader"],
-[data-testid="stToolbar"],
-[data-testid="stBottomBlockContainer"],
-[data-testid="stMainBlockContainer"],
-.block-container,
-[data-testid="stVerticalBlock"],
-[data-testid="stHorizontalBlock"]{background:#ffffff!important;background-color:#ffffff!important;color:#1a1a2e!important}
-.stApp{font-family:'Inter',sans-serif!important}
-h1,h2,h3,h4{font-family:'Inter',sans-serif!important;font-weight:700!important;color:#1a1a2e!important}
-p,span,label,li,td,th{color:#1a1a2e!important}
+[data-testid="stAppViewContainer"],[data-testid="stHeader"],[data-testid="stToolbar"],
+[data-testid="stBottomBlockContainer"],[data-testid="stMainBlockContainer"],
+.block-container,[data-testid="stVerticalBlock"],[data-testid="stHorizontalBlock"]{
+background:var(--bg)!important;background-color:var(--bg)!important;color:var(--text-primary)!important}
+.stApp{font-family:var(--font-body)!important;font-size:14px}
+h1,h2,h3,h4{font-family:var(--font-heading)!important;font-weight:700!important;color:var(--text-primary)!important}
+p,span,label,li,td,th{color:var(--text-primary)!important}
+.block-container{padding:var(--sp-6) var(--sp-7) var(--sp-8)!important;max-width:1440px}
+/* === SIDEBAR === */
 section[data-testid="stSidebar"],
 section[data-testid="stSidebar"]>div,
 section[data-testid="stSidebar"]>div>div,
-section[data-testid="stSidebar"]>div>div>div{background:#ffffff!important;background-color:#ffffff!important}
-section[data-testid="stSidebar"]{border-right:1px solid #e5e7eb!important}
-section[data-testid="stSidebar"] *{color:#1a1a2e!important}
-section[data-testid="stSidebar"] .stRadio label{padding:6px 12px;border-radius:8px;transition:background .2s;font-size:.85rem!important}
-section[data-testid="stSidebar"] .stRadio label:hover{background:rgba(48,127,226,.15)}
-section[data-testid="stSidebar"] .stRadio label[data-checked="true"]{background:rgba(48,127,226,.15);color:#307FE2!important;font-weight:600}
-section[data-testid="stSidebar"] .stTextInput input{background:#f9fafb!important;border:1px solid #e5e7eb!important;color:#1a1a2e!important}
-section[data-testid="stSidebar"] .stButton button{background:linear-gradient(135deg,#307FE2,#4ECDC4)!important;color:#fff!important;border:none!important;border-radius:8px!important}
-.mc{background:#ffffff;border-radius:12px;padding:18px 20px;box-shadow:0 1px 3px rgba(0,0,0,.06);border-left:4px solid #307FE2;transition:box-shadow .2s}
-.mc:hover{box-shadow:0 4px 12px rgba(0,0,0,.1)}
-.mv{font-family:'Inter';font-size:1.75rem;font-weight:700;color:#1a1a2e!important;margin:0;line-height:1.2}
-.ml{font-size:.75rem;color:#1a1a2e!important;text-transform:uppercase;letter-spacing:.5px;margin-top:4px;font-weight:600}
-.md{font-size:.75rem;padding:2px 8px;border-radius:6px;display:inline-block;margin-top:4px;font-weight:600}
-.dp{background:rgba(46,204,113,.12);color:#2ECC71!important}.dn{background:rgba(231,76,60,.12);color:#E74C3C!important}
-.sh{color:#1a1a2e!important;font-size:1.3rem;font-weight:700;margin:1.2rem 0 .8rem;font-family:'Inter';background:none!important;-webkit-text-fill-color:#1a1a2e!important}
-.sh-sub{color:#1a1a2e!important;font-size:.9rem;font-weight:400;margin-top:-8px;margin-bottom:16px}
-.chart-card{background:#ffffff!important;border-radius:12px;padding:20px;box-shadow:0 1px 3px rgba(0,0,0,.06);margin-bottom:16px}
-.chart-title{font-size:.95rem;font-weight:600;color:#1a1a2e!important;margin-bottom:12px}
-.ib{background:#f8f9fa!important;border-radius:12px;padding:18px;color:#1a1a2e!important;margin:10px 0;border:1px solid #e5e7eb}
-.ib h4{color:#307FE2!important;margin-bottom:6px;font-size:.9rem;font-weight:600}.ib p{color:#1a1a2e!important;font-size:.85rem;line-height:1.6}
-.it{display:inline-block;padding:3px 10px;border-radius:6px;font-size:.65rem;font-weight:700;text-transform:uppercase;margin-bottom:8px;letter-spacing:.5px}
-.ts{background:rgba(139,92,246,.12);color:#7c3aed!important}.tt{background:rgba(59,130,246,.12);color:#2563eb!important}.to{background:rgba(16,185,129,.12);color:#059669!important}
-.stSelectbox div[data-baseweb="select"]>div,
-.stMultiSelect div[data-baseweb="select"]>div{background:#f9fafb!important;color:#1a1a2e!important;border-color:#e5e7eb!important}
-.stTextInput input,.stTextArea textarea,.stNumberInput input,.stDateInput input{background:#f9fafb!important;color:#1a1a2e!important;border-color:#e5e7eb!important}
-[data-testid="stExpander"]{background:#ffffff!important;border:1px solid #e5e7eb!important;border-radius:8px!important}
-[data-testid="stExpander"] summary span{color:#1a1a2e!important}
-[data-testid="stDataFrame"],[data-testid="stDataFrame"]>div,[data-testid="stDataFrame"] iframe,
-[data-testid="stDataFrameResizable"],[data-testid="stDataFrame"] [class*="glide"]{background:#ffffff!important;background-color:#ffffff!important}
-[data-testid="stMetric"]{background:#ffffff!important}
-[data-testid="stMetricValue"]{color:#1a1a2e!important}
-[data-testid="stMetricLabel"]{color:#1a1a2e!important}
-[data-testid="stMarkdownContainer"]{color:#1a1a2e!important}
-[data-testid="stMarkdownContainer"] p{color:#1a1a2e!important}
-div[data-baseweb="popover"] ul{background:#ffffff!important}
-div[data-baseweb="menu"] li{color:#1a1a2e!important}
-div[data-baseweb="menu"] li:hover{background:#f0f2f5!important}
-[data-baseweb="select"] [data-baseweb="tag"]{background:#e8f0fe!important;color:#307FE2!important}
-[data-baseweb="input"]{background:#f9fafb!important;color:#1a1a2e!important}
-[data-baseweb="base-input"]{background:#f9fafb!important}
-.stAlert{background:#f8f9fa!important;color:#1a1a2e!important}
-.stDataFrame table{background:#ffffff!important;color:#1a1a2e!important}
-.stDataFrame th{background:#f8f9fa!important;color:#1a1a2e!important}
-.stDataFrame td{background:#ffffff!important;color:#1a1a2e!important}
-#MainMenu{visibility:hidden}footer{visibility:hidden}
-.stTabs [data-baseweb="tab-list"]{gap:6px;border-bottom:2px solid #e5e7eb}
-.stTabs [data-baseweb="tab"]{background:transparent;border-radius:8px 8px 0 0;padding:10px 20px;border:none;font-weight:500;color:#1a1a2e}
-.stTabs [aria-selected="true"]{background:#ffffff!important;color:#307FE2!important;border-bottom:2px solid #307FE2!important;font-weight:600}
-.divider{height:1px;background:#e5e7eb;margin:20px 0}
-.page-header{margin-bottom:24px}
+section[data-testid="stSidebar"]>div>div>div{background:var(--card)!important;background-color:var(--card)!important}
+section[data-testid="stSidebar"]{border-right:1px solid var(--border)!important;width:260px!important;min-width:260px!important}
+section[data-testid="stSidebar"] *{color:var(--text-primary)!important}
+section[data-testid="stSidebar"] .stRadio>div{gap:2px!important}
+section[data-testid="stSidebar"] .stRadio label{padding:8px 12px 8px 16px;border-radius:var(--radius-md);transition:all .2s ease;font-size:.82rem!important;font-family:var(--font-body)!important;font-weight:500;letter-spacing:0}
+section[data-testid="stSidebar"] .stRadio label:hover{background:var(--primary-light);color:var(--primary)!important}
+section[data-testid="stSidebar"] .stRadio label[data-checked="true"]{background:var(--primary-light);color:var(--primary)!important;font-weight:600;border-left:3px solid var(--primary)}
+section[data-testid="stSidebar"] .stTextInput input{background:var(--bg)!important;border:1px solid var(--border)!important;color:var(--text-primary)!important;border-radius:var(--radius-md)!important;font-family:var(--font-body)!important}
+section[data-testid="stSidebar"] .stButton button{background:var(--primary)!important;color:#fff!important;border:none!important;border-radius:var(--radius-md)!important;font-family:var(--font-body)!important;font-weight:600;letter-spacing:.3px;padding:8px 16px;transition:all .2s}
+section[data-testid="stSidebar"] .stButton button:hover{background:var(--primary-dark)!important;box-shadow:var(--shadow-md)}
+.nav-section{font-size:.65rem;font-weight:700;text-transform:uppercase;letter-spacing:1.2px;color:var(--text-muted)!important;padding:16px 16px 6px;margin-top:8px}
+.nav-section:first-of-type{margin-top:0}
+/* === METRIC CARDS === */
+.mc{background:var(--card);border-radius:var(--radius-lg);padding:var(--sp-5) var(--sp-6);box-shadow:var(--shadow-sm);transition:all .2s ease;border:1px solid var(--border);position:relative;overflow:hidden}
+.mc:hover{box-shadow:var(--shadow-md);transform:translateY(-1px)}
+.mc-dot{width:8px;height:8px;border-radius:50%;display:inline-block;margin-right:8px;flex-shrink:0}
+.mc-header{display:flex;align-items:center;margin-bottom:var(--sp-2)}
+.mc-label{font-size:.7rem;color:var(--text-secondary)!important;text-transform:uppercase;letter-spacing:.8px;font-weight:600;font-family:var(--font-body)}
+.mc-value{font-family:var(--font-mono);font-size:1.65rem;font-weight:600;color:var(--text-primary)!important;margin:0;line-height:1.2}
+.mc-delta{font-size:.72rem;padding:2px 8px;border-radius:var(--radius-sm);display:inline-block;margin-top:var(--sp-2);font-weight:600;font-family:var(--font-mono)}
+.delta-pos{background:var(--success-light);color:var(--success)!important}
+.delta-neg{background:var(--danger-light);color:var(--danger)!important}
+/* === SECTION HEADERS === */
+.sh{color:var(--text-primary)!important;font-size:1.25rem;font-weight:700;margin:0;font-family:var(--font-heading);background:none!important;-webkit-text-fill-color:var(--text-primary)!important;line-height:1.3}
+.sh-sub{color:var(--text-secondary)!important;font-size:.85rem;font-weight:400;margin-top:4px;margin-bottom:0;font-family:var(--font-body)}
+.page-header{margin-bottom:var(--sp-6);padding-bottom:var(--sp-5);border-bottom:1px solid var(--border)}
 .page-header h2{margin-bottom:2px!important}
+/* === BREADCRUMB === */
+.breadcrumb{font-size:.75rem;color:var(--text-muted)!important;margin-bottom:var(--sp-4);font-family:var(--font-body);font-weight:500}
+.breadcrumb .bc-sep{margin:0 6px;color:var(--text-muted)!important}
+.breadcrumb .bc-current{color:var(--text-primary)!important;font-weight:600}
+/* === HEADER BAR === */
+.header-bar{display:flex;justify-content:space-between;align-items:center;padding:var(--sp-3) 0;margin-bottom:var(--sp-4)}
+.header-status{display:flex;align-items:center;gap:var(--sp-4);font-size:.75rem;color:var(--text-secondary)!important;font-family:var(--font-body)}
+.status-dot{width:7px;height:7px;border-radius:50%;display:inline-block;margin-right:4px}
+.status-online{background:var(--success)}
+.status-sync{background:var(--warning)}
+/* === CHART CARDS === */
+.chart-card{background:var(--card)!important;border-radius:var(--radius-lg);padding:var(--sp-5) var(--sp-6);box-shadow:var(--shadow-sm);margin-bottom:var(--sp-4);border:1px solid var(--border)}
+.chart-title{font-size:.9rem;font-weight:600;color:var(--text-primary)!important;margin-bottom:var(--sp-3);font-family:var(--font-heading)}
+.chart-subtitle{font-size:.75rem;color:var(--text-secondary)!important;margin-top:-8px;margin-bottom:var(--sp-3);font-family:var(--font-body)}
+/* === INSIGHT BOXES === */
+.ib{background:var(--card)!important;border-radius:var(--radius-lg);padding:var(--sp-5) var(--sp-6);color:var(--text-primary)!important;margin:var(--sp-3) 0;border:1px solid var(--border);box-shadow:var(--shadow-sm);transition:all .2s}
+.ib:hover{box-shadow:var(--shadow-md)}
+.ib h4{color:var(--text-primary)!important;margin-bottom:var(--sp-2);font-size:.88rem;font-weight:600;font-family:var(--font-heading)}
+.ib p{color:var(--text-secondary)!important;font-size:.82rem;line-height:1.65;font-family:var(--font-body);margin:0}
+.it{display:inline-flex;align-items:center;gap:4px;padding:3px 10px;border-radius:var(--radius-sm);font-size:.62rem;font-weight:700;text-transform:uppercase;margin-bottom:var(--sp-2);letter-spacing:.6px;font-family:var(--font-body)}
+.it-icon{font-size:.7rem;line-height:1}
+.ts{background:rgba(123,97,255,.1);color:#7B61FF!important;border-left:3px solid #7B61FF}
+.tt{background:rgba(0,82,204,.08);color:#0052CC!important;border-left:3px solid #0052CC}
+.to{background:rgba(49,162,76,.08);color:#31A24C!important;border-left:3px solid #31A24C}
+/* === FORMS & INPUTS === */
+.stSelectbox div[data-baseweb="select"]>div,
+.stMultiSelect div[data-baseweb="select"]>div{background:var(--card)!important;color:var(--text-primary)!important;border-color:var(--border)!important;border-radius:var(--radius-md)!important;font-family:var(--font-body)!important}
+.stTextInput input,.stTextArea textarea,.stNumberInput input,.stDateInput input{background:var(--card)!important;color:var(--text-primary)!important;border-color:var(--border)!important;border-radius:var(--radius-md)!important;font-family:var(--font-body)!important}
+[data-testid="stExpander"]{background:var(--card)!important;border:1px solid var(--border)!important;border-radius:var(--radius-md)!important}
+[data-testid="stExpander"] summary span{color:var(--text-primary)!important;font-family:var(--font-body)!important}
+/* === DATA ELEMENTS === */
+[data-testid="stDataFrame"],[data-testid="stDataFrame"]>div,[data-testid="stDataFrame"] iframe,
+[data-testid="stDataFrameResizable"],[data-testid="stDataFrame"] [class*="glide"]{background:var(--card)!important;background-color:var(--card)!important}
+[data-testid="stMetric"]{background:var(--card)!important;border-radius:var(--radius-md);border:1px solid var(--border);padding:var(--sp-4)!important}
+[data-testid="stMetricValue"]{color:var(--text-primary)!important;font-family:var(--font-mono)!important}
+[data-testid="stMetricLabel"]{color:var(--text-secondary)!important;font-family:var(--font-body)!important}
+[data-testid="stMarkdownContainer"]{color:var(--text-primary)!important}
+[data-testid="stMarkdownContainer"] p{color:var(--text-primary)!important}
+/* === DROPDOWNS / MENUS === */
+div[data-baseweb="popover"] ul{background:var(--card)!important;border:1px solid var(--border)!important;border-radius:var(--radius-md)!important}
+div[data-baseweb="menu"] li{color:var(--text-primary)!important;font-family:var(--font-body)!important}
+div[data-baseweb="menu"] li:hover{background:var(--primary-light)!important}
+[data-baseweb="select"] [data-baseweb="tag"]{background:var(--primary-light)!important;color:var(--primary)!important;border-radius:var(--radius-sm)!important}
+[data-baseweb="input"]{background:var(--card)!important;color:var(--text-primary)!important}
+[data-baseweb="base-input"]{background:var(--card)!important}
+.stAlert{background:var(--bg)!important;color:var(--text-primary)!important;border-radius:var(--radius-md)!important}
+/* === TABLES === */
+.stDataFrame table{background:var(--card)!important;color:var(--text-primary)!important}
+.stDataFrame th{background:var(--bg)!important;color:var(--text-primary)!important;font-family:var(--font-body)!important;font-weight:600;font-size:.8rem}
+.stDataFrame td{background:var(--card)!important;color:var(--text-primary)!important;font-family:var(--font-body)!important;font-size:.82rem}
+/* === TABS === */
+#MainMenu{visibility:hidden}footer{visibility:hidden}
+.stTabs [data-baseweb="tab-list"]{gap:0;border-bottom:2px solid var(--border);padding:0}
+.stTabs [data-baseweb="tab"]{background:transparent;border-radius:0;padding:10px 20px;border:none;font-weight:500;color:var(--text-secondary);font-family:var(--font-body);font-size:.85rem;transition:all .2s}
+.stTabs [data-baseweb="tab"]:hover{color:var(--primary);background:var(--primary-light)}
+.stTabs [aria-selected="true"]{background:transparent!important;color:var(--primary)!important;border-bottom:2px solid var(--primary)!important;font-weight:600}
+/* === DIVIDERS & UTILITIES === */
+.divider{height:1px;background:var(--border);margin:var(--sp-6) 0}
+/* === RESPONSIVE === */
+@media(max-width:768px){
+.mc-value{font-size:1.3rem}
+.mc{padding:var(--sp-4)}
+.block-container{padding:var(--sp-4) var(--sp-4) var(--sp-6)!important}
+section[data-testid="stSidebar"]{width:220px!important;min-width:220px!important}
+}
 </style>""", unsafe_allow_html=True)
 
 # ============================================================================
@@ -119,20 +166,29 @@ div[data-baseweb="menu"] li:hover{background:#f0f2f5!important}
 # ============================================================================
 def mcard(v, l, d=None, dt='positive', c=None):
     bc = c if c else CL['primary']
-    dh = f'<span class="md {"dp" if dt=="positive" else "dn"}">{d}</span>' if d else ""
-    return f'<div class="mc" style="border-left:4px solid {bc}"><p class="mv">{v}</p><p class="ml">{l}</p>{dh}</div>'
+    dh = ""
+    if d:
+        arrow = "+" if dt == "positive" else "-"
+        dcls = "delta-pos" if dt == "positive" else "delta-neg"
+        dh = f'<span class="mc-delta {dcls}">{arrow} {d}</span>'
+    return f'<div class="mc"><div class="mc-header"><span class="mc-dot" style="background:{bc}"></span><span class="mc-label">{l}</span></div><div class="mc-value">{v}</div>{dh}</div>'
 
 def gauge(v, t, mx=100):
-    fig = go.Figure(go.Indicator(mode="gauge+number",value=v,title={'text':t,'font':{'size':14,'family':'Inter'}},
-        gauge={'axis':{'range':[0,mx]},'bar':{'color':CL['primary']},
-        'steps':[{'range':[0,40],'color':'#fee2e2'},{'range':[40,60],'color':'#fef3c7'},{'range':[60,80],'color':'#d1fae5'},{'range':[80,100],'color':'#a7f3d0'}],
-        'threshold':{'line':{'color':'red','width':4},'thickness':.75,'value':60}}))
-    fig.update_layout(height=220,margin=dict(l=20,r=20,t=40,b=20),paper_bgcolor='#ffffff',font_family='Inter',font_color='#1a1a2e')
+    fig = go.Figure(go.Indicator(mode="gauge+number",value=v,title={'text':t,'font':{'size':13,'family':'Poppins','color':'#202124'}},
+        number={'font':{'family':'JetBrains Mono','size':32,'color':'#202124'}},
+        gauge={'axis':{'range':[0,mx],'tickfont':{'size':10,'color':'#5E6368'}},'bar':{'color':'#0052CC'},
+        'steps':[{'range':[0,40],'color':'#FEECEB'},{'range':[40,60],'color':'#FFF3E0'},{'range':[60,80],'color':'#E8F5E9'},{'range':[80,100],'color':'#C8E6C9'}],
+        'threshold':{'line':{'color':'#EE5A52','width':3},'thickness':.75,'value':60}}))
+    fig.update_layout(height=220,margin=dict(l=20,r=20,t=40,b=20),paper_bgcolor='#FFFFFF',font_family='Inter',font_color='#202124')
     return fig
 
 def ibox(tag, title, text):
-    tc = {'Estratégico':'ts','Tático':'tt','Operacional':'to'}.get(tag,'tt')
-    return f'<div class="ib"><span class="it {tc}">{tag}</span><h4>{title}</h4><p>{text}</p></div>'
+    tc = {'Estratégico':'ts','Tático':'tt','Operacional':'to',
+          'Estrategico':'ts'}.get(tag,'tt')
+    icon_map = {'Estratégico':'&#9670;','Tático':'&#9654;','Operacional':'&#9679;',
+                'Estrategico':'&#9670;'}
+    icon = icon_map.get(tag,'&#9654;')
+    return f'<div class="ib"><span class="it {tc}"><span class="it-icon">{icon}</span> {tag}</span><h4>{title}</h4><p>{text}</p></div>'
 
 def spct(p, t): return round(p/t*100,1) if t>0 else 0
 
@@ -141,10 +197,11 @@ def hbar(xv, yv, cs='Blues', **kw):
     return px.bar(df,x='v',y='n',orientation='h',color='v',color_continuous_scale=cs,**kw)
 
 def chart_layout(fig, h=400):
-    fig.update_layout(height=h,paper_bgcolor='#ffffff',plot_bgcolor='#ffffff',
-        font_family='Inter',font_color='#1a1a2e',margin=dict(l=10,r=10,t=40,b=10),
-        xaxis=dict(gridcolor='#f0f0f0',zerolinecolor='#e5e7eb'),
-        yaxis=dict(gridcolor='#f0f0f0',zerolinecolor='#e5e7eb'))
+    fig.update_layout(height=h,paper_bgcolor='#FFFFFF',plot_bgcolor='#FFFFFF',
+        font_family='Inter',font_color='#202124',margin=dict(l=10,r=10,t=40,b=10),
+        xaxis=dict(gridcolor='#F0F2F5',zerolinecolor='#E8EAED',title_font=dict(size=12,color='#5E6368'),tickfont=dict(size=11,color='#5E6368')),
+        yaxis=dict(gridcolor='#F0F2F5',zerolinecolor='#E8EAED',title_font=dict(size=12,color='#5E6368'),tickfont=dict(size=11,color='#5E6368')),
+        title_font=dict(family='Poppins',size=14,color='#202124'))
     return fig
 
 def add_labels(fig):
@@ -176,19 +233,24 @@ def add_labels(fig):
 _st_plotly=st.plotly_chart
 def _plotly_white(fig,**kw):
     try:
-        fig.update_layout(paper_bgcolor='#ffffff',plot_bgcolor='#ffffff',
-            font=dict(color='#1a1a2e',family='Inter'),
-            legend=dict(font=dict(color='#1a1a2e',size=12)))
+        fig.update_layout(paper_bgcolor='#FFFFFF',plot_bgcolor='#FFFFFF',
+            font=dict(color='#202124',family='Inter',size=12),
+            legend=dict(font=dict(color='#202124',size=11,family='Inter'),bgcolor='rgba(0,0,0,0)'),
+            hoverlabel=dict(bgcolor='#202124',font_size=12,font_family='Inter'))
         add_labels(fig)
     except: pass
     return _st_plotly(fig,**kw)
 st.plotly_chart=_plotly_white
 
 def section_header(title, subtitle=None):
-    h = f'<div class="page-header"><h2 class="sh">{title}</h2>'
+    h = f'<div class="page-header"><div class="breadcrumb">Foodtest<span class="bc-sep">/</span><span class="bc-current">{title}</span></div><h2 class="sh">{title}</h2>'
     if subtitle: h += f'<p class="sh-sub">{subtitle}</p>'
     h += '</div>'
     return h
+
+def header_bar():
+    now = datetime.now().strftime("%d/%m/%Y %H:%M")
+    return f'<div class="header-bar"><div></div><div class="header-status"><span><span class="status-dot status-online"></span> Conectado</span><span>Atualizado: {now}</span></div></div>'
 
 # ============================================================================
 # CONEXÃO POSTGRESQL DIGITALOCEAN
@@ -417,7 +479,7 @@ def c_score(dr,drp,de,dv,du):
         n=(sr-sr.min())/(sr.max()-sr.min())*100; return 100-n if iv else n
     s['sr']=nm(s['pct_r']); s['srp']=nm(s['dp'],iv=True); s['se']=nm(s['pct_e']); s['sv']=nm(s['mx'])
     s['score']=(100-(s['sr']*.35+s['srp']*.25+s['se']*.20+s['sv']*.20)).round(1)
-    s['classif']=s['score'].apply(lambda x:'🟢 Muito Confiável' if x>=80 else '🟡 Confiável' if x>=60 else '🟠 Atenção' if x>=40 else '🔴 Suspeito' if x>=20 else '⛔ Muito Suspeito')
+    s['classif']=s['score'].apply(lambda x:'Muito Confiavel' if x>=80 else 'Confiavel' if x>=60 else 'Atencao' if x>=40 else 'Suspeito' if x>=20 else 'Muito Suspeito')
     s['nome_usuario']=s['id_usuario'].map(du)
     return s.sort_values('score')
 
@@ -585,13 +647,13 @@ def pg_respostas(data):
         q_c=resps.groupby('titulo_pergunta').size().sort_values(ascending=False)
         for i,qtit in enumerate(q_c.index):
             qr=resps[resps['titulo_pergunta']==qtit]
-            with st.expander(f"📝 {qtit} ({len(qr)} respostas)"):
+            with st.expander(f"{qtit} ({len(qr)} respostas)"):
                 _qa(qr,kp=f"{kp}_{i}")
-    t1,t2,t3,t4,t5,t6=st.tabs(["📋 Pergunta","📊 Questionário","📦 Produto","📂 Subcategoria","👤 Usuário","🔍 Explorar"])
+    t1,t2,t3,t4,t5,t6=st.tabs(["Pergunta","Questionario","Produto","Subcategoria","Usuario","Explorar"])
     with t1:
         if 'titulo_pergunta' in rp.columns:
             pst=rp.groupby('titulo_pergunta').agg({'id':'count','id_usuario':'nunique'}).rename(columns={'id':'resp','id_usuario':'usr'}).sort_values('resp',ascending=False)
-            b=st.text_input("🔍 Buscar:",key="bp")
+            b=st.text_input("Buscar:",key="bp")
             pf=[p for p in pst.index if b.lower() in str(p).lower()] if b else pst.index[:20].tolist()
             if pf:
                 sel=st.selectbox("Selecione:",pf,key="sp")
@@ -614,7 +676,7 @@ def pg_respostas(data):
                 surveys.append(('subcategoria',r['id'],lbl))
         if surveys:
             labels=[s[2] for s in surveys]
-            bq=st.text_input("🔍 Buscar questionário:",key="bq")
+            bq=st.text_input("Buscar questionario:",key="bq")
             fl=[l for l in labels if bq.lower() in l.lower()] if bq else labels
             if fl:
                 sel=st.selectbox("Selecione o questionário:",fl,key="sq")
@@ -637,7 +699,7 @@ def pg_respostas(data):
                         for qi,(_,q) in enumerate(qs.sort_values(sort_col).iterrows()):
                             qid=q['id']; qtit=q.get('titulo',f'Pergunta #{qid}')
                             qr=resps[resps['id_pergunta_pesquisa']==qid]
-                            with st.expander(f"📝 {qtit} ({len(qr)} respostas)"):
+                            with st.expander(f"{qtit} ({len(qr)} respostas)"):
                                 _qa(qr,kp=f"t2_{qi}")
                     else: st.info("Nenhuma pergunta encontrada para este questionário.")
                 else: st.info("Nenhuma sessão encontrada para este questionário.")
@@ -645,7 +707,7 @@ def pg_respostas(data):
     with t3:
         if 'nome_produto' in rp.columns:
             pp_c=rp.groupby('nome_produto').size().sort_values(ascending=False)
-            sel_p=st.selectbox("📦 Selecione o Produto:",pp_c.index.tolist(),key="sp_prod_cons")
+            sel_p=st.selectbox("Selecione o Produto:",pp_c.index.tolist(),key="sp_prod_cons")
             if sel_p:
                 prod_r=rp[rp['nome_produto']==sel_p]
                 ca,cb,cc=st.columns(3)
@@ -662,7 +724,7 @@ def pg_respostas(data):
                 key=di['subcategoria'].get(scid,f'Subcategoria #{scid}') if pd.notna(scid) else 'Sem subcategoria'
                 sc_groups.setdefault(key,[]).append(r['id'])
             sc_names=sorted(sc_groups.keys())
-            sel_sc=st.selectbox("📂 Selecione a Subcategoria:",sc_names,key="ssc_resp")
+            sel_sc=st.selectbox("Selecione a Subcategoria:",sc_names,key="ssc_resp")
             if sel_sc:
                 sv_ids=sc_groups[sel_sc]
                 sess=se_df[se_df['id_pesquisa_subcategoria'].isin(sv_ids)] if 'id_pesquisa_subcategoria' in se_df.columns else pd.DataFrame()
@@ -692,8 +754,8 @@ def pg_respostas(data):
             st.plotly_chart(fig,use_container_width=True)
     with t6:
         c1,c2,c3=st.columns(3)
-        with c1: fp=st.selectbox("📦 Produto:",['Todos']+(rp['nome_produto'].dropna().unique().tolist() if 'nome_produto' in rp.columns else []),key="fpe")
-        with c2: fu=st.selectbox("👤 Usuário:",['Todos']+(rp['nome_usuario'].dropna().unique().tolist()[:100] if 'nome_usuario' in rp.columns else []),key="fue")
+        with c1: fp=st.selectbox("Produto:",['Todos']+(rp['nome_produto'].dropna().unique().tolist() if 'nome_produto' in rp.columns else []),key="fpe")
+        with c2: fu=st.selectbox("Usuario:",['Todos']+(rp['nome_usuario'].dropna().unique().tolist()[:100] if 'nome_usuario' in rp.columns else []),key="fue")
         with c3: lm=st.slider("Máx:",10,500,100,key="le")
         df=rp.copy()
         if fp!='Todos' and 'nome_produto' in df.columns: df=df[df['nome_produto']==fp]
@@ -729,7 +791,7 @@ def pg_qualidade(data):
         fig.update_layout(height=400); st.plotly_chart(fig,use_container_width=True)
     with c2:
         cc=sc['classif'].value_counts()
-        cm={'🟢 Muito Confiável':CL['success'],'🟡 Confiável':CL['warning'],'🟠 Atenção':'#E67E22','🔴 Suspeito':CL['danger'],'⛔ Muito Suspeito':'#8E44AD'}
+        cm={'Muito Confiavel':CL['success'],'Confiavel':'#FF9500','Atencao':'#E67E22','Suspeito':CL['danger'],'Muito Suspeito':'#8E44AD'}
         fig=px.pie(values=cc.values.tolist(),names=cc.index.tolist(),color=cc.index.tolist(),color_discrete_map=cm,hole=.4)
         fig.update_layout(height=400); st.plotly_chart(fig,use_container_width=True)
     st.markdown('<div class="chart-title">Top 10 Suspeitos</div>',unsafe_allow_html=True)
@@ -748,7 +810,7 @@ def pg_usuario(data):
     us,rp,rq=data['usuario'],data['resp_pergunta'],data['resp_questionario']
     if len(us)==0: st.warning("Sem dados."); return
     ul=us[['id','nome']].copy(); ul['d']=ul['id'].astype(str)+" - "+ul['nome']
-    sel=st.selectbox("🔍 Selecione:",ul['d'].tolist(),key="su")
+    sel=st.selectbox("Selecione:",ul['d'].tolist(),key="su")
     uid=int(sel.split(" - ")[0]); ui=us[us['id']==uid]
     if len(ui)==0: st.error("N/A"); return
     u=ui.iloc[0]
@@ -788,7 +850,7 @@ def pg_mapeamento(data):
     st.markdown(section_header("Mapeamento de Pesquisas","Relacao entre categorias, produtos e respostas"),unsafe_allow_html=True)
     rq=data['resp_questionario']
     if len(rq)==0: st.warning("Sem dados."); return
-    t1,t2,t3,t4=st.tabs(["📁 Categoria","📂 Subcategoria","📦 Produto","📅 Temporal"])
+    t1,t2,t3,t4=st.tabs(["Categoria","Subcategoria","Produto","Temporal"])
     with t1:
         if 'nome_categoria' in rq.columns and rq['nome_categoria'].notna().any():
             cs=rq.groupby('nome_categoria').agg({'id':'count','id_usuario':'nunique','id_produto':'nunique','pontos_ganhos':'sum'}).rename(columns={'id':'quest','id_usuario':'usr','id_produto':'prod','pontos_ganhos':'pts'}).sort_values('quest',ascending=False)
@@ -909,11 +971,11 @@ def pg_campanhas(data):
     with c3: st.markdown(mcard(f"{enc}","Encerradas",c=CL['danger']),unsafe_allow_html=True)
     with c4: st.markdown(mcard(f"{pts_t:,}","Pontos Totais",c=CL['orange']),unsafe_allow_html=True)
     st.markdown('<div class="divider"></div>',unsafe_allow_html=True)
-    t1,t2=st.tabs(["📋 Lista de Campanhas","📅 Timeline"])
+    t1,t2=st.tabs(["Lista de Campanhas","Timeline"])
     with t1:
         disp=ca.copy()
         if 'data_fim' in disp.columns:
-            disp['status']=disp['data_fim'].apply(lambda x:'🟢 Ativa' if pd.notna(x) and x>=hoje else '🔴 Encerrada')
+            disp['status']=disp['data_fim'].apply(lambda x:'Ativa' if pd.notna(x) and x>=hoje else 'Encerrada')
         cols=[c for c in ['id','nome','descricao','pontuacao','data_inicio','data_fim','status','createdAt'] if c in disp.columns]
         st.dataframe(disp[cols].sort_values('createdAt',ascending=False) if 'createdAt' in cols else disp[cols],hide_index=True,use_container_width=True)
     with t2:
@@ -953,7 +1015,7 @@ def pg_categorias(data):
         np_=len(pr)
         st.markdown(mcard(f"{np_}","Produtos",c=CL['purple']),unsafe_allow_html=True)
     st.markdown('<div class="divider"></div>',unsafe_allow_html=True)
-    t1,t2,t3=st.tabs(["📁 Categorias","📂 Subcategorias","🌳 Treemap"])
+    t1,t2,t3=st.tabs(["Categorias","Subcategorias","Treemap"])
     with t1:
         if len(cat)>0:
             ct=cat.copy()
@@ -1030,7 +1092,7 @@ def pg_produtos(data):
     with c3: st.markdown(mcard(f"{ne_}","Empresas",c=CL['teal']),unsafe_allow_html=True)
     with c4: st.markdown(mcard(f"{avaliados}","Avaliados",f"{spct(avaliados,np_)}%",c=CL['success']),unsafe_allow_html=True)
     st.markdown('<div class="divider"></div>',unsafe_allow_html=True)
-    t1,t2,t3=st.tabs(["📋 Catálogo","📊 Análise","🔎 Detalhe"])
+    t1,t2,t3=st.tabs(["Catalogo","Analise","Detalhe"])
     with t1:
         df=pr.copy()
         # Filtros
@@ -1125,7 +1187,7 @@ def pg_marcas(data):
         sem=nm-com_prod
         st.markdown(mcard(f"{sem}","Sem Produtos",c=CL['warning']),unsafe_allow_html=True)
     st.markdown('<div class="divider"></div>',unsafe_allow_html=True)
-    t1,t2=st.tabs(["📋 Lista","📊 Análise"])
+    t1,t2=st.tabs(["Lista","Analise"])
     with t1:
         df=ma.copy()
         if len(pr)>0 and 'id_marca' in pr.columns:
@@ -1165,7 +1227,7 @@ def pg_parceiros(data):
         prod_vinc=pp['id_produto'].nunique() if len(pp)>0 and 'id_produto' in pp.columns else 0
         st.markdown(mcard(f"{prod_vinc}","Produtos Vinculados",c=CL['purple']),unsafe_allow_html=True)
     st.markdown('<div class="divider"></div>',unsafe_allow_html=True)
-    t1,t2=st.tabs(["📋 Lista","🔗 Vínculos"])
+    t1,t2=st.tabs(["Lista","Vinculos"])
     with t1:
         cols=[c for c in ['id','nome','url','createdAt'] if c in pa.columns]
         st.dataframe(pa[cols],hide_index=True,use_container_width=True)
@@ -1204,7 +1266,7 @@ def pg_pesquisas(data):
     with c3: st.markdown(mcard(f"{nse}","Sessões",c=CL['teal']),unsafe_allow_html=True)
     with c4: st.markdown(mcard(f"{npg}","Perguntas",c=CL['purple']),unsafe_allow_html=True)
     st.markdown('<div class="divider"></div>',unsafe_allow_html=True)
-    t1,t2,t3,t4=st.tabs(["📦 Por Produto","📂 Por Subcategoria","📋 Sessões","❓ Perguntas"])
+    t1,t2,t3,t4=st.tabs(["Por Produto","Por Subcategoria","Sessoes","Perguntas"])
     with t1:
         if len(pp)>0:
             df=pp.copy()
@@ -1277,7 +1339,7 @@ def pg_beneficios(data):
         st.markdown(mcard(f"{usr_r}","Usuários Resgataram",c=CL['teal']),unsafe_allow_html=True)
     with c4: st.markdown(mcard(f"{pts_total:,}","Pontos Distribuídos",c=CL['orange']),unsafe_allow_html=True)
     st.markdown('<div class="divider"></div>',unsafe_allow_html=True)
-    t1,t2,t3=st.tabs(["🎁 Catálogo","📊 Resgates","📈 Dashboard"])
+    t1,t2,t3=st.tabs(["Catalogo","Resgates","Dashboard"])
     with t1:
         if len(bn)>0:
             cols=[c for c in ['id','nome','descricao','pontos_necessarios','quantidade','ativo','createdAt'] if c in bn.columns]
@@ -1364,7 +1426,7 @@ def pg_empresas(data):
         np_=pr['id_empresa'].nunique() if len(pr)>0 and 'id_empresa' in pr.columns else 0
         st.markdown(mcard(f"{np_}","Com Produtos",c=CL['purple']),unsafe_allow_html=True)
     st.markdown('<div class="divider"></div>',unsafe_allow_html=True)
-    t1,t2,t3=st.tabs(["📋 Lista","📊 Análise","👥 Usuários"])
+    t1,t2,t3=st.tabs(["Lista","Analise","Usuarios"])
     with t1:
         df=em.copy()
         # Contar produtos por empresa
@@ -1427,7 +1489,7 @@ def pg_banners(data):
     with c1: st.markdown(mcard(f"{nb}","Banners Home"),unsafe_allow_html=True)
     with c2: st.markdown(mcard(f"{nrec}","Prod. Recomendados",c=CL['accent1']),unsafe_allow_html=True)
     st.markdown('<div class="divider"></div>',unsafe_allow_html=True)
-    t1,t2=st.tabs(["🏠 Banners","⭐ Recomendados"])
+    t1,t2=st.tabs(["Banners","Recomendados"])
     with t1:
         if len(bh)>0:
             cols=[c for c in ['id','titulo','descricao','url_imagem','ativo','ordem','createdAt'] if c in bh.columns]
@@ -1474,7 +1536,7 @@ def pg_testadores(data):
     with c4: st.markdown(mcard(f"{nu-ativos:,}","Inativos",c=CL['warning']),unsafe_allow_html=True)
     with c5: st.markdown(mcard(f"{resg:,}","Resgataram",f"{spct(resg,nu)}%",c=CL['orange']),unsafe_allow_html=True)
     st.markdown('<div class="divider"></div>',unsafe_allow_html=True)
-    t1,t2,t3,t4=st.tabs(["📋 Base","🗺️ Geografia","📈 Evolução","🎯 Cohorts"])
+    t1,t2,t3,t4=st.tabs(["Base","Geografia","Evolucao","Cohorts"])
     with t1:
         df=us.copy()
         c1,c2,c3=st.columns(3)
@@ -1659,9 +1721,9 @@ A plataforma Foodtest conta com **{nu:,} testadores**, **{np_} produtos** cadast
 atendendo **{ne} empresas**. O score geral da plataforma é **{score_geral:.0f}/100**.
 
 **Prioridades recomendadas:**
-1. {'✅' if spct(cc,nu)>70 else '⚠️'} Completude de cadastros ({spct(cc,nu)}%)
-2. {'✅' if nq>0 and spct(rq['id_usuario'].nunique(),nu)>30 else '⚠️'} Taxa de ativação ({spct(rq['id_usuario'].nunique(),nu) if nq>0 and 'id_usuario' in rq.columns else 0}%)
-3. {'✅' if np_>0 and nq>0 and 'id_produto' in rq.columns and spct(rq['id_produto'].nunique(),np_)>50 else '⚠️'} Cobertura de produtos ({spct(rq['id_produto'].nunique(),np_) if np_>0 and nq>0 and 'id_produto' in rq.columns else 0}%)
+1. {'[OK]' if spct(cc,nu)>70 else '[!]'} Completude de cadastros ({spct(cc,nu)}%)
+2. {'[OK]' if nq>0 and spct(rq['id_usuario'].nunique(),nu)>30 else '[!]'} Taxa de ativacao ({spct(rq['id_usuario'].nunique(),nu) if nq>0 and 'id_usuario' in rq.columns else 0}%)
+3. {'[OK]' if np_>0 and nq>0 and 'id_produto' in rq.columns and spct(rq['id_produto'].nunique(),np_)>50 else '[!]'} Cobertura de produtos ({spct(rq['id_produto'].nunique(),np_) if np_>0 and nq>0 and 'id_produto' in rq.columns else 0}%)
 """)
 
 # ============================================================================
@@ -1669,29 +1731,46 @@ atendendo **{ne} empresas**. O score geral da plataforma é **{score_geral:.0f}/
 # ============================================================================
 def pg_placeholder(nome):
     st.markdown(f'<h2 class="sh">{nome}</h2>',unsafe_allow_html=True)
-    st.info(f"🚧 Módulo **{nome}** será implementado na próxima atualização. Os dados já estão sendo carregados.")
+    st.info(f"Modulo **{nome}** sera implementado na proxima atualizacao. Os dados ja estao sendo carregados.")
 
 # ============================================================================
 # MAIN
 # ============================================================================
 def main():
     with st.sidebar:
-        st.markdown("""<div style="text-align:center;padding:1.2rem 0 .8rem">
-            <div style="background:linear-gradient(135deg,#307FE2,#4ECDC4);border-radius:12px;padding:14px;margin:0 auto 10px;width:fit-content">
-            <span style="color:white;font-size:1.5rem;font-weight:800;font-family:'Inter';letter-spacing:2px">FT</span></div>
-            <div style="color:#6b7280;font-size:.7rem;letter-spacing:1px;text-transform:uppercase">Foodtest Analytics</div></div>""",unsafe_allow_html=True)
-        st.markdown('<div style="height:1px;background:#e5e7eb;margin:8px 0 16px"></div>',unsafe_allow_html=True)
+        st.markdown("""<div style="text-align:center;padding:20px 16px 12px">
+            <div style="background:#0052CC;border-radius:10px;padding:12px 20px;margin:0 auto 8px;width:fit-content;box-shadow:0 2px 8px rgba(0,82,204,.25)">
+            <span style="color:white;font-size:1.3rem;font-weight:700;font-family:'Poppins',sans-serif;letter-spacing:2px">FT</span></div>
+            <div style="font-family:'Poppins',sans-serif;font-size:.72rem;font-weight:600;letter-spacing:1.5px;text-transform:uppercase;color:#5E6368;margin-top:4px">Foodtest Analytics</div></div>""",unsafe_allow_html=True)
+        st.markdown('<div style="height:1px;background:#E8EAED;margin:4px 16px 16px"></div>',unsafe_allow_html=True)
         if st.button("Recarregar Dados",use_container_width=True): st.session_state['loaded']=False; st.cache_data.clear(); st.cache_resource.clear()
-        st.markdown('<div style="height:1px;background:#e5e7eb;margin:12px 0"></div>',unsafe_allow_html=True)
+        st.markdown('<p class="nav-section">Visao Geral</p>',unsafe_allow_html=True)
         page=st.radio("Navegacao",options=[
-            "📊 Dashboard Geral","📝 Respostas","🔍 Qualidade dos Dados",
-            "👤 Consulta Usuário","📂 Mapeamento de Pesquisas","👥 Análise Demográfica",
-            "📢 Campanhas","📂 Categorias & Subcategorias","📦 Produtos","🏷️ Marcas",
-            "🤝 Parceiros","🔬 Gestão de Pesquisas","🎁 Benefícios & Resgates",
-            "🏢 Empresas","🏠 Banners & Recomendados","👥 Gestão de Testadores","🧠 Central de Insights"
+            "Dashboard Geral","Central de Insights",
+            "--- ANALISE ---",
+            "Respostas","Qualidade dos Dados",
+            "Mapeamento de Pesquisas","Analise Demografica",
+            "--- GESTAO ---",
+            "Campanhas","Categorias e Subcategorias","Produtos","Marcas",
+            "Parceiros","Gestao de Pesquisas","Beneficios e Resgates",
+            "Empresas","Banners e Recomendados","Gestao de Testadores",
+            "--- USUARIO ---",
+            "Consulta Usuario"
         ],label_visibility="collapsed",key="nav")
-        st.markdown('<div style="height:1px;background:#e5e7eb;margin:12px 0"></div>',unsafe_allow_html=True)
-        st.markdown('<div style="text-align:center;font-size:.7rem;color:#9ca3af;padding:8px 0">suporte@foodtest.com.br<br>v2.0</div>',unsafe_allow_html=True)
+        # Handle section dividers
+        if page and page.startswith("---"):
+            st.session_state['nav'] = "Dashboard Geral"
+            page = "Dashboard Geral"
+        # Inject CSS to style section dividers as headers
+        st.markdown("""<style>
+        section[data-testid="stSidebar"] .stRadio label:has(div p:only-child) {cursor:default}
+        section[data-testid="stSidebar"] .stRadio div[role="radiogroup"] > label:nth-child(3),
+        section[data-testid="stSidebar"] .stRadio div[role="radiogroup"] > label:nth-child(8),
+        section[data-testid="stSidebar"] .stRadio div[role="radiogroup"] > label:nth-child(19)
+        {font-size:.62rem!important;font-weight:700!important;text-transform:uppercase;letter-spacing:1.2px;color:#9AA0A6!important;padding:16px 16px 6px!important;pointer-events:none;opacity:1;background:none!important;border:none!important}
+        </style>""",unsafe_allow_html=True)
+        st.markdown('<div style="height:1px;background:#E8EAED;margin:12px 16px"></div>',unsafe_allow_html=True)
+        st.markdown('<div style="text-align:center;font-size:.68rem;color:#9AA0A6;padding:8px 0;font-family:Inter,sans-serif">suporte@foodtest.com.br<br><span style="font-weight:600">v2.0</span></div>',unsafe_allow_html=True)
     # Load
     if 'data' not in st.session_state or not st.session_state.get('loaded',False):
         with st.spinner("Carregando dados..."):
@@ -1702,17 +1781,19 @@ def main():
                 if total==0: st.warning("Nenhum dado encontrado."); return
             except Exception as e: st.error(f"Erro: {e}"); return
     data=st.session_state.get('data',{})
+    # Header bar
+    st.markdown(header_bar(),unsafe_allow_html=True)
     # Route
     R={
-        "📊 Dashboard Geral":pg_overview,"📝 Respostas":pg_respostas,
-        "🔍 Qualidade dos Dados":pg_qualidade,
-        "👤 Consulta Usuário":pg_usuario,"📂 Mapeamento de Pesquisas":pg_mapeamento,
-        "👥 Análise Demográfica":pg_demografica,
-        "📢 Campanhas":pg_campanhas,"📂 Categorias & Subcategorias":pg_categorias,
-        "📦 Produtos":pg_produtos,"🏷️ Marcas":pg_marcas,"🤝 Parceiros":pg_parceiros,
-        "🔬 Gestão de Pesquisas":pg_pesquisas,"🎁 Benefícios & Resgates":pg_beneficios,
-        "🏢 Empresas":pg_empresas,"🏠 Banners & Recomendados":pg_banners,
-        "👥 Gestão de Testadores":pg_testadores,"🧠 Central de Insights":pg_insights,
+        "Dashboard Geral":pg_overview,"Respostas":pg_respostas,
+        "Qualidade dos Dados":pg_qualidade,
+        "Consulta Usuario":pg_usuario,"Mapeamento de Pesquisas":pg_mapeamento,
+        "Analise Demografica":pg_demografica,
+        "Campanhas":pg_campanhas,"Categorias e Subcategorias":pg_categorias,
+        "Produtos":pg_produtos,"Marcas":pg_marcas,"Parceiros":pg_parceiros,
+        "Gestao de Pesquisas":pg_pesquisas,"Beneficios e Resgates":pg_beneficios,
+        "Empresas":pg_empresas,"Banners e Recomendados":pg_banners,
+        "Gestao de Testadores":pg_testadores,"Central de Insights":pg_insights,
     }
     fn=R.get(page)
     if fn: fn(data)
