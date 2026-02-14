@@ -230,6 +230,14 @@ div[data-baseweb="menu"] li:hover{background:var(--primary-light)!important}
 .block-container{padding:var(--sp-4) var(--sp-4) var(--sp-6)!important}
 section[data-testid="stSidebar"]{width:220px!important;min-width:220px!important}
 }
+/* ===== ESCONDE ELEMENTOS PADRAO DO STREAMLIT (Visual Limpo) ===== */
+header[data-testid="stHeader"]{display:none!important}
+[data-testid="stToolbar"]{display:none!important}
+[data-testid="stDecoration"]{display:none!important}
+[data-testid="stStatusWidget"]{display:none!important}
+[data-testid="stAppViewContainer"]{padding-top:0!important}
+.block-container{padding-top:1rem!important}
+section[data-testid="stSidebar"]>div:first-child{padding-top:1rem!important}
 </style>""", unsafe_allow_html=True)
 
 # ============================================================================
