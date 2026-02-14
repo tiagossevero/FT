@@ -194,7 +194,7 @@ section[data-testid="stSidebar"] .stButton button:hover{background:var(--primary
 .stMultiSelect div[data-baseweb="select"]>div{background:var(--card)!important;color:var(--text-primary)!important;border-color:var(--border)!important;border-radius:var(--radius-md)!important;font-family:var(--font-body)!important}
 .stTextInput input,.stTextArea textarea,.stNumberInput input,.stDateInput input{background:var(--card)!important;color:var(--text-primary)!important;border-color:var(--border)!important;border-radius:var(--radius-md)!important;font-family:var(--font-body)!important}
 [data-testid="stExpander"]{background:var(--card)!important;border:1px solid var(--border)!important;border-radius:var(--radius-md)!important}
-[data-testid="stExpander"] summary span{color:var(--text-primary)!important;font-family:var(--font-body)!important}
+[data-testid="stExpander"] summary span{color:var(--text-primary)!important;font-family:var(--font-body)!important;white-space:normal!important;overflow:visible!important;text-overflow:unset!important}
 /* === DATA ELEMENTS === */
 [data-testid="stDataFrame"],[data-testid="stDataFrame"]>div,[data-testid="stDataFrame"] iframe,
 [data-testid="stDataFrameResizable"],[data-testid="stDataFrame"] [class*="glide"]{background:var(--card)!important;background-color:var(--card)!important}
@@ -486,6 +486,17 @@ def enrich(raw):
         for c,dk in [('id_usuario','usuario'),('id_produto','produto')]:
             if c in rp.columns: rp[f'nome_{dk}']=rp[c].map(di.get(dk,{}))
         if 'id_pergunta_pesquisa' in rp.columns: rp['titulo_pergunta']=rp['id_pergunta_pesquisa'].map(di['pergunta'])
+        # Add subcategoria/categoria names via produto
+        if 'id_produto' in rp.columns:
+            rp['nome_subcategoria']=rp['id_produto'].map(dpr_sc).map(di.get('subcategoria',{}))
+            rp['nome_categoria']=rp['id_produto'].map(dpr_cat).map(di.get('categoria',{}))
+        # Replace template masks in titulo_pergunta
+        if 'titulo_pergunta' in rp.columns:
+            for mask_key,col in [('{{nome_produto}}','nome_produto'),('{{nome_subcategoria}}','nome_subcategoria'),('{{nome_categoria}}','nome_categoria')]:
+                if col in rp.columns:
+                    mask=rp['titulo_pergunta'].astype(str).str.contains(mask_key.replace('{','\\{').replace('}','\\}'),na=False,regex=True)
+                    if mask.any():
+                        rp.loc[mask,'titulo_pergunta']=rp.loc[mask].apply(lambda r:str(r['titulo_pergunta']).replace(mask_key,str(r[col]) if pd.notna(r.get(col)) else ''),axis=1)
         if 'createdAt' in rp.columns: rp['createdAt']=pd.to_datetime(rp['createdAt'],errors='coerce')
     d['resp_pergunta']=rp
     # produto
@@ -499,12 +510,12 @@ def enrich(raw):
     if len(us)>0:
         if 'dados_pessoais' in us.columns:
             dp=us['dados_pessoais'].apply(pj)
-            _gm={1:'Masculino',2:'Feminino',3:'Outro',4:'Prefiro não dizer',1.0:'Masculino',2.0:'Feminino',3.0:'Outro',4.0:'Prefiro não dizer'}
-            _rm={1:'Até R$ 2.640',2:'R$ 2.641-5.280',3:'R$ 5.281-10.560',4:'Acima de R$ 10.560',1.0:'Até R$ 2.640',2.0:'R$ 2.641-5.280',3.0:'R$ 5.281-10.560',4.0:'Acima de R$ 10.560'}
-            us['genero']=dp.apply(lambda x:_gm.get(x.get('opcao_genero'),x.get('opcao_genero')))
+            _gm={1:'Masculino',2:'Feminino',3:'Outro',4:'Prefiro não dizer',1.0:'Masculino',2.0:'Feminino',3.0:'Outro',4.0:'Prefiro não dizer','1':'Masculino','2':'Feminino','3':'Outro','4':'Prefiro não dizer'}
+            _rm={1:'Até R$ 2.640',2:'R$ 2.641-5.280',3:'R$ 5.281-10.560',4:'Acima de R$ 10.560',1.0:'Até R$ 2.640',2.0:'R$ 2.641-5.280',3.0:'R$ 5.281-10.560',4.0:'Acima de R$ 10.560','1':'Até R$ 2.640','2':'R$ 2.641-5.280','3':'R$ 5.281-10.560','4':'Acima de R$ 10.560'}
+            us['genero']=dp.apply(lambda x:_gm.get(x.get('opcao_genero'),x.get('opcao_genero')) if x.get('opcao_genero') is not None else None)
             us['ano_nascimento']=dp.apply(lambda x:x.get('ano_nascimento'))
-            us['faixa_renda']=dp.apply(lambda x:_rm.get(x.get('opcao_faixa_renda_mensal'),x.get('opcao_faixa_renda_mensal')))
-            a=datetime.now().year; us['idade']=us['ano_nascimento'].apply(lambda x:a-int(x) if pd.notna(x) and str(x).isdigit() else None)
+            us['faixa_renda']=dp.apply(lambda x:_rm.get(x.get('opcao_faixa_renda_mensal'),x.get('opcao_faixa_renda_mensal')) if x.get('opcao_faixa_renda_mensal') is not None else None)
+            a=datetime.now().year; us['idade']=us['ano_nascimento'].apply(lambda x:a-int(float(x)) if pd.notna(x) and str(x).replace('.','',1).replace('-','',1).isdigit() else None)
         if 'id_cidade' in us.columns:
             us['nome_cidade']=us['id_cidade'].map(di['cidade'])
             if len(d['cidade'])>0 and 'id_estado' in d['cidade'].columns:
@@ -625,18 +636,25 @@ def _overview_charts(data):
     with c1:
         st.markdown('<div class="chart-card"><div class="chart-title">Tendencia Mensal de Respostas</div>',unsafe_allow_html=True)
         if len(rq)>0 and 'createdAt' in rq.columns:
-            mn=rq.groupby(rq['createdAt'].dt.to_period('M')).size().reset_index(name='qtd')
-            mn.columns=['mes','qtd']; mn['mes']=mn['mes'].astype(str)
-            fig=px.bar(mn,x='mes',y='qtd',color_discrete_sequence=[CL['primary']])
-            chart_layout(fig,350); fig.update_layout(xaxis_tickangle=45,xaxis_title="",yaxis_title="")
-            st.plotly_chart(fig,use_container_width=True)
+            rq_valid=rq[rq['createdAt'].notna()]
+            if len(rq_valid)>0:
+                mn=rq_valid.groupby(rq_valid['createdAt'].dt.to_period('M')).size().reset_index(name='qtd')
+                mn.columns=['mes','qtd']; mn['mes']=mn['mes'].astype(str)
+                mn=mn[mn['mes']!='NaT']
+                if len(mn)>0:
+                    fig=px.bar(mn,x='mes',y='qtd',color_discrete_sequence=[CL['primary']])
+                    chart_layout(fig,350); fig.update_layout(xaxis_tickangle=45,xaxis_title="",yaxis_title="")
+                    st.plotly_chart(fig,use_container_width=True)
         st.markdown('</div>',unsafe_allow_html=True)
     with c2:
         st.markdown('<div class="chart-card"><div class="chart-title">Distribuicao por Genero</div>',unsafe_allow_html=True)
-        if 'genero' in us.columns and len(us['genero'].dropna())>0:
-            gc=us['genero'].value_counts()
-            fig=px.pie(values=gc.values.tolist(),names=gc.index.tolist(),color_discrete_sequence=['#307FE2','#FF6B6B','#4ECDC4','#F7931E'],hole=.45)
-            chart_layout(fig,350); st.plotly_chart(fig,use_container_width=True)
+        if 'genero' in us.columns:
+            gc=us['genero'].dropna()
+            gc=gc[gc.astype(str).str.strip()!='']
+            if len(gc)>0:
+                gv=gc.value_counts()
+                fig=px.pie(values=gv.values.tolist(),names=gv.index.tolist(),color_discrete_sequence=['#307FE2','#FF6B6B','#4ECDC4','#F7931E'],hole=.45)
+                chart_layout(fig,350); st.plotly_chart(fig,use_container_width=True)
         st.markdown('</div>',unsafe_allow_html=True)
 
 @st.fragment
@@ -647,58 +665,70 @@ def _overview_charts_extra(data):
     c1,c2=st.columns(2)
     with c1:
         st.markdown('<div class="chart-card"><div class="chart-title">Faixa Etaria dos Testadores</div>',unsafe_allow_html=True)
-        if 'idade' in us.columns and us['idade'].notna().any():
-            dv=us[us['idade'].notna()&(us['idade']>0)].copy()
+        if 'idade' in us.columns:
+            id_num=pd.to_numeric(us['idade'],errors='coerce')
+            dv=us[id_num.notna()&(id_num>0)&(id_num<120)].copy()
             if len(dv)>0:
-                dv['fx']=pd.cut(dv['idade'].astype(float),bins=[0,25,35,45,55,65,100],labels=['18-25','26-35','36-45','46-55','56-65','65+'])
+                dv['fx']=pd.cut(pd.to_numeric(dv['idade'],errors='coerce'),bins=[0,25,35,45,55,65,120],labels=['18-25','26-35','36-45','46-55','56-65','65+'])
                 fc=dv['fx'].value_counts().sort_index()
-                fig=px.bar(x=fc.index.astype(str).tolist(),y=fc.values.tolist(),color_discrete_sequence=[CL['primary']])
-                chart_layout(fig,350); fig.update_layout(xaxis_title="",yaxis_title="")
-                st.plotly_chart(fig,use_container_width=True)
+                fc=fc[fc>0]
+                if len(fc)>0:
+                    fig=px.bar(x=fc.index.astype(str).tolist(),y=fc.values.tolist(),color_discrete_sequence=[CL['primary']])
+                    chart_layout(fig,350); fig.update_layout(xaxis_title="",yaxis_title="")
+                    st.plotly_chart(fig,use_container_width=True)
         st.markdown('</div>',unsafe_allow_html=True)
     with c2:
         st.markdown('<div class="chart-card"><div class="chart-title">Top 10 Categorias</div>',unsafe_allow_html=True)
         if len(rq)>0 and 'nome_categoria' in rq.columns and rq['nome_categoria'].notna().any():
-            cc=rq['nome_categoria'].value_counts().head(10)
-            fig=hbar(cc.values,cc.index,cs='Blues')
-            chart_layout(fig,350); fig.update_layout(yaxis_title="",coloraxis_showscale=False); fig.update_yaxes(autorange="reversed")
-            st.plotly_chart(fig,use_container_width=True)
+            cc=rq['nome_categoria'].dropna().value_counts().head(10)
+            cc=cc[cc.index.astype(str)!='nan']
+            if len(cc)>0:
+                fig=hbar(cc.values,cc.index,cs='Blues')
+                chart_layout(fig,350); fig.update_layout(yaxis_title="",coloraxis_showscale=False); fig.update_yaxes(autorange="reversed")
+                st.plotly_chart(fig,use_container_width=True)
         st.markdown('</div>',unsafe_allow_html=True)
     # Charts Row 3: Subcategorias + Marcas
     c1,c2=st.columns(2)
     with c1:
         st.markdown('<div class="chart-card"><div class="chart-title">Top 10 Subcategorias</div>',unsafe_allow_html=True)
         if len(rq)>0 and 'nome_subcategoria' in rq.columns:
-            ts=rq['nome_subcategoria'].value_counts().head(10)
-            fig=hbar(ts.values,ts.index,cs='Blues')
-            chart_layout(fig,350); fig.update_layout(yaxis_title="",coloraxis_showscale=False); fig.update_yaxes(autorange="reversed")
-            st.plotly_chart(fig,use_container_width=True)
+            ts=rq['nome_subcategoria'].dropna().value_counts().head(10)
+            ts=ts[ts.index.astype(str)!='nan']
+            if len(ts)>0:
+                fig=hbar(ts.values,ts.index,cs='Blues')
+                chart_layout(fig,350); fig.update_layout(yaxis_title="",coloraxis_showscale=False); fig.update_yaxes(autorange="reversed")
+                st.plotly_chart(fig,use_container_width=True)
         st.markdown('</div>',unsafe_allow_html=True)
     with c2:
         st.markdown('<div class="chart-card"><div class="chart-title">Top 10 Marcas</div>',unsafe_allow_html=True)
         if len(pr)>0 and 'nome_marca' in pr.columns:
-            tm=pr['nome_marca'].value_counts().head(10)
-            fig=hbar(tm.values,tm.index,cs='Greens')
-            chart_layout(fig,350); fig.update_layout(yaxis_title="",coloraxis_showscale=False); fig.update_yaxes(autorange="reversed")
-            st.plotly_chart(fig,use_container_width=True)
+            tm=pr['nome_marca'].dropna().value_counts().head(10)
+            tm=tm[tm.index.astype(str)!='nan']
+            if len(tm)>0:
+                fig=hbar(tm.values,tm.index,cs='Greens')
+                chart_layout(fig,350); fig.update_layout(yaxis_title="",coloraxis_showscale=False); fig.update_yaxes(autorange="reversed")
+                st.plotly_chart(fig,use_container_width=True)
         st.markdown('</div>',unsafe_allow_html=True)
     # Charts Row 4: Estado + Top Testadores
     c1,c2=st.columns(2)
     with c1:
         st.markdown('<div class="chart-card"><div class="chart-title">Distribuicao por Estado</div>',unsafe_allow_html=True)
         if 'nome_estado' in us.columns:
-            ec=us['nome_estado'].value_counts().head(10)
-            fig=hbar(ec.values,ec.index,cs='Purples')
-            chart_layout(fig,350); fig.update_layout(yaxis_title="",coloraxis_showscale=False); fig.update_yaxes(autorange="reversed")
-            st.plotly_chart(fig,use_container_width=True)
+            ec=us['nome_estado'].dropna().value_counts().head(10)
+            ec=ec[ec.index.astype(str)!='nan']
+            if len(ec)>0:
+                fig=hbar(ec.values,ec.index,cs='Purples')
+                chart_layout(fig,350); fig.update_layout(yaxis_title="",coloraxis_showscale=False); fig.update_yaxes(autorange="reversed")
+                st.plotly_chart(fig,use_container_width=True)
         st.markdown('</div>',unsafe_allow_html=True)
     with c2:
         st.markdown('<div class="chart-card"><div class="chart-title">Top 10 Testadores</div>',unsafe_allow_html=True)
         if len(rq)>0 and 'nome_usuario' in rq.columns:
-            tu=rq.groupby('nome_usuario').size().sort_values(ascending=False).head(10)
-            fig=hbar(tu.values,tu.index,cs='Blues')
-            chart_layout(fig,350); fig.update_layout(yaxis_title="",coloraxis_showscale=False); fig.update_yaxes(autorange="reversed")
-            st.plotly_chart(fig,use_container_width=True)
+            tu=rq[rq['nome_usuario'].notna()].groupby('nome_usuario').size().sort_values(ascending=False).head(10)
+            if len(tu)>0:
+                fig=hbar(tu.values,tu.index,cs='Blues')
+                chart_layout(fig,350); fig.update_layout(yaxis_title="",coloraxis_showscale=False); fig.update_yaxes(autorange="reversed")
+                st.plotly_chart(fig,use_container_width=True)
         st.markdown('</div>',unsafe_allow_html=True)
 
 @st.fragment
@@ -809,6 +839,14 @@ def pg_respostas(data):
             if fl:
                 sel=st.selectbox("Selecione o questionário:",fl,key="sq")
                 idx=labels.index(sel); stype,sid,_=surveys[idx]
+                # Determine product/subcategory names for template mask replacement
+                ctx_prod,ctx_sub='',''
+                if stype=='produto':
+                    sv_row=pesq_p[pesq_p['id']==sid]
+                    if len(sv_row)>0: ctx_prod=di['produto'].get(sv_row.iloc[0].get('id_produto'),'') or ''
+                elif stype=='subcategoria':
+                    sv_row=pesq_s[pesq_s['id']==sid]
+                    if len(sv_row)>0: ctx_sub=di['subcategoria'].get(sv_row.iloc[0].get('id_subcategoria_produto'),'') or ''
                 filt='id_pesquisa_produto' if stype=='produto' else 'id_pesquisa_subcategoria'
                 sess=se_df[se_df[filt]==sid] if filt in se_df.columns else pd.DataFrame()
                 if len(sess)>0:
@@ -826,6 +864,7 @@ def pg_respostas(data):
                         st.markdown('<div class="chart-title">Perguntas do Questionário</div>',unsafe_allow_html=True)
                         for qi,(_,q) in enumerate(qs.sort_values(sort_col).iterrows()):
                             qid=q['id']; qtit=q.get('titulo',f'Pergunta #{qid}')
+                            qtit=str(qtit).replace('{{nome_produto}}',ctx_prod).replace('{{nome_subcategoria}}',ctx_sub)
                             qr=resps[resps['id_pergunta_pesquisa']==qid]
                             with st.expander(f"{qtit} ({len(qr)} respostas)"):
                                 _qa(qr,kp=f"t2_{qi}")
@@ -874,12 +913,38 @@ def pg_respostas(data):
         else: st.info("Sem pesquisas de subcategoria.")
     with t5:
         if 'id_usuario' in rp.columns:
-            us=rp.groupby('id_usuario').agg({'id':'count','id_produto':'nunique'}).rename(columns={'id':'resp','id_produto':'prod'})
-            if 'nome_usuario' in rp.columns: us=us.join(rp.groupby('id_usuario')['nome_usuario'].first())
-            us=us.sort_values('resp',ascending=False)
-            fig=hbar(us.head(15)['resp'].values,us.head(15)['nome_usuario'].values if 'nome_usuario' in us.columns else us.head(15).index.astype(str),cs='Blues')
+            us_agg=rp.groupby('id_usuario').agg({'id':'count','id_produto':'nunique'}).rename(columns={'id':'resp','id_produto':'prod'})
+            if 'nome_usuario' in rp.columns: us_agg=us_agg.join(rp.groupby('id_usuario')['nome_usuario'].first())
+            us_agg=us_agg.sort_values('resp',ascending=False)
+            fig=hbar(us_agg.head(15)['resp'].values,us_agg.head(15)['nome_usuario'].values if 'nome_usuario' in us_agg.columns else us_agg.head(15).index.astype(str),cs='Blues')
             fig.update_layout(height=450,coloraxis_showscale=False); fig.update_yaxes(autorange="reversed")
             st.plotly_chart(fig,use_container_width=True)
+            # Drill-down por usuario
+            st.markdown('<div class="divider"></div>',unsafe_allow_html=True)
+            st.markdown('<div class="chart-title">Drill-down por Usuario</div>',unsafe_allow_html=True)
+            user_names=us_agg['nome_usuario'].dropna().tolist() if 'nome_usuario' in us_agg.columns else us_agg.index.astype(str).tolist()
+            if user_names:
+                sel_user=st.selectbox("Selecione o Usuario:",user_names,key="dd_user_resp")
+                if sel_user:
+                    user_resps=rp[rp['nome_usuario']==sel_user]
+                    c1,c2,c3=st.columns(3)
+                    with c1: st.metric("Respostas",f"{len(user_resps):,}")
+                    with c2: st.metric("Produtos",f"{user_resps['id_produto'].nunique() if 'id_produto' in user_resps.columns else 0}")
+                    with c3: st.metric("Perguntas",f"{user_resps['titulo_pergunta'].nunique() if 'titulo_pergunta' in user_resps.columns else 0}")
+                    uid=user_resps['id_usuario'].iloc[0] if len(user_resps)>0 else None
+                    if uid is not None:
+                        qu=rq[rq['id_usuario']==uid] if 'id_usuario' in rq.columns else pd.DataFrame()
+                        if len(qu)>0:
+                            st.markdown('<div class="chart-title">Questionarios Respondidos</div>',unsafe_allow_html=True)
+                            qu_cols=[c for c in ['createdAt','nome_produto','nome_subcategoria','nome_categoria','pontos_ganhos'] if c in qu.columns]
+                            if qu_cols:
+                                qu_display=qu[qu_cols].sort_values('createdAt',ascending=False) if 'createdAt' in qu_cols else qu[qu_cols]
+                                st.dataframe(qu_display,hide_index=True,use_container_width=True,height=min(400,max(150,len(qu_display)*35+40)))
+                    st.markdown('<div class="chart-title">Ultimas Respostas</div>',unsafe_allow_html=True)
+                    ur_cols=[c for c in ['createdAt','nome_produto','titulo_pergunta','resposta'] if c in user_resps.columns]
+                    if ur_cols:
+                        ur_display=user_resps[ur_cols].sort_values('createdAt',ascending=False).head(50) if 'createdAt' in ur_cols else user_resps[ur_cols].head(50)
+                        st.dataframe(ur_display,hide_index=True,use_container_width=True,height=min(500,max(150,len(ur_display)*35+40)))
     with t6:
         c1,c2,c3=st.columns(3)
         with c1: fp=st.selectbox("Produto:",['Todos']+(rp['nome_produto'].dropna().unique().tolist() if 'nome_produto' in rp.columns else []),key="fpe")
@@ -924,8 +989,8 @@ def pg_qualidade(data):
         fig.update_layout(height=400); st.plotly_chart(fig,use_container_width=True)
     st.markdown('<div class="chart-title">Top 10 Suspeitos</div>',unsafe_allow_html=True)
     top=sc.nsmallest(10,'score')
-    fig=px.bar(top,x='score',y='nome_usuario',orientation='h',color='score',color_continuous_scale='RdYlGn')
-    fig.update_layout(height=400,coloraxis_showscale=False); fig.update_yaxes(autorange="reversed")
+    fig=px.bar(top,x='score',y='nome_usuario',orientation='h',color_discrete_sequence=[CL['danger']])
+    fig.update_layout(height=400); fig.update_yaxes(autorange="reversed")
     st.plotly_chart(fig,use_container_width=True)
     st.session_state['df_scores']=sc
     st.markdown(ibox("Estratégico","Saúde da Base",f"{spct(mc_+co,tot)}% confiáveis. {su} suspeitos ({spct(su,tot)}%). {'Base saudável.' if spct(mc_+co,tot)>80 else 'Recomenda-se limpeza.'}"),unsafe_allow_html=True)
