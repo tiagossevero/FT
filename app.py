@@ -43,6 +43,100 @@ CL = {
 PAL = ['#0052CC','#00B4D8','#31A24C','#FF9500','#7B61FF','#E8457C','#0097A7','#5C6BC0','#EE5A52','#43A047','#8D6E63','#78909C','#F06292','#4DB6AC','#FFB74D']
 CARD_COLORS = ['#0052CC','#00B4D8','#31A24C','#FF9500','#7B61FF','#0097A7','#E8457C','#5C6BC0','#EE5A52','#43A047']
 st.set_page_config(page_title="Foodtest Analytics", page_icon="", layout="wide", initial_sidebar_state="expanded")
+
+# ============================================================================
+# LOADING SCREEN - Aparece IMEDIATAMENTE enquanto o app carrega
+# ============================================================================
+def show_loading_screen():
+    """Mostra tela de loading elegante enquanto carrega"""
+    st.markdown("""
+    <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap');
+    .loading-container {
+        display: flex; flex-direction: column; align-items: center; justify-content: center;
+        height: 100vh; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        position: fixed; top: 0; left: 0; right: 0; bottom: 0; z-index: 9999;
+    }
+    .loading-logo { font-size: 4rem; margin-bottom: 20px; animation: pulse 2s infinite; }
+    .loading-text { color: white; font-family: 'Inter', sans-serif; font-size: 1.5rem; font-weight: 600; margin-bottom: 30px; }
+    .loading-spinner {
+        width: 50px; height: 50px; border: 4px solid rgba(255,255,255,0.3);
+        border-top: 4px solid white; border-radius: 50%; animation: spin 1s linear infinite;
+    }
+    .loading-progress { width: 200px; height: 4px; background: rgba(255,255,255,0.3); border-radius: 2px; margin-top: 20px; overflow: hidden; }
+    .loading-progress-bar { width: 30%; height: 100%; background: white; border-radius: 2px; animation: loading 2s ease-in-out infinite; }
+    @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+    @keyframes pulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.1); } }
+    @keyframes loading { 0% { transform: translateX(-100%); } 50% { transform: translateX(250%); } 100% { transform: translateX(-100%); } }
+    </style>
+    <div class="loading-container" id="loading-screen">
+        <div class="loading-logo">🍽️</div>
+        <div class="loading-text">Foodtest Analytics</div>
+        <div class="loading-spinner"></div>
+        <div class="loading-progress"><div class="loading-progress-bar"></div></div>
+    </div>
+    <script>
+        window.addEventListener('load', function() {
+            setTimeout(function() {
+                var loading = document.getElementById('loading-screen');
+                if (loading) {
+                    loading.style.opacity = '0';
+                    loading.style.transition = 'opacity 0.5s';
+                    setTimeout(function() { loading.style.display = 'none'; }, 500);
+                }
+            }, 500);
+        });
+    </script>
+    """, unsafe_allow_html=True)
+
+def hide_loading_screen():
+    """Remove a loading screen via JS"""
+    st.markdown("""
+    <script>
+        var loading = document.getElementById('loading-screen');
+        if (loading) {
+            loading.style.opacity = '0';
+            loading.style.transition = 'opacity 0.5s';
+            setTimeout(function() { loading.style.display = 'none'; }, 500);
+        }
+    </script>
+    """, unsafe_allow_html=True)
+
+# Skeleton loading cards
+def skeleton_card():
+    """Card com efeito shimmer enquanto carrega"""
+    return """
+    <style>
+    .skeleton {
+        background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+        background-size: 200% 100%; animation: shimmer 1.5s infinite; border-radius: 8px;
+    }
+    @keyframes shimmer { 0% { background-position: -200% 0; } 100% { background-position: 200% 0; } }
+    .skeleton-card { background: white; border-radius: 12px; padding: 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); margin-bottom: 16px; }
+    .skeleton-title { height: 24px; width: 60%; margin-bottom: 12px; }
+    .skeleton-text { height: 16px; width: 100%; margin-bottom: 8px; }
+    .skeleton-text.short { width: 40%; }
+    .skeleton-chart { height: 200px; width: 100%; margin-top: 16px; }
+    </style>
+    <div class="skeleton-card">
+        <div class="skeleton skeleton-title"></div>
+        <div class="skeleton skeleton-text"></div>
+        <div class="skeleton skeleton-text"></div>
+        <div class="skeleton skeleton-text short"></div>
+        <div class="skeleton skeleton-chart"></div>
+    </div>
+    """
+
+def show_skeleton_grid(cols=4):
+    """Mostra grid de skeletons enquanto dados carregam"""
+    columns = st.columns(cols)
+    for col in columns:
+        with col:
+            st.markdown(skeleton_card(), unsafe_allow_html=True)
+
+# Mostra loading screen IMEDIATAMENTE
+show_loading_screen()
+
 st.markdown("""<style>
 @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@500;600;700&family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap');
 :root,html,body,[data-testid="stAppViewContainer"],[data-testid="stApp"]{
@@ -262,7 +356,7 @@ def header_bar():
 # ============================================================================
 # CONEXÃO POSTGRESQL DIGITALOCEAN
 # ============================================================================
-@st.cache_resource
+@st.cache_resource(show_spinner=False)
 def get_db_engine():
     """Cria conexão com PostgreSQL da DigitalOcean"""
     DB_CONFIG = {
@@ -289,6 +383,38 @@ def query_db(sql: str) -> pd.DataFrame:
     except Exception as e:
         st.error(f"Erro na consulta: {e}")
         return pd.DataFrame()
+
+# ============================================================================
+# LAZY LOADING & AGGREGATION QUERIES
+# ============================================================================
+
+@st.cache_data(ttl=86400, show_spinner=False)
+def load_table_lazy(table_name: str) -> pd.DataFrame:
+    """Carrega tabela individual apenas quando solicitada"""
+    return query_db(f"SELECT * FROM {table_name}")
+
+@st.cache_data(ttl=86400, show_spinner=False)
+def get_count(table: str) -> int:
+    """Conta registros - super rapido com cache"""
+    result = query_db(f"SELECT COUNT(*) as cnt FROM foodtest.{table}")
+    return int(result['cnt'].iloc[0]) if not result.empty else 0
+
+@st.cache_data(ttl=3600, show_spinner=False)
+def get_aggregations():
+    """Metricas agregadas para o dashboard - query unica otimizada"""
+    return query_db("""
+        SELECT
+            (SELECT COUNT(*) FROM foodtest.produto) as total_produtos,
+            (SELECT COUNT(*) FROM foodtest.usuario) as total_usuarios,
+            (SELECT COUNT(*) FROM foodtest.sessao_pesquisa) as total_sessoes,
+            (SELECT COUNT(*) FROM foodtest.campanha) as total_campanhas,
+            (SELECT COUNT(*) FROM foodtest.empresa) as total_empresas,
+            (SELECT COUNT(*) FROM foodtest.categoria_produto) as total_categorias,
+            (SELECT COUNT(*) FROM foodtest.subcategoria_produto) as total_subcategorias,
+            (SELECT COUNT(*) FROM foodtest.resposta_questionario_usuario) as total_questionarios,
+            (SELECT COUNT(*) FROM foodtest.resposta_pergunta_pesquisa) as total_respostas,
+            (SELECT COUNT(*) FROM foodtest.beneficio) as total_beneficios
+    """)
 
 # ============================================================================
 # DATA LOADER (TODAS AS TABELAS)
@@ -332,7 +458,7 @@ TABLE_MAPPING = {
     'notificacoes': 'foodtest.notificacoes',
 }
 
-@st.cache_data(ttl=300)
+@st.cache_data(ttl=86400, show_spinner=False)
 def load_all(dr=None):
     """Carrega todas as tabelas do PostgreSQL"""
     return {k: query_db(f"SELECT * FROM {table}") for k, table in TABLE_MAPPING.items()}
@@ -493,8 +619,9 @@ def c_score(dr,drp,de,dv,du):
 # ============================================================================
 # PG1: VISÃO GERAL
 # ============================================================================
-def pg_overview(data):
-    st.markdown(section_header("Dashboard Geral","Visao consolidada da plataforma Foodtest"),unsafe_allow_html=True)
+@st.fragment
+def _overview_metrics(data):
+    """Renderiza metricas do dashboard de forma isolada"""
     us,pr,rp,rq=data['usuario'],data['produto'],data['resp_pergunta'],data['resp_questionario']
     ca,em=data['campanha'],data['empresa']
     nu,nq,nr=len(us),len(rq),len(rp)
@@ -518,7 +645,11 @@ def pg_overview(data):
     with c5: st.markdown(mcard(f"{len(data['subcategoria'])}","Subcategorias",c='#4ECDC4'),unsafe_allow_html=True)
     with c6: st.markdown(mcard(f"{len(em)}","Empresas",c='#2C3E50'),unsafe_allow_html=True)
     with c7: st.markdown(mcard(f"{len(ca)}","Campanhas",c='#FF6B6B'),unsafe_allow_html=True)
-    st.markdown('<div class="divider"></div>',unsafe_allow_html=True)
+
+@st.fragment
+def _overview_charts(data):
+    """Renderiza graficos do dashboard de forma isolada"""
+    us,pr,rq=data['usuario'],data['produto'],data['resp_questionario']
     # Charts Row 1: Tendencia + Genero
     c1,c2=st.columns(2)
     with c1:
@@ -537,6 +668,11 @@ def pg_overview(data):
             fig=px.pie(values=gc.values.tolist(),names=gc.index.tolist(),color_discrete_sequence=['#307FE2','#FF6B6B','#4ECDC4','#F7931E'],hole=.45)
             chart_layout(fig,350); st.plotly_chart(fig,use_container_width=True)
         st.markdown('</div>',unsafe_allow_html=True)
+
+@st.fragment
+def _overview_charts_extra(data):
+    """Renderiza graficos extras do dashboard (rows 2-4) de forma isolada"""
+    us,pr,rq=data['usuario'],data['produto'],data['resp_questionario']
     # Charts Row 2: Faixa Etaria + Top Categorias
     c1,c2=st.columns(2)
     with c1:
@@ -594,7 +730,12 @@ def pg_overview(data):
             chart_layout(fig,350); fig.update_layout(yaxis_title="",coloraxis_showscale=False); fig.update_yaxes(autorange="reversed")
             st.plotly_chart(fig,use_container_width=True)
         st.markdown('</div>',unsafe_allow_html=True)
-    # Insights
+
+@st.fragment
+def _overview_insights(data):
+    """Renderiza insights estrategicos de forma isolada"""
+    us,pr,rq=data['usuario'],data['produto'],data['resp_questionario']
+    nu,nq=len(us),len(rq)
     st.markdown('<div class="divider"></div>',unsafe_allow_html=True)
     st.markdown('<div class="chart-title" style="font-size:1.1rem;margin-bottom:12px">Insights Estrategicos</div>',unsafe_allow_html=True)
     ih=""
@@ -610,6 +751,16 @@ def pg_overview(data):
         av=rq['id_produto'].nunique(); cob=spct(av,len(pr))
         ih+=ibox("Operacional","Cobertura de Produtos",f"{av}/{len(pr)} produtos avaliados ({cob}%). {'Excelente cobertura.' if cob>60 else 'Criar pesquisas para produtos sem avaliacao.'}")
     if ih: st.markdown(ih,unsafe_allow_html=True)
+
+def pg_overview(data):
+    st.markdown(section_header("Dashboard Geral","Visao consolidada da plataforma Foodtest"),unsafe_allow_html=True)
+    # Metricas (renderiza como fragmento isolado)
+    _overview_metrics(data)
+    st.markdown('<div class="divider"></div>',unsafe_allow_html=True)
+    # Graficos (renderiza como fragmento isolado)
+    _overview_charts(data)
+    _overview_charts_extra(data)
+    _overview_insights(data)
 
 # ============================================================================
 # PG2: RESPOSTAS
@@ -2462,36 +2613,91 @@ def main():
         {font-size:.62rem!important;font-weight:700!important;text-transform:uppercase;letter-spacing:1.2px;color:#9AA0A6!important;padding:16px 16px 6px!important;pointer-events:none;opacity:1;background:none!important;border:none!important}
         </style>""",unsafe_allow_html=True)
         st.markdown('<div style="height:1px;background:#E8EAED;margin:12px 16px"></div>',unsafe_allow_html=True)
-        st.markdown('<div style="text-align:center;font-size:.68rem;color:#9AA0A6;padding:8px 0;font-family:Inter,sans-serif">suporte@foodtest.com.br<br><span style="font-weight:600">v3.0</span></div>',unsafe_allow_html=True)
-    # Load
+        st.markdown('<div style="text-align:center;font-size:.68rem;color:#9AA0A6;padding:8px 0;font-family:Inter,sans-serif">suporte@foodtest.com.br<br><span style="font-weight:600">v3.1-perf</span></div>',unsafe_allow_html=True)
+    # Load data with progress bar
     if 'data' not in st.session_state or not st.session_state.get('loaded',False):
-        with st.spinner("Carregando dados..."):
-            try:
-                raw=load_all(); data=enrich(raw)
-                st.session_state['data']=data; st.session_state['loaded']=True
-                total=sum(len(df) for df in data.values() if isinstance(df,pd.DataFrame))
-                if total==0: st.warning("Nenhum dado encontrado."); return
-            except Exception as e: st.error(f"Erro: {e}"); return
-    data=st.session_state.get('data',{})
-    # Header bar
-    st.markdown(header_bar(),unsafe_allow_html=True)
-    # Route
-    R={
-        "Dashboard Geral":pg_overview,"Respostas":pg_respostas,
-        "Qualidade dos Dados":pg_qualidade,
-        "Consulta Usuario":pg_usuario,"Mapeamento de Pesquisas":pg_mapeamento,
-        "Analise Demografica":pg_demografica,
-        "Campanhas":pg_campanhas,"Categorias e Subcategorias":pg_categorias,
-        "Produtos":pg_produtos,"Marcas":pg_marcas,"Parceiros":pg_parceiros,
-        "Gestao de Pesquisas":pg_pesquisas,"Beneficios e Resgates":pg_beneficios,
-        "Empresas":pg_empresas,"Banners e Recomendados":pg_banners,
-        "Gestao de Testadores":pg_testadores,"Central de Insights":pg_insights,
-        "Analise Estatistica":pg_estatistica,"Analise Exploratoria (EDA)":pg_eda,
-        "Performance de Produtos":pg_performance,"Engajamento e Gamificacao":pg_engajamento,
-    }
-    fn=R.get(page)
-    if fn: fn(data)
-    else: pg_placeholder(page)
+        # Mostra skeleton cards enquanto carrega
+        show_skeleton_grid(5)
 
-if __name__=="__main__":
+        progress_bar = st.progress(0)
+        status_text = st.empty()
+
+        load_steps = [
+            (0.05, "Conectando ao banco de dados..."),
+            (0.10, "Carregando tabelas..."),
+            (0.70, None),  # load_all step
+            (0.85, "Enriquecendo dados..."),
+            (0.95, "Finalizando..."),
+            (1.00, None),
+        ]
+
+        try:
+            # Step 1: Connection check
+            status_text.text(load_steps[0][1])
+            progress_bar.progress(load_steps[0][0])
+            get_db_engine()
+
+            # Step 2: Load all tables
+            status_text.text(load_steps[1][1])
+            progress_bar.progress(load_steps[1][0])
+            raw = load_all()
+            progress_bar.progress(load_steps[2][0])
+
+            # Step 3: Enrich data
+            status_text.text(load_steps[3][1])
+            progress_bar.progress(load_steps[3][0])
+            data = enrich(raw)
+
+            # Step 4: Finalize
+            status_text.text(load_steps[4][1])
+            progress_bar.progress(load_steps[4][0])
+
+            st.session_state['data'] = data
+            st.session_state['loaded'] = True
+
+            total = sum(len(df) for df in data.values() if isinstance(df, pd.DataFrame))
+            progress_bar.progress(load_steps[5][0])
+
+            # Limpa os indicadores de progresso
+            progress_bar.empty()
+            status_text.empty()
+
+            if total == 0:
+                st.warning("Nenhum dado encontrado.")
+                return
+        except Exception as e:
+            progress_bar.empty()
+            status_text.empty()
+            st.error(f"Erro: {e}")
+            return
+
+    data = st.session_state.get('data', {})
+
+    # Header bar
+    st.markdown(header_bar(), unsafe_allow_html=True)
+
+    # Route
+    R = {
+        "Dashboard Geral": pg_overview, "Respostas": pg_respostas,
+        "Qualidade dos Dados": pg_qualidade,
+        "Consulta Usuario": pg_usuario, "Mapeamento de Pesquisas": pg_mapeamento,
+        "Analise Demografica": pg_demografica,
+        "Campanhas": pg_campanhas, "Categorias e Subcategorias": pg_categorias,
+        "Produtos": pg_produtos, "Marcas": pg_marcas, "Parceiros": pg_parceiros,
+        "Gestao de Pesquisas": pg_pesquisas, "Beneficios e Resgates": pg_beneficios,
+        "Empresas": pg_empresas, "Banners e Recomendados": pg_banners,
+        "Gestao de Testadores": pg_testadores, "Central de Insights": pg_insights,
+        "Analise Estatistica": pg_estatistica, "Analise Exploratoria (EDA)": pg_eda,
+        "Performance de Produtos": pg_performance, "Engajamento e Gamificacao": pg_engajamento,
+    }
+    fn = R.get(page)
+    if fn:
+        fn(data)
+    else:
+        pg_placeholder(page)
+
+    # Remove loading screen apos o conteudo renderizar
+    hide_loading_screen()
+
+if __name__ == "__main__":
     main()
