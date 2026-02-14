@@ -45,62 +45,35 @@ CARD_COLORS = ['#0052CC','#00B4D8','#31A24C','#FF9500','#7B61FF','#0097A7','#E84
 st.set_page_config(page_title="Foodtest Analytics", page_icon="", layout="wide", initial_sidebar_state="expanded")
 
 # ============================================================================
-# LOADING SCREEN - Aparece IMEDIATAMENTE enquanto o app carrega
+# LOADING SCREEN - Usa st.empty() para controlar ciclo de vida (JS nao executa em st.markdown)
 # ============================================================================
-def show_loading_screen():
-    """Mostra tela de loading elegante enquanto carrega"""
-    st.markdown("""
-    <style>
-    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap');
-    .loading-container {
-        display: flex; flex-direction: column; align-items: center; justify-content: center;
-        height: 100vh; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-        position: fixed; top: 0; left: 0; right: 0; bottom: 0; z-index: 9999;
-    }
-    .loading-logo { font-size: 4rem; margin-bottom: 20px; animation: pulse 2s infinite; }
-    .loading-text { color: white; font-family: 'Inter', sans-serif; font-size: 1.5rem; font-weight: 600; margin-bottom: 30px; }
-    .loading-spinner {
-        width: 50px; height: 50px; border: 4px solid rgba(255,255,255,0.3);
-        border-top: 4px solid white; border-radius: 50%; animation: spin 1s linear infinite;
-    }
-    .loading-progress { width: 200px; height: 4px; background: rgba(255,255,255,0.3); border-radius: 2px; margin-top: 20px; overflow: hidden; }
-    .loading-progress-bar { width: 30%; height: 100%; background: white; border-radius: 2px; animation: loading 2s ease-in-out infinite; }
-    @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
-    @keyframes pulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.1); } }
-    @keyframes loading { 0% { transform: translateX(-100%); } 50% { transform: translateX(250%); } 100% { transform: translateX(-100%); } }
-    </style>
-    <div class="loading-container" id="loading-screen">
-        <div class="loading-logo">🍽️</div>
-        <div class="loading-text">Foodtest Analytics</div>
-        <div class="loading-spinner"></div>
-        <div class="loading-progress"><div class="loading-progress-bar"></div></div>
-    </div>
-    <script>
-        window.addEventListener('load', function() {
-            setTimeout(function() {
-                var loading = document.getElementById('loading-screen');
-                if (loading) {
-                    loading.style.opacity = '0';
-                    loading.style.transition = 'opacity 0.5s';
-                    setTimeout(function() { loading.style.display = 'none'; }, 500);
-                }
-            }, 500);
-        });
-    </script>
-    """, unsafe_allow_html=True)
-
-def hide_loading_screen():
-    """Remove a loading screen via JS"""
-    st.markdown("""
-    <script>
-        var loading = document.getElementById('loading-screen');
-        if (loading) {
-            loading.style.opacity = '0';
-            loading.style.transition = 'opacity 0.5s';
-            setTimeout(function() { loading.style.display = 'none'; }, 500);
-        }
-    </script>
-    """, unsafe_allow_html=True)
+LOADING_SCREEN_HTML = """
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap');
+.loading-container {
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    height: 100vh; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    position: fixed; top: 0; left: 0; right: 0; bottom: 0; z-index: 9999;
+}
+.loading-logo { font-size: 4rem; margin-bottom: 20px; animation: pulse 2s infinite; }
+.loading-text { color: white; font-family: 'Inter', sans-serif; font-size: 1.5rem; font-weight: 600; margin-bottom: 30px; }
+.loading-spinner {
+    width: 50px; height: 50px; border: 4px solid rgba(255,255,255,0.3);
+    border-top: 4px solid white; border-radius: 50%; animation: spin 1s linear infinite;
+}
+.loading-progress { width: 200px; height: 4px; background: rgba(255,255,255,0.3); border-radius: 2px; margin-top: 20px; overflow: hidden; }
+.loading-progress-bar { width: 30%; height: 100%; background: white; border-radius: 2px; animation: loading 2s ease-in-out infinite; }
+@keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+@keyframes pulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.1); } }
+@keyframes loading { 0% { transform: translateX(-100%); } 50% { transform: translateX(250%); } 100% { transform: translateX(-100%); } }
+</style>
+<div class="loading-container">
+    <div class="loading-logo">🍽️</div>
+    <div class="loading-text">Foodtest Analytics</div>
+    <div class="loading-spinner"></div>
+    <div class="loading-progress"><div class="loading-progress-bar"></div></div>
+</div>
+"""
 
 # Skeleton loading cards
 def skeleton_card():
@@ -133,9 +106,6 @@ def show_skeleton_grid(cols=4):
     for col in columns:
         with col:
             st.markdown(skeleton_card(), unsafe_allow_html=True)
-
-# Mostra loading screen IMEDIATAMENTE
-show_loading_screen()
 
 st.markdown("""<style>
 @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@500;600;700&family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap');
@@ -2576,6 +2546,13 @@ def pg_placeholder(nome):
 # MAIN
 # ============================================================================
 def main():
+    # Placeholder para loading screen (usa st.empty para controle de ciclo de vida)
+    _loading_placeholder = st.empty()
+
+    # Mostra loading screen APENAS se dados ainda nao carregaram
+    if not st.session_state.get('loaded', False):
+        _loading_placeholder.markdown(LOADING_SCREEN_HTML, unsafe_allow_html=True)
+
     with st.sidebar:
         st.markdown("""<div style="text-align:center;padding:20px 16px 12px">
             <div style="background:#0052CC;border-radius:10px;padding:12px 20px;margin:0 auto 8px;width:fit-content;box-shadow:0 2px 8px rgba(0,82,204,.25)">
@@ -2614,53 +2591,43 @@ def main():
         </style>""",unsafe_allow_html=True)
         st.markdown('<div style="height:1px;background:#E8EAED;margin:12px 16px"></div>',unsafe_allow_html=True)
         st.markdown('<div style="text-align:center;font-size:.68rem;color:#9AA0A6;padding:8px 0;font-family:Inter,sans-serif">suporte@foodtest.com.br<br><span style="font-weight:600">v3.1-perf</span></div>',unsafe_allow_html=True)
-    # Load data with progress bar
-    if 'data' not in st.session_state or not st.session_state.get('loaded',False):
-        # Mostra skeleton cards enquanto carrega
-        show_skeleton_grid(5)
 
+    # Load data with progress bar
+    if 'data' not in st.session_state or not st.session_state.get('loaded', False):
         progress_bar = st.progress(0)
         status_text = st.empty()
 
-        load_steps = [
-            (0.05, "Conectando ao banco de dados..."),
-            (0.10, "Carregando tabelas..."),
-            (0.70, None),  # load_all step
-            (0.85, "Enriquecendo dados..."),
-            (0.95, "Finalizando..."),
-            (1.00, None),
-        ]
-
         try:
             # Step 1: Connection check
-            status_text.text(load_steps[0][1])
-            progress_bar.progress(load_steps[0][0])
+            status_text.text("Conectando ao banco de dados...")
+            progress_bar.progress(0.05)
             get_db_engine()
 
             # Step 2: Load all tables
-            status_text.text(load_steps[1][1])
-            progress_bar.progress(load_steps[1][0])
+            status_text.text("Carregando tabelas...")
+            progress_bar.progress(0.10)
             raw = load_all()
-            progress_bar.progress(load_steps[2][0])
+            progress_bar.progress(0.70)
 
             # Step 3: Enrich data
-            status_text.text(load_steps[3][1])
-            progress_bar.progress(load_steps[3][0])
+            status_text.text("Enriquecendo dados...")
+            progress_bar.progress(0.85)
             data = enrich(raw)
 
             # Step 4: Finalize
-            status_text.text(load_steps[4][1])
-            progress_bar.progress(load_steps[4][0])
+            status_text.text("Finalizando...")
+            progress_bar.progress(0.95)
 
             st.session_state['data'] = data
             st.session_state['loaded'] = True
 
             total = sum(len(df) for df in data.values() if isinstance(df, pd.DataFrame))
-            progress_bar.progress(load_steps[5][0])
+            progress_bar.progress(1.0)
 
-            # Limpa os indicadores de progresso
+            # Limpa os indicadores de progresso e loading screen
             progress_bar.empty()
             status_text.empty()
+            _loading_placeholder.empty()
 
             if total == 0:
                 st.warning("Nenhum dado encontrado.")
@@ -2668,8 +2635,12 @@ def main():
         except Exception as e:
             progress_bar.empty()
             status_text.empty()
+            _loading_placeholder.empty()
             st.error(f"Erro: {e}")
             return
+    else:
+        # Dados ja carregados - remove loading screen imediatamente
+        _loading_placeholder.empty()
 
     data = st.session_state.get('data', {})
 
@@ -2695,9 +2666,6 @@ def main():
         fn(data)
     else:
         pg_placeholder(page)
-
-    # Remove loading screen apos o conteudo renderizar
-    hide_loading_screen()
 
 if __name__ == "__main__":
     main()
